@@ -2,7 +2,7 @@
  * Utility to normalize field creation errors and provide user-friendly messages
  */
 
-export type ErrorCategory = 'login-required' | 'actor-initializing' | 'actor-unavailable' | 'authorization' | 'unknown';
+export type ErrorCategory = 'login-required' | 'actor-initializing' | 'actor-unavailable' | 'authorization' | 'profile-required' | 'unknown';
 
 export interface NormalizedError {
   message: string;
@@ -14,6 +14,17 @@ export interface NormalizedError {
  */
 export function normalizeFieldCreationError(error: unknown): NormalizedError {
   const errorMessage = error instanceof Error ? error.message : String(error);
+  
+  // Check for "User is not registered" - profile setup required
+  if (
+    errorMessage.toLowerCase().includes('user is not registered') ||
+    errorMessage.toLowerCase().includes('not registered')
+  ) {
+    return {
+      message: 'Please complete your profile setup before creating Fields.',
+      category: 'profile-required',
+    };
+  }
   
   // Check for login-required / anonymous / guest errors
   if (

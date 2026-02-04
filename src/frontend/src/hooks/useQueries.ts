@@ -4,6 +4,7 @@ import { useInternetIdentity } from './useInternetIdentity';
 import type { Field, Task, UserProfile, FieldId, TaskId, DurationUnit } from '../backend';
 import { toast } from 'sonner';
 import { normalizeFieldCreationError } from '../utils/fieldCreationErrors';
+import { normalizeProfileSaveError } from '../utils/profileSaveErrors';
 import { isUserNotRegisteredError } from '../utils/bootErrorMessages';
 
 // User Profile Queries
@@ -64,20 +65,75 @@ export function useGetCallerUserProfile() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useResilientActor();
+  const { actor, isLoading: actorLoading, isReady } = useResilientActor();
+  const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.saveCallerUserProfile(profile);
+      console.log('[SaveProfile] Mutation attempt started');
+      console.log('[SaveProfile] Actor available:', !!actor);
+      console.log('[SaveProfile] Actor loading:', actorLoading);
+      console.log('[SaveProfile] Actor ready:', isReady);
+      console.log('[SaveProfile] Identity available:', !!identity);
+      console.log('[SaveProfile] Identity is anonymous:', identity?.getPrincipal().isAnonymous());
+      
+      // Hard client-side guard: prevent anonymous/guest users from attempting profile save
+      if (!identity || identity.getPrincipal().isAnonymous()) {
+        console.error('[SaveProfile] Blocked: User is not authenticated (anonymous principal)');
+        const error = new Error('LOGIN_REQUIRED: You must log in with Internet Identity to save your profile.');
+        console.error('[SaveProfile] Error object:', error);
+        throw error;
+      }
+      
+      // Guard against actor not ready (initializing after login)
+      if (!isReady || actorLoading) {
+        console.error('[SaveProfile] Blocked: Actor is initializing');
+        const error = new Error('ACTOR_INITIALIZING: The connection is still initializing. Please wait a moment and try again.');
+        console.error('[SaveProfile] Error object:', error);
+        throw error;
+      }
+      
+      if (!actor) {
+        console.error('[SaveProfile] Blocked: Actor not available');
+        const error = new Error('ACTOR_UNAVAILABLE: Unable to connect to the backend. Please try again.');
+        console.error('[SaveProfile] Error object:', error);
+        throw error;
+      }
+      
+      console.log('[SaveProfile] All guards passed, calling backend saveCallerUserProfile...');
+      try {
+        await actor.saveCallerUserProfile(profile);
+        console.log('[SaveProfile] Backend call successful');
+      } catch (error) {
+        console.error('[SaveProfile] Backend call failed');
+        console.error('[SaveProfile] Error object:', error);
+        console.error('[SaveProfile] Error message:', error instanceof Error ? error.message : String(error));
+        
+        // Log nested error properties if available (for reject messages from IC)
+        if (error && typeof error === 'object') {
+          console.error('[SaveProfile] Error keys:', Object.keys(error));
+          const anyError = error as any;
+          if (anyError.message) console.error('[SaveProfile] Nested message:', anyError.message);
+          if (anyError.reject_message) console.error('[SaveProfile] Reject message:', anyError.reject_message);
+        }
+        
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log('[SaveProfile] Mutation success, updating profile cache');
+      // Immediately update the profile cache and refetch
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.refetchQueries({ queryKey: ['currentUserProfile'] });
       toast.success('Profile saved successfully');
     },
-    onError: (error: Error) => {
-      toast.error(`Failed to save profile: ${error.message}`);
+    onError: (error: unknown) => {
+      console.error('[SaveProfile] Mutation error handler triggered');
+      const normalized = normalizeProfileSaveError(error);
+      console.error('[SaveProfile] Normalized error category:', normalized.category);
+      console.error('[SaveProfile] Normalized error message:', normalized.message);
+      toast.error(normalized.message);
     },
   });
 }
@@ -173,6 +229,15 @@ export function useCreateField() {
       const normalized = normalizeFieldCreationError(error);
       console.error('[CreateField] Normalized error category:', normalized.category);
       console.error('[CreateField] Normalized error message:', normalized.message);
+      
+      // If the error is "User is not registered", refresh profile state
+      // so the ProfileSetupModal can be shown
+      if (isUserNotRegisteredError(error)) {
+        console.log('[CreateField] User not registered detected - refreshing profile state');
+        queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+        queryClient.refetchQueries({ queryKey: ['currentUserProfile'] });
+      }
+      
       toast.error(normalized.message);
     },
   });

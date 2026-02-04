@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 77,
+  "projectStateVersion": 85,
   "summary": "Task management system where users create Fields and Tasks; each Task belongs to a Field, includes scoring attributes and dependencies; users can search/filter/sort tasks within a Field or globally; completed tasks are hidden; Field attributes are automatically calculated as averages of its Tasks.",
   "existing_features": [
     {
@@ -286,26 +286,47 @@
       "version": 1
     },
     {
-      "id": "feature-reproduce-the-reported-failure-where-an-authenticated-user-cannot-create-a-field-capture-the-exact-frontend-console-output-and-the-backend-reject-trap-message-if-any-and-identify-the-root-cause-e-g-actor-not-ready-identity-actor-mismatch-authorization-trap-or-failed-query-invalidation",
-      "title": "Reproduce the reported failure where an authenticated user cannot create a Field, capture the exact frontend console output and the backend reject/trap message (if any), and identify the root cause (e.g., actor not ready, identity/actor mismatch, authorization trap, or failed query invalidation).",
+      "id": "IF-23",
+      "title": "Deployment/build pipeline fixed (app compiles + deploys successfully)",
+      "synonyms": [
+        "Fix deployment/build error",
+        "Successful build + dfx deploy"
+      ],
+      "description": "Repository build/deploy configuration and scripts were updated so the project compiles and deploys successfully end-to-end (frontend + canister), resolving the prior deployment/build failure.",
       "reqIds": [
-        "REQ-15"
+        "REQ-13"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-field-creation-so-it-works-reliably-for-authenticated-internet-identity-users-including-cases-immediately-after-logging-in-avoid-identity-actor-readiness-races-ensure-the-createfield-call-succeeds-and-the-new-field-becomes-visible-in-the-fields-list-without-requiring-a-full-page-refresh",
-      "title": "Fix Field creation so it works reliably for authenticated Internet Identity users, including cases immediately after logging in (avoid identity/actor readiness races). Ensure the createField call succeeds and the new Field becomes visible in the Fields list without requiring a full page refresh.",
+      "id": "IF-24",
+      "title": "Build-time checks added to catch deployment-breaking errors earlier",
+      "synonyms": [
+        "Pre-deploy validation",
+        "Earlier build failure detection"
+      ],
+      "description": "Build pipeline was updated with additional build-time validations so common deployment-breaking issues (compile/config/candid/declarations mismatches) are caught earlier with clearer errors.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-25",
+      "title": "User-friendly handling of Profile save failures (repro + error mapping)",
+      "synonyms": [
+        "Profile save failure UX",
+        "Profile error mapping"
+      ],
+      "description": "Frontend includes documented reproduction steps and error-mapping utilities so profile save failures surface as clear, actionable UI messages instead of failing silently or crashing.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-error-normalization-and-ui-behavior-so-that-if-field-creation-fails-with-a-user-is-not-registered-type-error-the-app-prompts-the-user-to-complete-profile-setup-instead-of-only-showing-a-generic-creation-failure-using-clear-english-user-facing-text",
+      "title": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
       "reqIds": [
         "REQ-16"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-improve-user-facing-error-handling-for-field-creation-failures-to-ensure-the-ui-always-provides-a-clear-english-explanation-and-a-recovery-path-reuse-existing-normalization-patterns-e-g-field-creation-error-normalization-and-ensure-errors-caused-by-missing-authentication-vs-actor-unavailability-vs-authorization-are-distinguishable-to-the-user",
-      "title": "Improve user-facing error handling for Field creation failures to ensure the UI always provides a clear English explanation and a recovery path. Reuse existing normalization patterns (e.g., field creation error normalization) and ensure errors caused by missing authentication vs actor unavailability vs authorization are distinguishable to the user.",
-      "reqIds": [
-        "REQ-17"
       ],
       "version": 1
     }
@@ -313,30 +334,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix deployment/build error so the app compiles and deploys successfully",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Reproduce the current deployment failure and capture the exact error output (build + deploy logs). Use that error output to identify the failing step (frontend build, Motoko compile, candid generation, dfx deploy, or post-deploy checks) and implement the minimal code/config fix required so the full deployment completes successfully.",
+      "summary": "Eliminate the intermittent backend authorization/registration condition that causes Field creation to fail with the error text \"User is not registered\" for users who have successfully authenticated with Internet Identity.",
       "reqIds": [
-        "REQ-13"
+        "REQ-15"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-6",
-      "summary": "Add/adjust build-time checks (as appropriate for this repo) so that the class of failure that caused the deployment error is caught earlier (e.g., TypeScript compile failure, missing generated declarations, candid mismatch, or Motoko compile issue) and produces a clear, actionable error message during build.",
+      "id": "AR-3",
+      "summary": "Add a regression check path (documentation and/or lightweight test coverage where this project already supports it) that reproduces the prior failure mode: login succeeds, then creating a Field intermittently fails with \"User is not registered\"; ensure the new build demonstrates the issue is fixed.",
       "reqIds": [
-        "REQ-14"
+        "REQ-17"
       ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Fix Field creation failing (user cannot create a Field); identify root cause and ensure create Field works reliably for authenticated users",
-      "reqIds": [],
       "status": "pending"
     }
   ],
@@ -350,16 +359,10 @@
     "Build pipeline includes scripts to resize and prune generated images (build-template/scripts/resize-images.js and prune-unused-images.js).",
     "Authorization/access-control Motoko components were updated (component:authorization:v4.0.0), affecting backend authorization mixins and access-control module.",
     "Frontend auth/actor layer now treats access-control secret initialization as optional (driven by caffeineAdminToken URL param) and handles failures non-blockingly via UI messaging/toasts.",
-    "Frontend boot/profile querying flow includes explicit handling for authorization/canister traps with retry/logout affordances instead of crashing the whole app.",
-    "Backend authorization mixins/access-control logic updated to avoid canister traps for normally authenticated Internet Identity users accessing profiles/fields/tasks.",
-    "Build template/core infrastructure was refreshed (component:core-infrastructure:v1.0.2), updating scaffolded configs/scripts (Dockerfile, deploy.sh, icp.yaml, pnpm workspace, and related build-template assets).",
-    "Build template was expanded/standardized with the full React + Vite + Tailwind + shadcn/ui component set (component:shadcn-ui:v1.0.0, component:build-template-react:v1.0.0), including frontend scaffold configs, UI primitives, and workspace/package updates for reuse across projects.",
-    "Repository build/scaffold baseline now aligns with component:initial-app:v1.0.0 (initial ICP + React app integration) and component:github-export-icp-cli:v1.0.0 (GitHub export tooling for ICP CLI), reflected across build-template and root scripts/config.",
-    "Added explicit Field creation failure reproduction documentation (frontend/docs/field-create-failure-repro.md) and shared frontend error-mapping utilities (e.g., fieldCreationErrors.ts / bootErrorMessages.ts) to standardize handling of canister/authorization errors across UI flows."
+    "Frontend boot/profile querying flow includes explicit handling for authorization/canister traps with retry/logout affordances instead of crashing the whole app."
   ],
   "known_issues": [
-    "Deployment/build currently failing with a deployment error; needs investigation and fix",
-    "Field creation is failing again (user reports they cannot create a Field)."
+    "Intermittent \"User is not registered\" error prevents creating Fields (and sometimes causes app startup/application errors); manifests as \"field failed to be created\" / \"Application Error Occurred\"."
   ],
   "isFixRequest": true,
   "projectName": "Task management system with Fields, Tasks, dependencies, and advanced sorting/filtering/search",

@@ -1,82 +1,41 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix authenticated Field creation reliability and error handling",
+  "title": "Fix Field creation not-registered UX and add regression verification path",
   "requirements": [
     {
-      "id": "REQ-15",
-      "summary": "Document a reproducible Field creation failure case for authenticated users and capture exact console + reject/trap details to identify the root cause.",
-      "acceptanceCriteria": [
-        "A short reproducible test case is documented (steps + expected vs actual + captured error message).",
-        "The root cause is identified and summarized in developer-facing notes (what failed, where, and why)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/docs/field-create-failure-repro.md",
-          "operation": "modify",
-          "description": "Extend the repro doc to include an authenticated Internet Identity scenario (immediately after login) and record: steps, expected vs actual, exact browser console output from the createField flow, and any reject/trap text visible in the thrown error (e.g., reject_message/message fields). Add a developer-facing root-cause note section describing whether the failure is due to actor readiness/identity mismatch (e.g., mutation using a stale/anonymous actor during identity transition) vs authorization vs query invalidation."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Ensure the createField mutation logs include the complete, copy-pastable error surface (message + any nested reject_message/code fields) in a consistent format so the repro doc can capture it exactly. Keep logs developer-facing and avoid changing app-wide auth behavior. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
       "id": "REQ-16",
-      "summary": "Make Field creation reliable for authenticated Internet Identity users, including immediately after login, and ensure the new Field appears in the Fields list without refresh.",
+      "summary": "Normalize \"User is not registered\" Field-creation failures into a deterministic profile-setup prompt and refresh profile state so the ProfileSetupModal is shown when appropriate.",
       "acceptanceCriteria": [
-        "When logged in with Internet Identity (non-anonymous principal), creating a Field succeeds and a success toast is shown.",
-        "After successful creation, the new Field appears in the dashboard Fields list automatically (no manual refresh).",
-        "Creating multiple Fields in a row works consistently."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useResilientActor.ts",
-          "operation": "modify",
-          "description": "Add actor-change invalidation behavior so that when the actor instance changes due to login/logout/identity changes, all non-actor React Query caches (e.g., fields) are invalidated/refetched to prevent stale anonymous data and ensure the dashboard updates automatically. Also expose a clear readiness signal (e.g., derived boolean) that downstream mutations can use to avoid identity/actor readiness races. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Harden useCreateField against post-login races by refusing to call createField unless the authenticated actor is ready (e.g., actor is available and not initializing). When not ready, fail fast with a distinct, normalized error trigger used by the UI. After success, ensure fields cache refresh remains robust (invalidate + refetch) so the new Field appears without a full page refresh. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/CreateFieldDialog.tsx",
-          "operation": "modify",
-          "description": "Disable submission and show an in-dialog connecting/initializing hint when authentication is present but the actor is still initializing, preventing immediate post-login submission from using a stale/anonymous actor. Keep existing success behavior (close dialog, clear name). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/Dashboard.tsx",
-          "operation": "modify",
-          "description": "Ensure the 'New Field' action remains consistent during the post-login transition (e.g., avoid opening the create dialog while backend connection is still initializing if the actor readiness signal indicates not ready), so repeated Field creations work consistently without requiring refresh. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "summary": "Improve Field creation failure UX with clear, distinguishable English messages and recovery guidance for login-required vs actor-initializing/unavailable vs authorization failures.",
-      "acceptanceCriteria": [
-        "If the user is not logged in, the UI blocks submission and displays an English message indicating login is required.",
-        "If the actor is not available/initializing, the UI displays an English message indicating the app is still connecting and the user can retry.",
-        "If an authorization error occurs after login, the UI displays an English message suggesting logout/login as a remediation."
+        "When the backend rejects Field creation with an error containing \"User is not registered\" / \"not registered\", the user sees an English message that tells them to complete profile setup before creating Fields.",
+        "In the same scenario, the app refetches/refreshes the current user profile state so the ProfileSetupModal is shown when appropriate (i.e., the app should not get stuck repeatedly failing Field creation without presenting the profile setup path).",
+        "The normalized Field creation error no longer falls through to the generic \"Failed to create field: ...\" message for the not-registered condition."
       ],
       "file_operations": [
         {
           "path": "frontend/src/utils/fieldCreationErrors.ts",
           "operation": "modify",
-          "description": "Extend error normalization to distinguish: (1) login required, (2) actor initializing/connecting (readiness race), (3) actor unavailable, and (4) authorization trap after login. Ensure messages are clear English and include a recovery path (retry vs logout/login). Align categorization with the authorization component’s frontend guidance for handling authorization traps. Verify the component's usage instructions before implementing."
+          "description": "Extend field creation error normalization to explicitly detect \"User is not registered\" / \"not registered\" errors and map them to a dedicated category and clear English message instructing the user to complete profile setup before creating Fields (so it does not fall through to the generic \"Failed to create field: ...\" message)."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update createField mutation guards to throw distinct, normalization-friendly errors for: missing authentication vs actor initializing/unavailable vs authorization-related failures surfaced from backend traps, so the toast always shows the correct recovery guidance. Verify the component's usage instructions before implementing."
-        },
+          "description": "Update the Field creation mutation error handling to recognize the not-registered condition (reuse existing not-registered detection) and proactively refresh the current user profile query state (invalidate/refetch ['currentUserProfile']) so App.tsx can reliably show ProfileSetupModal after a not-registered createField failure."
+        }
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "summary": "Add a documented regression verification path that reproduces the prior intermittent \"User is not registered\" Field-creation failure after login and confirms the new behavior is fixed and/or consistently routes through profile setup.",
+      "acceptanceCriteria": [
+        "A documented set of steps exists to verify the fix in a fresh session and after profile save, covering Field creation success and ensuring the not-registered error is not observed.",
+        "If an intentional not-registered block remains (only for truly un-onboarded users), the documented steps verify the UI reliably routes the user into profile setup and then Field creation succeeds after saving the profile."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/components/CreateFieldDialog.tsx",
+          "path": "frontend/docs/field-create-failure-repro.md",
           "operation": "modify",
-          "description": "Ensure the UI blocks submission in all failure-prone states with explicit English messaging: login required, connecting/initializing (actor not ready), and authorization remediation guidance (logout/login) when applicable. Keep toasts as the primary feedback while adding in-dialog guidance where helpful. Verify the component's usage instructions before implementing."
+          "description": "Add a new regression check section that covers: fresh session login with Internet Identity, attempting to create a Field before profile setup (verifying the app prompts profile setup and refreshes profile state), completing profile setup, and confirming Field creation succeeds afterward without observing \"User is not registered\" errors."
         }
       ]
     }

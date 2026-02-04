@@ -1,34 +1,33 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T12:23:55.885Z",
-  "summary": "Diff adds actor-readiness handling on the frontend (useResilientActor, CreateFieldDialog, Dashboard) plus backend authorization checks on createField, and introduces an error-normalization utility. However, the reproduction/root-cause documentation for the original failure is incomplete in the provided diff, and it’s not fully verifiable from the truncated diff that successful field creation always triggers a fields-list refresh and success toast.",
+  "generatedAt": "2026-02-04T12:47:30.958Z",
+  "summary": "REQ-16 appears implemented via new field creation error normalization and query behavior that treats \"User is not registered\" as a profile-setup condition (including messaging and profile refetch behavior per file summaries). Backend createField no longer appears to throw a \"User is not registered\" error (it only checks permissions), which likely addresses REQ-15’s symptom, but the diff is truncated so the root-cause/intermittency fix cannot be fully verified. No clear evidence of the requested regression check/documentation/test coverage (REQ-17). Several UI/feature enhancements unrelated to the request also appear to have been added/changed per frontend-file-summaries and backend model changes.",
   "missing_requirements": [
     {
-      "id": "REQ-15",
-      "requirement": "Reproduce the authenticated-user Field creation failure, capture exact frontend console output and backend reject/trap message, and document root cause with developer-facing notes.",
-      "reason": "A repro document was added, but in the provided content it only covers an anonymous-user test case and does not show the reported authenticated-user failure, does not include captured console output, does not include any backend reject/trap message, and does not include a root-cause summary.",
+      "id": "REQ-17",
+      "requirement": "Add a regression check path (documentation and/or lightweight test coverage) reproducing the prior failure mode and demonstrating it is fixed.",
+      "reason": "No documentation or test files/steps are shown as added or modified in the diff summary; only backend/main.mo, frontend hooks/utils, and a state JSON are shown.",
       "evidence": [
-        "frontend/docs/field-create-failure-repro.md"
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "requirement": "After successful createField, the new Field becomes visible in the Fields list automatically (no page refresh) and a success toast is shown.",
-      "reason": "The diff shows UI blocking for auth/actor readiness and mentions improved mutation handling, but the createField mutation implementation is truncated before showing onSuccess behavior (toast + invalidation/refetch). Dashboard and CreateFieldDialog onSuccess handlers shown do not themselves invalidate/refetch the fields list or show a success toast. Therefore this acceptance criterion is not verifiable from the provided diff summary.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/components/CreateFieldDialog.tsx",
-        "frontend/src/pages/Dashboard.tsx"
+        "<file-diff>: Added: 0, Modified: 5 (no docs/tests listed)",
+        "frontend-file-summaries.txt (no regression doc/test steps; just component summaries)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Multiple unrelated UI/product changes described (e.g., task completion undo toast, duration formatting utilities, additional task/field UI changes) beyond Field creation reliability.",
-      "reason": "The BuildRequest explicitly states non-goals to avoid unrelated new features; the repository metadata/summaries describe broader enhancements not requested as part of fixing Field creation reliability.",
+      "description": "Backend Field model extended with additional metrics (e.g., totalActiveTaskDuration, taskCount, totalTaskCount) and corresponding UI display of these metrics.",
+      "reason": "Not requested by REQ-15/16/17; the request is specifically about fixing intermittent \"User is not registered\" on Field creation and improving related error handling/regression check.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "backend/main.mo (Field type includes totalActiveTaskDuration, taskCount, totalTaskCount)",
+        "frontend-file-summaries.txt (FieldCard/FieldDetailView mention displaying totalActiveTaskDuration and task counts)"
+      ]
+    },
+    {
+      "description": "Task completion UX changes (e.g., 5-second undo toast), duration input/unit conversion behavior changes in task edit dialogs, and various task/field UI enhancements (sorting toggle, connecting states, etc.).",
+      "reason": "These changes go beyond the stated non-goals (no redesign beyond fixing registration error and related error handling) and are not part of REQ-15/16/17.",
+      "evidence": [
+        "frontend-file-summaries.txt (TaskCard undo toast; EditTaskDialog duration clearing/unit conversion; AllTasksView sort toggle; CreateTaskDialog duration defaults; etc.)"
       ]
     }
   ],
@@ -36,11 +35,7 @@
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/docs/field-create-failure-repro.md",
-    "frontend/src/components/CreateFieldDialog.tsx",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useResilientActor.ts",
-    "frontend/src/pages/Dashboard.tsx",
     "frontend/src/utils/fieldCreationErrors.ts",
     "project_state.json"
   ]

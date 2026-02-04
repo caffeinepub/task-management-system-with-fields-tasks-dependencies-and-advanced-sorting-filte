@@ -2,52 +2,9 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-reproduce-the-reported-failure-where-an-authenticated-user-cannot-create-a-field-capture-the-exact-frontend-console-output-and-the-backend-reject-trap-message-if-any-and-identify-the-root-cause-e-g-actor-not-ready-identity-actor-mismatch-authorization-trap-or-failed-query-invalidation",
-      "featureTitle": "Reproduce the reported failure where an authenticated user cannot create a Field, capture the exact frontend console output and the backend reject/trap message (if any), and identify the root cause (e.g., actor not ready, identity/actor mismatch, authorization trap, or failed query invalidation).",
+      "featureId": "feature-update-frontend-error-normalization-and-ui-behavior-so-that-if-field-creation-fails-with-a-user-is-not-registered-type-error-the-app-prompts-the-user-to-complete-profile-setup-instead-of-only-showing-a-generic-creation-failure-using-clear-english-user-facing-text",
+      "featureTitle": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
       "files": [
-        "frontend/docs/field-create-failure-repro.md",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-15"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-field-creation-so-it-works-reliably-for-authenticated-internet-identity-users-including-cases-immediately-after-logging-in-avoid-identity-actor-readiness-races-ensure-the-createfield-call-succeeds-and-the-new-field-becomes-visible-in-the-fields-list-without-requiring-a-full-page-refresh",
-      "featureTitle": "Fix Field creation so it works reliably for authenticated Internet Identity users, including cases immediately after logging in (avoid identity/actor readiness races). Ensure the createField call succeeds and the new Field becomes visible in the Fields list without requiring a full page refresh.",
-      "files": [
-        "frontend/src/components/CreateFieldDialog.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/hooks/useResilientActor.ts",
-        "frontend/src/pages/Dashboard.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-16"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-improve-user-facing-error-handling-for-field-creation-failures-to-ensure-the-ui-always-provides-a-clear-english-explanation-and-a-recovery-path-reuse-existing-normalization-patterns-e-g-field-creation-error-normalization-and-ensure-errors-caused-by-missing-authentication-vs-actor-unavailability-vs-authorization-are-distinguishable-to-the-user",
-      "featureTitle": "Improve user-facing error handling for Field creation failures to ensure the UI always provides a clear English explanation and a recovery path. Reuse existing normalization patterns (e.g., field creation error normalization) and ensure errors caused by missing authentication vs actor unavailability vs authorization are distinguishable to the user.",
-      "files": [
-        "frontend/src/components/CreateFieldDialog.tsx",
         "frontend/src/hooks/useQueries.ts",
         "frontend/src/utils/fieldCreationErrors.ts"
       ],
@@ -60,7 +17,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-17"
+        "REQ-16"
       ],
       "confidence": "high"
     }
