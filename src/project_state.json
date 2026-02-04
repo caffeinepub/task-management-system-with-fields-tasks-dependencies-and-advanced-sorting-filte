@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 85,
+  "projectStateVersion": 89,
   "summary": "Task management system where users create Fields and Tasks; each Task belongs to a Field, includes scoring attributes and dependencies; users can search/filter/sort tasks within a Field or globally; completed tasks are hidden; Field attributes are automatically calculated as averages of its Tasks.",
   "existing_features": [
     {
@@ -323,28 +323,28 @@
       "version": 1
     },
     {
-      "id": "feature-update-frontend-error-normalization-and-ui-behavior-so-that-if-field-creation-fails-with-a-user-is-not-registered-type-error-the-app-prompts-the-user-to-complete-profile-setup-instead-of-only-showing-a-generic-creation-failure-using-clear-english-user-facing-text",
-      "title": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
+      "id": "feature-eliminate-the-intermittent-blocking-error-user-is-not-registered-so-authenticated-internet-identity-users-can-reliably-use-the-app-including-creating-fields-without-needing-a-manual-workaround",
+      "title": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
       "reqIds": [
-        "REQ-16"
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-frontend-make-user-is-not-registered-detection-robust-across-internet-computer-error-shapes-by-recognizing-the-message-when-it-appears-in-nested-reject-error-fields-not-only-error-message-plain-string-and-route-that-condition-into-the-intended-profile-setup-flow-instead-of-a-boot-failure-ui",
+      "title": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "reqIds": [
+        "REQ-17"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Eliminate the intermittent backend authorization/registration condition that causes Field creation to fail with the error text \"User is not registered\" for users who have successfully authenticated with Internet Identity.",
+      "id": "AR-2",
+      "summary": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
       "reqIds": [
-        "REQ-15"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add a regression check path (documentation and/or lightweight test coverage where this project already supports it) that reproduces the prior failure mode: login succeeds, then creating a Field intermittently fails with \"User is not registered\"; ensure the new build demonstrates the issue is fixed.",
-      "reqIds": [
-        "REQ-17"
+        "REQ-16"
       ],
       "status": "pending"
     }
@@ -362,7 +362,7 @@
     "Frontend boot/profile querying flow includes explicit handling for authorization/canister traps with retry/logout affordances instead of crashing the whole app."
   ],
   "known_issues": [
-    "Intermittent \"User is not registered\" error prevents creating Fields (and sometimes causes app startup/application errors); manifests as \"field failed to be created\" / \"Application Error Occurred\"."
+    "Intermittent startup/auth error: \"User is not registered\"; prevents normal app usage (e.g., creating Fields) until resolved."
   ],
   "isFixRequest": true,
   "projectName": "Task management system with Fields, Tasks, dependencies, and advanced sorting/filtering/search",

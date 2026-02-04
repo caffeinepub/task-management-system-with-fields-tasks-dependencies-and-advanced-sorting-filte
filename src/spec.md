@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Stop intermittent “User is not registered” failures during Field creation after Internet Identity login, and guide users into profile setup when registration is genuinely required.
+**Goal:** Fix the intermittent “User is not registered” startup/auth failure so Internet Identity users can reliably proceed through profile setup and use core features (including creating Fields) without manual workarounds.
 
 **Planned changes:**
-- Backend: remove the intermittent authorization/registration condition that triggers “User is not registered” during Field creation for authenticated users.
-- Backend: make Field creation behavior deterministic for users without a saved profile (either consistently allow creation or consistently return an intentional, mappable error).
-- Frontend: normalize “User is not registered” / “not registered” Field creation errors into a clear English prompt to complete profile setup (not the generic creation failure message).
-- Frontend: on the not-registered condition, refresh/refetch current user profile state so the ProfileSetupModal is shown when appropriate.
-- Regression coverage: add a documented verification path (and/or lightweight test where supported) reproducing the prior failure mode and confirming the fix in fresh sessions and after profile save.
+- Backend: Adjust authorization/registration handling so a newly authenticated principal is treated as a valid normal user on first use (or otherwise avoid throwing “User is not registered” for legitimate II users).
+- Backend: Make `getCallerUserProfile` non-fatal for brand-new principals (e.g., return null/none equivalent) and allow `saveCallerUserProfile` followed by `createField` to succeed for new users.
+- Frontend: Improve detection of “User is not registered” across common Internet Computer error shapes (nested reject fields / stringified objects), and route the user into the intended profile setup flow instead of a boot-failure UI.
+- Frontend: When the error occurs during actions like create Field, refresh profile state and prompt profile setup rather than showing a generic failure toast; ensure user-facing messaging is clear English and does not expose raw IC/canister error blobs.
 
-**User-visible outcome:** After logging in with Internet Identity, users can create Fields without intermittently seeing “User is not registered.” If a profile is required, the app clearly prompts profile setup and then allows Field creation after the profile is saved.
+**User-visible outcome:** After logging in with Internet Identity, users no longer hit a blocking “User is not registered” error; new users are guided into profile setup and can then create a Field reliably, with repeated reloads no longer randomly failing.

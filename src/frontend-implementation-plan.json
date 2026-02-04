@@ -1,41 +1,72 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Field creation not-registered UX and add regression verification path",
+  "title": "Robustly route unregistered-II users into profile setup (eliminate intermittent boot/auth failure)",
   "requirements": [
     {
-      "id": "REQ-16",
-      "summary": "Normalize \"User is not registered\" Field-creation failures into a deterministic profile-setup prompt and refresh profile state so the ProfileSetupModal is shown when appropriate.",
+      "id": "REQ-15",
+      "summary": "Prevent intermittent startup/auth flow from blocking authenticated Internet Identity users with a \"User is not registered\" failure; ensure the app reliably routes new users into profile setup and then allows Field creation.",
       "acceptanceCriteria": [
-        "When the backend rejects Field creation with an error containing \"User is not registered\" / \"not registered\", the user sees an English message that tells them to complete profile setup before creating Fields.",
-        "In the same scenario, the app refetches/refreshes the current user profile state so the ProfileSetupModal is shown when appropriate (i.e., the app should not get stuck repeatedly failing Field creation without presenting the profile setup path).",
-        "The normalized Field creation error no longer falls through to the generic \"Failed to create field: ...\" message for the not-registered condition."
+        "After logging in with Internet Identity, the app does not show a blocking error screen/toast stating \"User is not registered\".",
+        "A newly authenticated user can proceed to the profile setup flow and then create a Field without encountering the \"User is not registered\" error.",
+        "The fix addresses the reported intermittent nature (i.e., repeated reloads after login do not randomly fail with \"User is not registered\")."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/fieldCreationErrors.ts",
+          "path": "frontend/src/utils/bootErrorMessages.ts",
           "operation": "modify",
-          "description": "Extend field creation error normalization to explicitly detect \"User is not registered\" / \"not registered\" errors and map them to a dedicated category and clear English message instructing the user to complete profile setup before creating Fields (so it does not fall through to the generic \"Failed to create field: ...\" message)."
+          "description": "Improve \"User is not registered\" detection by extracting and scanning text from common Internet Computer error shapes (e.g., nested reject_message/message fields, stringified objects, and other nested properties) so the same condition is consistently recognized across reloads and environments."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the Field creation mutation error handling to recognize the not-registered condition (reuse existing not-registered detection) and proactively refresh the current user profile query state (invalidate/refetch ['currentUserProfile']) so App.tsx can reliably show ProfileSetupModal after a not-registered createField failure."
+          "description": "Harden profile boot flow to consistently treat the unregistered-user condition as a non-fatal \"no profile yet\" state (return null), leveraging the improved error detection so new authenticated users reliably see the ProfileSetupModal instead of a boot failure."
+        },
+        {
+          "path": "frontend/src/components/CreateFieldDialog.tsx",
+          "operation": "modify",
+          "description": "Ensure the create-field UX reliably recovers when backend reports the unregistered-user condition: trigger a profile-state refresh and rely on the app-level profile-setup routing (avoid presenting raw or generic failure messaging for this scenario)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Confirm boot routing consistently prioritizes the intended profile-setup flow over the recoverable boot error UI when the unregistered-user condition occurs (using the improved detector). Use the selected \"authorization\" component’s profile-setup flow guidance at a high level to keep the login→profile setup→app flow stable. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-17",
-      "summary": "Add a documented regression verification path that reproduces the prior intermittent \"User is not registered\" Field-creation failure after login and confirms the new behavior is fixed and/or consistently routes through profile setup.",
+      "summary": "Make frontend detection of \"User is not registered\" robust across IC reject/error shapes and route it into profile setup (not boot-failure UI), including when it happens during Field creation; show clear English messaging without raw error blobs.",
       "acceptanceCriteria": [
-        "A documented set of steps exists to verify the fix in a fresh session and after profile save, covering Field creation success and ensuring the not-registered error is not observed.",
-        "If an intentional not-registered block remains (only for truly un-onboarded users), the documented steps verify the UI reliably routes the user into profile setup and then Field creation succeeds after saving the profile."
+        "If the backend returns an IC reject where the text \"User is not registered\" is present in any common error field (e.g., reject_message / message / stringified object), the UI treats it as the unregistered-user case (show ProfileSetupModal rather than RecoverableBootError).",
+        "Creating a Field while unregistered does not result in a generic failure toast; the app refreshes profile state and shows the profile setup prompt.",
+        "All user-facing text shown for this scenario is in clear English and does not expose raw canister/IC error blobs."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/field-create-failure-repro.md",
+          "path": "frontend/src/utils/bootErrorMessages.ts",
           "operation": "modify",
-          "description": "Add a new regression check section that covers: fresh session login with Internet Identity, attempting to create a Field before profile setup (verifying the app prompts profile setup and refreshes profile state), completing profile setup, and confirming Field creation succeeds afterward without observing \"User is not registered\" errors."
+          "description": "Extend the unregistered-user detector to search for the phrase across nested/reject fields and stringified payloads, and provide helper(s) for safely extracting a user-facing message without leaking raw IC error blobs."
+        },
+        {
+          "path": "frontend/src/utils/fieldCreationErrors.ts",
+          "operation": "modify",
+          "description": "Update field-creation error normalization to use the improved unregistered-user detection and ensure user-facing messaging for this scenario remains clear English and does not include raw error blobs."
+        },
+        {
+          "path": "frontend/src/utils/profileSaveErrors.ts",
+          "operation": "modify",
+          "description": "Align profile-save error normalization with the improved IC error-shape parsing so authorization/unregistered-related messages are categorized consistently and remain user-friendly (no raw error blob exposure)."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure create-field error handling routes the unregistered-user condition into the profile setup flow by refreshing profile state and avoiding generic failure messaging; use the selected \"authorization\" component’s error-handling guidance at a high level for auth/trap errors. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/RecoverableBootError.tsx",
+          "operation": "modify",
+          "description": "Ensure the recoverable boot error UI never displays a raw \"User is not registered\" payload and only shows the safe, normalized English message when such an error somehow reaches the boot error view."
         }
       ]
     }

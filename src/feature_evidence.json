@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-frontend-error-normalization-and-ui-behavior-so-that-if-field-creation-fails-with-a-user-is-not-registered-type-error-the-app-prompts-the-user-to-complete-profile-setup-instead-of-only-showing-a-generic-creation-failure-using-clear-english-user-facing-text",
-      "featureTitle": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
+      "featureId": "feature-eliminate-the-intermittent-blocking-error-user-is-not-registered-so-authenticated-internet-identity-users-can-reliably-use-the-app-including-creating-fields-without-needing-a-manual-workaround",
+      "featureTitle": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
-        "frontend/src/utils/fieldCreationErrors.ts"
+        "frontend/src/utils/bootErrorMessages.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,7 +17,29 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-16"
+        "REQ-15"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-frontend-make-user-is-not-registered-detection-robust-across-internet-computer-error-shapes-by-recognizing-the-message-when-it-appears-in-nested-reject-error-fields-not-only-error-message-plain-string-and-route-that-condition-into-the-intended-profile-setup-flow-instead-of-a-boot-failure-ui",
+      "featureTitle": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/utils/bootErrorMessages.ts",
+        "frontend/src/utils/fieldCreationErrors.ts",
+        "frontend/src/utils/profileSaveErrors.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-17"
       ],
       "confidence": "high"
     }

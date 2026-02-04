@@ -10,6 +10,7 @@ export type Option<T> = Some<T> | None;
 export interface Field {
     id: FieldId;
     avgUrgency: bigint;
+    totalTaskDuration: bigint;
     name: string;
     createdAt: Time;
     createdBy: Principal;

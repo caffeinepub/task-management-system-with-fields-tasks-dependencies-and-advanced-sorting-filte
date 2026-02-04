@@ -25,11 +25,13 @@ export function useGetCallerUserProfile() {
         return profile;
       } catch (error) {
         console.error('[Profile Query] Profile fetch failed:', error);
+        console.error('[Profile Query] Error type:', typeof error);
+        console.error('[Profile Query] Error keys:', error && typeof error === 'object' ? Object.keys(error) : 'N/A');
         
         // Special handling: "User is not registered" means new user, not an error
         // Return null to trigger profile setup flow instead of boot error
         if (isUserNotRegisteredError(error)) {
-          console.log('[Profile Query] User not registered - treating as new user (null profile)');
+          console.log('[Profile Query] User not registered detected - treating as new user (returning null)');
           return null;
         }
         
@@ -108,6 +110,7 @@ export function useSaveCallerUserProfile() {
       } catch (error) {
         console.error('[SaveProfile] Backend call failed');
         console.error('[SaveProfile] Error object:', error);
+        console.error('[SaveProfile] Error type:', typeof error);
         console.error('[SaveProfile] Error message:', error instanceof Error ? error.message : String(error));
         
         // Log nested error properties if available (for reject messages from IC)
@@ -201,6 +204,7 @@ export function useCreateField() {
       } catch (error) {
         console.error('[CreateField] Backend call failed');
         console.error('[CreateField] Error object:', error);
+        console.error('[CreateField] Error type:', typeof error);
         console.error('[CreateField] Error message:', error instanceof Error ? error.message : String(error));
         console.error('[CreateField] Error stack:', error instanceof Error ? error.stack : 'N/A');
         
@@ -226,6 +230,8 @@ export function useCreateField() {
     },
     onError: (error: unknown) => {
       console.error('[CreateField] Mutation error handler triggered');
+      console.error('[CreateField] Raw error:', error);
+      
       const normalized = normalizeFieldCreationError(error);
       console.error('[CreateField] Normalized error category:', normalized.category);
       console.error('[CreateField] Normalized error message:', normalized.message);
@@ -233,9 +239,11 @@ export function useCreateField() {
       // If the error is "User is not registered", refresh profile state
       // so the ProfileSetupModal can be shown
       if (isUserNotRegisteredError(error)) {
-        console.log('[CreateField] User not registered detected - refreshing profile state');
+        console.log('[CreateField] User not registered detected - refreshing profile state to trigger ProfileSetupModal');
         queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
         queryClient.refetchQueries({ queryKey: ['currentUserProfile'] });
+        // Don't show the toast - let the ProfileSetupModal appear instead
+        return;
       }
       
       toast.error(normalized.message);

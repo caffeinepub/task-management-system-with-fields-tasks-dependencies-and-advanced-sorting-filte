@@ -2,6 +2,8 @@
  * Utility to normalize field creation errors and provide user-friendly messages
  */
 
+import { isUserNotRegisteredError, extractSafeErrorMessage } from './bootErrorMessages';
+
 export type ErrorCategory = 'login-required' | 'actor-initializing' | 'actor-unavailable' | 'authorization' | 'profile-required' | 'unknown';
 
 export interface NormalizedError {
@@ -15,11 +17,8 @@ export interface NormalizedError {
 export function normalizeFieldCreationError(error: unknown): NormalizedError {
   const errorMessage = error instanceof Error ? error.message : String(error);
   
-  // Check for "User is not registered" - profile setup required
-  if (
-    errorMessage.toLowerCase().includes('user is not registered') ||
-    errorMessage.toLowerCase().includes('not registered')
-  ) {
+  // Check for "User is not registered" using robust detector
+  if (isUserNotRegisteredError(error)) {
     return {
       message: 'Please complete your profile setup before creating Fields.',
       category: 'profile-required',
@@ -77,9 +76,10 @@ export function normalizeFieldCreationError(error: unknown): NormalizedError {
     };
   }
   
-  // Unknown error - include the underlying message for debugging
+  // Unknown error - use safe extraction to avoid raw error blobs
+  const safeMessage = extractSafeErrorMessage(error);
   return {
-    message: `Failed to create field: ${errorMessage}`,
+    message: `Failed to create field: ${safeMessage}`,
     category: 'unknown',
   };
 }

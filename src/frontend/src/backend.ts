@@ -92,6 +92,7 @@ export class ExternalBlob {
 export interface Field {
     id: FieldId;
     avgUrgency: bigint;
+    totalTaskDuration: bigint;
     name: string;
     createdAt: Time;
     createdBy: Principal;

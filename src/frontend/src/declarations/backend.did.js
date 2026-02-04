@@ -39,6 +39,7 @@ export const Task = IDL.Record({
 export const Field = IDL.Record({
   'id' : FieldId,
   'avgUrgency' : IDL.Nat,
+  'totalTaskDuration' : IDL.Nat,
   'name' : IDL.Text,
   'createdAt' : Time,
   'createdBy' : IDL.Principal,
@@ -145,6 +146,7 @@ export const idlFactory = ({ IDL }) => {
   const Field = IDL.Record({
     'id' : FieldId,
     'avgUrgency' : IDL.Nat,
+    'totalTaskDuration' : IDL.Nat,
     'name' : IDL.Text,
     'createdAt' : Time,
     'createdBy' : IDL.Principal,

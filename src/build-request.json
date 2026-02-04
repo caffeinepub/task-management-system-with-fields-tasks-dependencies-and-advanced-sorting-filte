@@ -1,71 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Fix intermittent 'User is not registered' blocking Field creation",
+  "title": "Fix intermittent \"User is not registered\" startup/auth failure",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-15",
-      "text": "Eliminate the intermittent backend authorization/registration condition that causes Field creation to fail with the error text \"User is not registered\" for users who have successfully authenticated with Internet Identity.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "fix error: field failed to be created. user is not registered."
-        ]
-      },
-      "acceptanceCriteria": [
-        "After logging in with Internet Identity (fresh session), a user can create a Field without receiving any \"User is not registered\" error.",
-        "If the user has not created a profile yet, the system behavior is consistent and deterministic (either: Field creation is allowed, or it is blocked with a clear, intentional error that the frontend can reliably map to the profile setup flow).",
-        "No \"User is not registered\" error is thrown from Field creation for a user who has already saved a profile."
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "text": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "fix error: field failed to be created. user is not registered."
-        ]
-      },
-      "acceptanceCriteria": [
-        "When the backend rejects Field creation with an error containing \"User is not registered\" / \"not registered\", the user sees an English message that tells them to complete profile setup before creating Fields.",
-        "In the same scenario, the app refetches/refreshes the current user profile state so the ProfileSetupModal is shown when appropriate (i.e., the app should not get stuck repeatedly failing Field creation without presenting the profile setup path).",
-        "The normalized Field creation error no longer falls through to the generic \"Failed to create field: ...\" message for the not-registered condition."
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "text": "Add a regression check path (documentation and/or lightweight test coverage where this project already supports it) that reproduces the prior failure mode: login succeeds, then creating a Field intermittently fails with \"User is not registered\"; ensure the new build demonstrates the issue is fixed.",
+      "text": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
       "target": "both",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "fix error: field failed to be created. user is not registered."
+          "I get error fix it: user is not registered"
         ]
       },
       "acceptanceCriteria": [
-        "A documented set of steps exists to verify the fix in a fresh session and after profile save, covering Field creation success and ensuring the not-registered error is not observed.",
-        "If an intentional not-registered block remains (only for truly un-onboarded users), the documented steps verify the UI reliably routes the user into profile setup and then Field creation succeeds after saving the profile."
+        "After logging in with Internet Identity, the app does not show a blocking error screen/toast stating \"User is not registered\".",
+        "A newly authenticated user can proceed to the profile setup flow and then create a Field without encountering the \"User is not registered\" error.",
+        "The fix addresses the reported intermittent nature (i.e., repeated reloads after login do not randomly fail with \"User is not registered\")."
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "text": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "user is not registered"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A brand-new principal (no prior state) can call getCallerUserProfile without receiving \"User is not registered\" (it should return null/none or an equivalent non-fatal response).",
+        "A brand-new principal can successfully call saveCallerUserProfile (after providing a name) and then createField.",
+        "Existing users and admin behavior remain unchanged (no loss of access control for existing permissions)."
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "text": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "user is not registered"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the backend returns an IC reject where the text \"User is not registered\" is present in any common error field (e.g., reject_message / message / stringified object), the UI treats it as the unregistered-user case (show ProfileSetupModal rather than RecoverableBootError).",
+        "Creating a Field while unregistered does not result in a generic failure toast; the app refreshes profile state and shows the profile setup prompt.",
+        "All user-facing text shown for this scenario is in clear English and does not expose raw canister/IC error blobs."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister; keep all core logic in backend/main.mo (only add migration.mo if state migration is actually required).",
-    "Do not modify any frontend files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
-    "Use English for any new/updated user-facing text."
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit any files under frontend/src/components/ui (compose them only).",
+    "Do not edit frontend immutable hook paths (frontend/src/hooks/useInternetIdentity.ts / .tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
   ],
   "nonGoals": [
-    "Adding new authentication providers beyond Internet Identity.",
-    "Introducing external databases or additional backend services.",
-    "Redesigning the overall Fields/Tasks feature set beyond fixing the registration error and improving the related error handling."
+    "Adding any third-party authentication provider (only Internet Identity is supported).",
+    "Adding real-time features (websockets/push) or external databases.",
+    "Redesigning unrelated UI or adding new product features beyond fixing the registration error flow."
   ],
   "imageRequirements": {
     "required": [],

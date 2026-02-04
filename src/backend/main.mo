@@ -6,10 +6,13 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
 import Int "mo:core/Int";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+// Specify the data migration function in with-clause
+(with migration = Migration.run)
 actor {
   public type FieldId = Text;
   public type TaskId = Text;
@@ -33,9 +36,10 @@ actor {
     avgValue : Nat;
     avgInterest : Nat;
     avgInfluence : Nat;
-    totalActiveTaskDuration : Nat; // Sum of active (uncompleted) tasks in minutes
-    taskCount : Nat; // Total number of active (uncompleted) tasks
-    totalTaskCount : Nat; // Total number of all tasks (active + completed)
+    totalActiveTaskDuration : Nat;
+    totalTaskDuration : Nat;
+    taskCount : Nat;
+    totalTaskCount : Nat;
   };
 
   public type Task = {
@@ -61,7 +65,38 @@ actor {
   var tasks = Map.empty<TaskId, Task>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
+  // Auto-registration helper: ensures authenticated users get #user role automatically
+  func ensureUserRole(caller : Principal) {
+    // Anonymous principal stays as guest
+    if (caller.isAnonymous()) {
+      return;
+    };
+
+    // Check current role
+    let currentRole = AccessControl.getUserRole(accessControlState, caller);
+
+    // If user is guest but authenticated (not anonymous), auto-promote to #user
+    switch (currentRole) {
+      case (#guest) {
+        // Auto-assign user role for authenticated principals
+        AccessControl.assignRole(accessControlState, caller, caller, #user);
+      };
+      case (#user or #admin) {
+        // Already has appropriate role
+      };
+    };
+  };
+
+  // Helper to check user permission with auto-registration
+  func requireUserPermission(caller : Principal) {
+    ensureUserRole(caller);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can perform this action");
+    };
+  };
+
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
     };
@@ -69,6 +104,7 @@ actor {
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    ensureUserRole(caller);
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
@@ -76,16 +112,12 @@ actor {
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
+    requireUserPermission(caller);
     userProfiles.add(caller, profile);
   };
 
   public shared ({ caller }) func createField(name : Text) : async FieldId {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can create fields");
-    };
+    requireUserPermission(caller);
 
     let fieldId = name # "_" # caller.toText() # "_" # Time.now().toText();
     let field : Field = {
@@ -98,6 +130,7 @@ actor {
       avgInterest = 0;
       avgInfluence = 0;
       totalActiveTaskDuration = 0;
+      totalTaskDuration = 0;
       taskCount = 0;
       totalTaskCount = 0;
     };
@@ -110,9 +143,7 @@ actor {
     fieldId : FieldId,
     name : Text,
   ) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can update fields");
-    };
+    requireUserPermission(caller);
 
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
@@ -131,6 +162,7 @@ actor {
           avgInterest = field.avgInterest;
           avgInfluence = field.avgInfluence;
           totalActiveTaskDuration = field.totalActiveTaskDuration;
+          totalTaskDuration = field.totalTaskDuration;
           taskCount = field.taskCount;
           totalTaskCount = field.totalTaskCount;
         };
@@ -158,9 +190,7 @@ actor {
     durationUnit : DurationUnit,
     dependencies : [TaskId],
   ) : async TaskId {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can create tasks");
-    };
+    requireUserPermission(caller);
 
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
@@ -208,9 +238,7 @@ actor {
     durationUnit : DurationUnit,
     dependencies : [TaskId],
   ) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can update tasks");
-    };
+    requireUserPermission(caller);
 
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
@@ -244,9 +272,7 @@ actor {
   };
 
   public shared ({ caller }) func moveTaskToField(taskId : TaskId, newFieldId : FieldId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can move tasks");
-    };
+    requireUserPermission(caller);
 
     let (originalTask, oldFieldId) = switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
@@ -290,9 +316,7 @@ actor {
   };
 
   public shared ({ caller }) func markTaskCompleted(taskId : TaskId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can mark tasks as completed");
-    };
+    requireUserPermission(caller);
 
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
@@ -324,9 +348,7 @@ actor {
   };
 
   public shared ({ caller }) func undoTaskCompletion(taskId : TaskId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can undo task completion");
-    };
+    requireUserPermission(caller);
 
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
@@ -358,9 +380,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteTask(taskId : TaskId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can delete tasks");
-    };
+    requireUserPermission(caller);
 
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
@@ -410,9 +430,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteField(fieldId : FieldId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can delete fields");
-    };
+    requireUserPermission(caller);
 
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
@@ -460,6 +478,7 @@ actor {
   };
 
   public query ({ caller }) func getAllFields() : async [Field] {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access fields");
     };
@@ -477,6 +496,7 @@ actor {
   };
 
   public query ({ caller }) func getAllTasks() : async [Task] {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access tasks");
     };
@@ -499,6 +519,7 @@ actor {
   };
 
   public query ({ caller }) func getTasksByField(fieldId : FieldId) : async [Task] {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access tasks");
     };
@@ -521,6 +542,7 @@ actor {
   };
 
   public query ({ caller }) func searchTasks(fieldId : FieldId, searchTerm : Text) : async [Task] {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can search tasks");
     };
@@ -559,6 +581,7 @@ actor {
     minValue : Nat,
     maxValue : Nat,
   ) : async [Task] {
+    ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can filter tasks");
     };
@@ -599,10 +622,18 @@ actor {
         let taskCount = uncompletedTasks.size();
         let totalTaskCount = allTasks.size();
 
-        let (totalUrgency, totalValue, totalInterest, totalInfluence, totalActiveTaskDuration) = uncompletedTasks.foldRight(
-          (0, 0, 0, 0, 0),
+        let (totalUrgency, totalValue, totalInterest, totalInfluence, totalActiveTaskDuration, totalTaskDuration) = allTasks.foldRight(
+          (0, 0, 0, 0, 0, 0),
           func(task, acc) {
-            (acc.0 + task.urgency, acc.1 + task.value, acc.2 + task.interest, acc.3 + task.influence, acc.4 + task.duration);
+            let activeContribution = if (not task.completed) { task.duration } else { 0 };
+            (
+              acc.0 + (if (not task.completed) { task.urgency } else { 0 }),
+              acc.1 + (if (not task.completed) { task.value } else { 0 }),
+              acc.2 + (if (not task.completed) { task.interest } else { 0 }),
+              acc.3 + (if (not task.completed) { task.influence } else { 0 }),
+              acc.4 + activeContribution,
+              acc.5 + task.duration
+            );
           },
         );
 
@@ -621,6 +652,7 @@ actor {
           avgInterest;
           avgInfluence;
           totalActiveTaskDuration;
+          totalTaskDuration;
           taskCount;
           totalTaskCount;
         };
@@ -660,3 +692,4 @@ actor {
     );
   };
 };
+

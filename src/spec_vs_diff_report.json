@@ -1,42 +1,45 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T12:47:30.958Z",
-  "summary": "REQ-16 appears implemented via new field creation error normalization and query behavior that treats \"User is not registered\" as a profile-setup condition (including messaging and profile refetch behavior per file summaries). Backend createField no longer appears to throw a \"User is not registered\" error (it only checks permissions), which likely addresses REQ-15’s symptom, but the diff is truncated so the root-cause/intermittency fix cannot be fully verified. No clear evidence of the requested regression check/documentation/test coverage (REQ-17). Several UI/feature enhancements unrelated to the request also appear to have been added/changed per frontend-file-summaries and backend model changes.",
+  "generatedAt": "2026-02-04T13:29:29.611Z",
+  "summary": "Backend change adds auto-assignment of the #user role for non-anonymous callers and uses it in profile/field APIs, which should prevent the backend from throwing \"User is not registered\" for legitimate Internet Identity users. Frontend adds robust \"User is not registered\" detection across nested IC error shapes and uses it in the profile query to treat the condition as a non-fatal new-user state. However, based on the provided diff summary, it is not fully evidenced that field creation errors trigger a profile refresh + ProfileSetupModal (and avoid generic failure toasts) as required.",
   "missing_requirements": [
     {
       "id": "REQ-17",
-      "requirement": "Add a regression check path (documentation and/or lightweight test coverage) reproducing the prior failure mode and demonstrating it is fixed.",
-      "reason": "No documentation or test files/steps are shown as added or modified in the diff summary; only backend/main.mo, frontend hooks/utils, and a state JSON are shown.",
+      "requirement": "Creating a Field while unregistered does not result in a generic failure toast; the app refreshes profile state and shows the profile setup prompt.",
+      "reason": "The diff summary shows field-creation error normalization and robust \"User is not registered\" detection, but does not include concrete code evidence that the createField mutation path suppresses generic failure toasts and actively refreshes the profile query / triggers ProfileSetupModal when the error occurs. The narrative in the file summary claims this behavior, but the truncated code excerpt does not show the createField mutation implementation.",
       "evidence": [
-        "<file-diff>: Added: 0, Modified: 5 (no docs/tests listed)",
-        "frontend-file-summaries.txt (no regression doc/test steps; just component summaries)"
+        "frontend/src/hooks/useQueries.ts (truncated; does not show createField mutation handling)",
+        "frontend-file-summaries.txt (claims behavior but not code evidence)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Backend Field model extended with additional metrics (e.g., totalActiveTaskDuration, taskCount, totalTaskCount) and corresponding UI display of these metrics.",
-      "reason": "Not requested by REQ-15/16/17; the request is specifically about fixing intermittent \"User is not registered\" on Field creation and improving related error handling/regression check.",
+      "description": "Added backend data migration and new Field attribute totalTaskDuration (and related model changes) unrelated to fixing intermittent \"User is not registered\" registration/auth flow.",
+      "reason": "BuildRequest focuses on eliminating intermittent \"User is not registered\" and improving registration/auth flow handling, not schema migrations or adding duration aggregation fields.",
       "evidence": [
-        "backend/main.mo (Field type includes totalActiveTaskDuration, taskCount, totalTaskCount)",
-        "frontend-file-summaries.txt (FieldCard/FieldDetailView mention displaying totalActiveTaskDuration and task counts)"
+        "backend/migration.mo",
+        "backend/main.mo"
       ]
     },
     {
-      "description": "Task completion UX changes (e.g., 5-second undo toast), duration input/unit conversion behavior changes in task edit dialogs, and various task/field UI enhancements (sorting toggle, connecting states, etc.).",
-      "reason": "These changes go beyond the stated non-goals (no redesign beyond fixing registration error and related error handling) and are not part of REQ-15/16/17.",
+      "description": "Multiple UI/feature enhancements unrelated to the registration error flow (e.g., task completion undo toast, duration unit selector, clearing duration behavior, additional sorting UI changes, field metrics display changes).",
+      "reason": "These go beyond the non-goal of avoiding unrelated UI redesign/new product features beyond fixing the registration error flow.",
       "evidence": [
-        "frontend-file-summaries.txt (TaskCard undo toast; EditTaskDialog duration clearing/unit conversion; AllTasksView sort toggle; CreateTaskDialog duration defaults; etc.)"
+        "frontend-file-summaries.txt (TaskCard undo toast; CreateTaskDialog duration unit selector; EditTaskDialog duration clearing; AllTasksView SortDirectionToggle; FieldCard/FieldDetailView metrics updates)"
       ]
     }
   ],
   "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/bootErrorMessages.ts",
     "frontend/src/utils/fieldCreationErrors.ts",
+    "frontend/src/utils/profileSaveErrors.ts",
     "project_state.json"
   ]
 }

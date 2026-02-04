@@ -3,6 +3,8 @@
  * Maps backend traps, actor states, and authentication issues to clear English guidance.
  */
 
+import { isUserNotRegisteredError, extractSafeErrorMessage } from './bootErrorMessages';
+
 export type ProfileSaveErrorCategory = 
   | 'login-required'
   | 'actor-initializing'
@@ -20,6 +22,14 @@ export interface NormalizedProfileSaveError {
  */
 export function normalizeProfileSaveError(error: unknown): NormalizedProfileSaveError {
   console.log('[ProfileSaveError] Normalizing error:', error);
+  
+  // Check for "User is not registered" using robust detector
+  if (isUserNotRegisteredError(error)) {
+    return {
+      category: 'authorization',
+      message: 'Please complete your profile setup to continue.',
+    };
+  }
   
   // Handle explicit error codes from mutation guards
   if (error instanceof Error) {
@@ -67,7 +77,7 @@ export function normalizeProfileSaveError(error: unknown): NormalizedProfileSave
     }
   }
   
-  // Handle reject messages from IC
+  // Handle reject messages from IC (check nested structures)
   if (error && typeof error === 'object') {
     const anyError = error as any;
     const rejectMessage = anyError.reject_message || anyError.message || '';
@@ -81,13 +91,11 @@ export function normalizeProfileSaveError(error: unknown): NormalizedProfileSave
     }
   }
   
-  // Unknown error
-  const fallbackMessage = error instanceof Error 
-    ? error.message 
-    : 'An unexpected error occurred while saving your profile.';
+  // Unknown error - use safe extraction to avoid raw error blobs
+  const safeMessage = extractSafeErrorMessage(error);
   
   return {
     category: 'unknown',
-    message: fallbackMessage,
+    message: safeMessage,
   };
 }

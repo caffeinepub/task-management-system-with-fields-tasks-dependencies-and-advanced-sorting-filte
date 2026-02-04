@@ -1,54 +1,72 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T12:47:31.011Z",
+  "generatedAt": "2026-02-04T13:29:29.656Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 1,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-15",
-        "summary": "Eliminate the intermittent backend authorization/registration condition that causes Field creation to fail with the error text \"User is not registered\" for users who have successfully authenticated with Internet Identity.",
+        "summary": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/bootErrorMessages.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/CreateFieldDialog.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/bootErrorMessages.ts",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-16",
+        "summary": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-16",
-        "summary": "Update frontend error normalization and UI behavior so that if Field creation fails with a \"User is not registered\"-type error, the app prompts the user to complete profile setup (instead of only showing a generic creation failure), using clear English user-facing text.",
+        "id": "REQ-17",
+        "summary": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/utils/bootErrorMessages.ts",
           "frontend/src/utils/fieldCreationErrors.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/profileSaveErrors.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/RecoverableBootError.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/utils/bootErrorMessages.ts",
           "frontend/src/utils/fieldCreationErrors.ts",
+          "frontend/src/utils/profileSaveErrors.ts",
           "frontend/src/hooks/useQueries.ts"
         ]
-      },
-      {
-        "id": "REQ-17",
-        "summary": "Add a regression check path (documentation and/or lightweight test coverage where this project already supports it) that reproduces the prior failure mode: login succeeds, then creating a Field intermittently fails with \"User is not registered\"; ensure the new build demonstrates the issue is fixed.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/docs/field-create-failure-repro.md"
-        ],
-        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/bootErrorMessages.ts",
     "frontend/src/utils/fieldCreationErrors.ts",
+    "frontend/src/utils/profileSaveErrors.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
