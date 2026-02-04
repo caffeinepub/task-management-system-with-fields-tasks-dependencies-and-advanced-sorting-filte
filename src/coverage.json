@@ -1,0 +1,77 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T12:23:55.924Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-15",
+        "summary": "Reproduce the reported failure where an authenticated user cannot create a Field, capture the exact frontend console output and the backend reject/trap message (if any), and identify the root cause (e.g., actor not ready, identity/actor mismatch, authorization trap, or failed query invalidation).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/docs/field-create-failure-repro.md",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/docs/field-create-failure-repro.md",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-16",
+        "summary": "Fix Field creation so it works reliably for authenticated Internet Identity users, including cases immediately after logging in (avoid identity/actor readiness races). Ensure the createField call succeeds and the new Field becomes visible in the Fields list without requiring a full page refresh.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useResilientActor.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/CreateFieldDialog.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useResilientActor.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/CreateFieldDialog.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-17",
+        "summary": "Improve user-facing error handling for Field creation failures to ensure the UI always provides a clear English explanation and a recovery path. Reuse existing normalization patterns (e.g., field creation error normalization) and ensure errors caused by missing authentication vs actor unavailability vs authorization are distinguishable to the user.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/fieldCreationErrors.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/CreateFieldDialog.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/fieldCreationErrors.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/CreateFieldDialog.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/docs/field-create-failure-repro.md",
+    "frontend/src/components/CreateFieldDialog.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useResilientActor.ts",
+    "frontend/src/pages/Dashboard.tsx",
+    "frontend/src/utils/fieldCreationErrors.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

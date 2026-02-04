@@ -1,0 +1,47 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T12:23:55.885Z",
+  "summary": "Diff adds actor-readiness handling on the frontend (useResilientActor, CreateFieldDialog, Dashboard) plus backend authorization checks on createField, and introduces an error-normalization utility. However, the reproduction/root-cause documentation for the original failure is incomplete in the provided diff, and it’s not fully verifiable from the truncated diff that successful field creation always triggers a fields-list refresh and success toast.",
+  "missing_requirements": [
+    {
+      "id": "REQ-15",
+      "requirement": "Reproduce the authenticated-user Field creation failure, capture exact frontend console output and backend reject/trap message, and document root cause with developer-facing notes.",
+      "reason": "A repro document was added, but in the provided content it only covers an anonymous-user test case and does not show the reported authenticated-user failure, does not include captured console output, does not include any backend reject/trap message, and does not include a root-cause summary.",
+      "evidence": [
+        "frontend/docs/field-create-failure-repro.md"
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "requirement": "After successful createField, the new Field becomes visible in the Fields list automatically (no page refresh) and a success toast is shown.",
+      "reason": "The diff shows UI blocking for auth/actor readiness and mentions improved mutation handling, but the createField mutation implementation is truncated before showing onSuccess behavior (toast + invalidation/refetch). Dashboard and CreateFieldDialog onSuccess handlers shown do not themselves invalidate/refetch the fields list or show a success toast. Therefore this acceptance criterion is not verifiable from the provided diff summary.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/CreateFieldDialog.tsx",
+        "frontend/src/pages/Dashboard.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Multiple unrelated UI/product changes described (e.g., task completion undo toast, duration formatting utilities, additional task/field UI changes) beyond Field creation reliability.",
+      "reason": "The BuildRequest explicitly states non-goals to avoid unrelated new features; the repository metadata/summaries describe broader enhancements not requested as part of fixing Field creation reliability.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/docs/field-create-failure-repro.md",
+    "frontend/src/components/CreateFieldDialog.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useResilientActor.ts",
+    "frontend/src/pages/Dashboard.tsx",
+    "frontend/src/utils/fieldCreationErrors.ts",
+    "project_state.json"
+  ]
+}
