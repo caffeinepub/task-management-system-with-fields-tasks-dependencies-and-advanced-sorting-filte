@@ -1,72 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Fix intermittent \"User is not registered\" startup/auth failure",
+  "title": "Fix intermittent blocking message: \"Please complete your profile to continue\"",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-15",
-      "text": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "I get error fix it: user is not registered"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After logging in with Internet Identity, the app does not show a blocking error screen/toast stating \"User is not registered\".",
-        "A newly authenticated user can proceed to the profile setup flow and then create a Field without encountering the \"User is not registered\" error.",
-        "The fix addresses the reported intermittent nature (i.e., repeated reloads after login do not randomly fail with \"User is not registered\")."
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "text": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "user is not registered"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A brand-new principal (no prior state) can call getCallerUserProfile without receiving \"User is not registered\" (it should return null/none or an equivalent non-fatal response).",
-        "A brand-new principal can successfully call saveCallerUserProfile (after providing a name) and then createField.",
-        "Existing users and admin behavior remain unchanged (no loss of access control for existing permissions)."
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "text": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "text": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "user is not registered"
+          "Fix error: \"Please complete your profile to continue\""
         ]
       },
       "acceptanceCriteria": [
-        "If the backend returns an IC reject where the text \"User is not registered\" is present in any common error field (e.g., reject_message / message / stringified object), the UI treats it as the unregistered-user case (show ProfileSetupModal rather than RecoverableBootError).",
-        "Creating a Field while unregistered does not result in a generic failure toast; the app refreshes profile state and shows the profile setup prompt.",
-        "All user-facing text shown for this scenario is in clear English and does not expose raw canister/IC error blobs."
+        "The helper used to detect the \"User is not registered\" condition (frontend/src/utils/bootErrorMessages.ts) no longer matches generic substrings like \"not registered\" that can misclassify unrelated errors.",
+        "When a non-registration-related error occurs (e.g., actor/network/authorization errors), the UI does not display \"Please complete your profile to continue\" or \"Please complete your profile setup to continue.\" unless the backend error explicitly indicates the specific \"User is not registered\" condition."
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "text": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Fix error: \"Please complete your profile to continue\""
+        ]
+      },
+      "acceptanceCriteria": [
+        "If an authenticated caller has no profile (getCallerUserProfile returns null or an equivalent \"not registered\" response), the ProfileSetupModal is shown and the user can continue after saving.",
+        "After a successful profile save, the profile cache is refreshed and the ProfileSetupModal is dismissed in favor of the Dashboard (no persistent blocking state).",
+        "The message \"Please complete your profile to continue\" is not shown during normal authenticated usage when the user already has a profile."
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "text": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Fix error: \"Please complete your profile to continue\""
+        ]
+      },
+      "acceptanceCriteria": [
+        "All user-visible messages for the true missing-profile condition are consistent across boot error normalization and profile-save error normalization.",
+        "No user-facing missing-profile message is shown for errors unrelated to profile registration."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit any files under frontend/src/components/ui (compose them only).",
-    "Do not edit frontend immutable hook paths (frontend/src/hooks/useInternetIdentity.ts / .tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
+    "Do not edit files under frontend/src/components/ui (read-only UI primitives).",
+    "Do not edit immutable frontend paths listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Keep backend as a single-actor Motoko canister; only add migration.mo changes if state schema must change (not expected for this fix).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Adding any third-party authentication provider (only Internet Identity is supported).",
-    "Adding real-time features (websockets/push) or external databases.",
-    "Redesigning unrelated UI or adding new product features beyond fixing the registration error flow."
+    "Adding new authentication providers (only Internet Identity is supported).",
+    "Changing the backend data schema for Fields/Tasks/UserProfile unless strictly required to fix the error.",
+    "Introducing new features unrelated to profile boot gating and error messaging."
   ],
   "imageRequirements": {
     "required": [],

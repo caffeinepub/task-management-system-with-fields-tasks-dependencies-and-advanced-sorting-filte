@@ -6,13 +6,13 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
 import Int "mo:core/Int";
-import Migration "migration";
+
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Specify the data migration function in with-clause
-(with migration = Migration.run)
+
 actor {
   public type FieldId = Text;
   public type TaskId = Text;

@@ -21,7 +21,8 @@ export function useGetCallerUserProfile() {
       console.log('[Profile Query] Fetching caller user profile...');
       try {
         const profile = await actor.getCallerUserProfile();
-        console.log('[Profile Query] Profile fetch successful:', profile ? 'Profile exists' : 'No profile');
+        console.log('[Profile Query] Profile fetch successful:', profile ? 'Profile exists' : 'No profile (null returned)');
+        // Backend returns null when no profile exists - this is the normal case for new users
         return profile;
       } catch (error) {
         console.error('[Profile Query] Profile fetch failed:', error);
@@ -30,6 +31,7 @@ export function useGetCallerUserProfile() {
         
         // Special handling: "User is not registered" means new user, not an error
         // Return null to trigger profile setup flow instead of boot error
+        // Note: This is a fallback - normally the backend returns null, not an error
         if (isUserNotRegisteredError(error)) {
           console.log('[Profile Query] User not registered detected - treating as new user (returning null)');
           return null;
@@ -124,11 +126,12 @@ export function useSaveCallerUserProfile() {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, profile) => {
       console.log('[SaveProfile] Mutation success, updating profile cache');
-      // Immediately update the profile cache and refetch
+      // Immediately set the profile in cache to dismiss ProfileSetupModal
+      queryClient.setQueryData(['currentUserProfile'], profile);
+      // Then invalidate and refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      queryClient.refetchQueries({ queryKey: ['currentUserProfile'] });
       toast.success('Profile saved successfully');
     },
     onError: (error: unknown) => {

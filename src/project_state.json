@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 89,
+  "projectStateVersion": 93,
   "summary": "Task management system where users create Fields and Tasks; each Task belongs to a Field, includes scoring attributes and dependencies; users can search/filter/sort tasks within a Field or globally; completed tasks are hidden; Field attributes are automatically calculated as averages of its Tasks.",
   "existing_features": [
     {
@@ -323,32 +323,31 @@
       "version": 1
     },
     {
-      "id": "feature-eliminate-the-intermittent-blocking-error-user-is-not-registered-so-authenticated-internet-identity-users-can-reliably-use-the-app-including-creating-fields-without-needing-a-manual-workaround",
-      "title": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
+      "id": "feature-fix-the-false-positive-detection-of-the-user-is-not-registered-condition-so-the-app-does-not-incorrectly-show-the-blocking-message-please-complete-your-profile-to-continue-during-normal-usage",
+      "title": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
       "reqIds": [
         "REQ-15"
       ],
       "version": 1
     },
     {
-      "id": "feature-frontend-make-user-is-not-registered-detection-robust-across-internet-computer-error-shapes-by-recognizing-the-message-when-it-appears-in-nested-reject-error-fields-not-only-error-message-plain-string-and-route-that-condition-into-the-intended-profile-setup-flow-instead-of-a-boot-failure-ui",
-      "title": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "id": "feature-ensure-authenticated-users-who-truly-have-no-profile-are-guided-via-the-profilesetupmodal-flow-and-not-blocked-by-a-boot-error-screen-or-toast-and-that-after-saving-a-profile-successfully-the-app-proceeds-to-the-dashboard-without-showing-the-profile-completion-blocking-message",
+      "title": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-standardize-user-facing-copy-related-to-missing-profile-so-it-uses-a-single-consistent-english-string-across-error-normalization-and-boot-messaging-avoid-multiple-near-duplicates",
+      "title": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
       "reqIds": [
         "REQ-17"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-2",
-      "summary": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
-      "reqIds": [
-        "REQ-16"
-      ],
-      "status": "pending"
-    }
-  ],
+  "new_feature_requests": [],
   "architectural_notes": [
     "Backend implemented as an Internet Computer canister (Motoko) with persistent storage for Fields and Tasks; frontend uses an actor client to call canister methods.",
     "Authorization layer added (authorization mixins/access-control) and frontend integrates Internet Identity for authentication.",
@@ -362,7 +361,7 @@
     "Frontend boot/profile querying flow includes explicit handling for authorization/canister traps with retry/logout affordances instead of crashing the whole app."
   ],
   "known_issues": [
-    "Intermittent startup/auth error: \"User is not registered\"; prevents normal app usage (e.g., creating Fields) until resolved."
+    "Intermittent blocking error: \"Please complete your profile to continue\" appears and prevents normal app usage (likely profile registration/boot gating issue)."
   ],
   "isFixRequest": true,
   "projectName": "Task management system with Fields, Tasks, dependencies, and advanced sorting/filtering/search",

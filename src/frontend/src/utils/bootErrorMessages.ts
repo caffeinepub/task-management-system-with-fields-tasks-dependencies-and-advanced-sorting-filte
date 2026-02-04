@@ -1,4 +1,9 @@
 /**
+ * Shared constant for the missing-profile user-facing message
+ */
+export const MISSING_PROFILE_MESSAGE = 'Please complete your profile to continue.';
+
+/**
  * Extracts text from nested IC error structures
  */
 function extractErrorText(error: unknown): string {
@@ -53,17 +58,23 @@ function extractErrorText(error: unknown): string {
 }
 
 /**
- * Checks if an error is the "User is not registered" condition
- * Searches across all common IC error field structures
+ * Checks if an error is the "User is not registered" condition.
+ * This is a precise check that only matches the exact backend condition,
+ * not generic substrings that could match unrelated errors.
+ * 
+ * Note: In this application, missing profiles are typically handled by
+ * getCallerUserProfile returning null, not by throwing errors. This detector
+ * exists for edge cases where the backend might trap with a registration message.
  */
 export function isUserNotRegisteredError(error: unknown): boolean {
   if (!error) return false;
   
   const errorText = extractErrorText(error).toLowerCase();
   
-  // Check for the specific phrase in any form
+  // Only match the exact phrase "user is not registered" or "user not registered"
+  // Do NOT match generic "not registered" which could be about other entities
   return errorText.includes('user is not registered') || 
-         errorText.includes('not registered');
+         errorText.includes('user not registered');
 }
 
 /**
@@ -74,7 +85,7 @@ export function extractSafeErrorMessage(error: unknown): string {
   
   // If it's a known "User is not registered" error, return friendly message
   if (isUserNotRegisteredError(error)) {
-    return 'Please complete your profile setup to continue.';
+    return MISSING_PROFILE_MESSAGE;
   }
   
   // For other errors, extract just the meaningful part (avoid raw blobs)
@@ -104,7 +115,7 @@ export function normalizeBootError(error: unknown): string {
   // Check for "User is not registered" - this should not be shown as a boot error
   // but if it somehow reaches here, provide a clear message
   if (isUserNotRegisteredError(error)) {
-    return 'Please complete your profile setup to continue.';
+    return MISSING_PROFILE_MESSAGE;
   }
 
   const errorText = extractErrorText(error).toLowerCase();

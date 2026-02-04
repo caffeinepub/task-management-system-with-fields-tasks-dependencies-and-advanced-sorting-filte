@@ -3,7 +3,7 @@
  * Maps backend traps, actor states, and authentication issues to clear English guidance.
  */
 
-import { isUserNotRegisteredError, extractSafeErrorMessage } from './bootErrorMessages';
+import { isUserNotRegisteredError, extractSafeErrorMessage, MISSING_PROFILE_MESSAGE } from './bootErrorMessages';
 
 export type ProfileSaveErrorCategory = 
   | 'login-required'
@@ -27,7 +27,7 @@ export function normalizeProfileSaveError(error: unknown): NormalizedProfileSave
   if (isUserNotRegisteredError(error)) {
     return {
       category: 'authorization',
-      message: 'Please complete your profile setup to continue.',
+      message: MISSING_PROFILE_MESSAGE,
     };
   }
   

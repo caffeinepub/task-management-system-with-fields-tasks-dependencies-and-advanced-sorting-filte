@@ -1,23 +1,22 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T13:29:29.656Z",
+  "generatedAt": "2026-02-04T13:43:27.094Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 2,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-15",
-        "summary": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
+        "summary": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/utils/bootErrorMessages.ts",
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/CreateFieldDialog.tsx",
           "frontend/src/App.tsx"
         ],
         "matchedFiles": [
@@ -27,42 +26,41 @@
       },
       {
         "id": "REQ-16",
-        "summary": "Backend: Ensure a newly authenticated principal is treated as an authorized normal user on first use (auto-register/auto-grant the #user permission, or otherwise prevent \"User is not registered\" from being thrown for legitimate II users) so profile read/save and Fields/Tasks CRUD are usable immediately after login.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/components/ProfileSetupModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/ProfileSetupModal.tsx"
+        ]
       },
       {
         "id": "REQ-17",
-        "summary": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+        "summary": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/utils/fieldCreationErrors.ts",
           "frontend/src/utils/profileSaveErrors.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/RecoverableBootError.tsx"
+          "frontend/src/utils/fieldCreationErrors.ts"
         ],
         "matchedFiles": [
           "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/utils/fieldCreationErrors.ts",
           "frontend/src/utils/profileSaveErrors.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/utils/fieldCreationErrors.ts"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/src/components/ProfileSetupModal.tsx",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/utils/bootErrorMessages.ts",
     "frontend/src/utils/fieldCreationErrors.ts",

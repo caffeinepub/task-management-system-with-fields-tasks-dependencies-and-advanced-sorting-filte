@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-eliminate-the-intermittent-blocking-error-user-is-not-registered-so-authenticated-internet-identity-users-can-reliably-use-the-app-including-creating-fields-without-needing-a-manual-workaround",
-      "featureTitle": "Eliminate the intermittent blocking error \"User is not registered\" so authenticated Internet Identity users can reliably use the app (including creating Fields) without needing a manual workaround.",
+      "featureId": "feature-fix-the-false-positive-detection-of-the-user-is-not-registered-condition-so-the-app-does-not-incorrectly-show-the-blocking-message-please-complete-your-profile-to-continue-during-normal-usage",
+      "featureTitle": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
       "files": [
         "frontend/src/hooks/useQueries.ts",
         "frontend/src/utils/bootErrorMessages.ts"
@@ -22,10 +22,29 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-frontend-make-user-is-not-registered-detection-robust-across-internet-computer-error-shapes-by-recognizing-the-message-when-it-appears-in-nested-reject-error-fields-not-only-error-message-plain-string-and-route-that-condition-into-the-intended-profile-setup-flow-instead-of-a-boot-failure-ui",
-      "featureTitle": "Frontend: Make \"User is not registered\" detection robust across Internet Computer error shapes by recognizing the message when it appears in nested/reject error fields (not only Error.message / plain string), and route that condition into the intended profile-setup flow instead of a boot-failure UI.",
+      "featureId": "feature-ensure-authenticated-users-who-truly-have-no-profile-are-guided-via-the-profilesetupmodal-flow-and-not-blocked-by-a-boot-error-screen-or-toast-and-that-after-saving-a-profile-successfully-the-app-proceeds-to-the-dashboard-without-showing-the-profile-completion-blocking-message",
+      "featureTitle": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/ProfileSetupModal.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-16"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-standardize-user-facing-copy-related-to-missing-profile-so-it-uses-a-single-consistent-english-string-across-error-normalization-and-boot-messaging-avoid-multiple-near-duplicates",
+      "featureTitle": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
+      "files": [
         "frontend/src/utils/bootErrorMessages.ts",
         "frontend/src/utils/fieldCreationErrors.ts",
         "frontend/src/utils/profileSaveErrors.ts"

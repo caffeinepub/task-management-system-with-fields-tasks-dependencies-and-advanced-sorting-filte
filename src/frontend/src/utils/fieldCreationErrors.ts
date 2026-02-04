@@ -2,7 +2,7 @@
  * Utility to normalize field creation errors and provide user-friendly messages
  */
 
-import { isUserNotRegisteredError, extractSafeErrorMessage } from './bootErrorMessages';
+import { isUserNotRegisteredError, extractSafeErrorMessage, MISSING_PROFILE_MESSAGE } from './bootErrorMessages';
 
 export type ErrorCategory = 'login-required' | 'actor-initializing' | 'actor-unavailable' | 'authorization' | 'profile-required' | 'unknown';
 
@@ -20,7 +20,7 @@ export function normalizeFieldCreationError(error: unknown): NormalizedError {
   // Check for "User is not registered" using robust detector
   if (isUserNotRegisteredError(error)) {
     return {
-      message: 'Please complete your profile setup before creating Fields.',
+      message: MISSING_PROFILE_MESSAGE,
       category: 'profile-required',
     };
   }

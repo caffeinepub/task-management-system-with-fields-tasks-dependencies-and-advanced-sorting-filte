@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the intermittent “User is not registered” startup/auth failure so Internet Identity users can reliably proceed through profile setup and use core features (including creating Fields) without manual workarounds.
+**Goal:** Stop the app from incorrectly showing the blocking “Please complete your profile to continue” message during normal usage, and ensure the correct missing-profile flow reliably guides users to complete setup.
 
 **Planned changes:**
-- Backend: Adjust authorization/registration handling so a newly authenticated principal is treated as a valid normal user on first use (or otherwise avoid throwing “User is not registered” for legitimate II users).
-- Backend: Make `getCallerUserProfile` non-fatal for brand-new principals (e.g., return null/none equivalent) and allow `saveCallerUserProfile` followed by `createField` to succeed for new users.
-- Frontend: Improve detection of “User is not registered” across common Internet Computer error shapes (nested reject fields / stringified objects), and route the user into the intended profile setup flow instead of a boot-failure UI.
-- Frontend: When the error occurs during actions like create Field, refresh profile state and prompt profile setup rather than showing a generic failure toast; ensure user-facing messaging is clear English and does not expose raw IC/canister error blobs.
+- Tighten the frontend “User is not registered” detection in `frontend/src/utils/bootErrorMessages.ts` so it only matches the explicit missing-profile condition (and no longer matches generic substrings like “not registered” for unrelated errors).
+- Route authenticated users with a true missing-profile response into the `ProfileSetupModal` flow (instead of a boot error screen/toast), and ensure a successful profile save refreshes profile state, dismisses the modal, and proceeds to the Dashboard.
+- Standardize missing-profile user-facing copy to a single consistent English string across boot error normalization and profile-save error normalization, while preventing missing-profile messaging from appearing for unrelated errors.
 
-**User-visible outcome:** After logging in with Internet Identity, users no longer hit a blocking “User is not registered” error; new users are guided into profile setup and can then create a Field reliably, with repeated reloads no longer randomly failing.
+**User-visible outcome:** Authenticated users are no longer blocked by a false “Please complete your profile to continue” message during normal usage; users who truly lack a profile are guided through profile setup and then land on the Dashboard after saving.
