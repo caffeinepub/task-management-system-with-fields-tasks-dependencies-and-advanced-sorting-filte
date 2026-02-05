@@ -8,9 +8,9 @@ import Iter "mo:core/Iter";
 import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   public type FieldId = Text;
   public type TaskId = Text;
@@ -616,4 +616,5 @@ actor {
     };
   };
 };
+
 

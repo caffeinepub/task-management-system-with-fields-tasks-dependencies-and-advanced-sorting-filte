@@ -1,94 +1,12 @@
 {
   "kind": "build_request",
-  "title": "Update dashboard FieldCard attribute layout to 3 columns and add user-selectable light background colors",
+  "title": "Untitled request",
   "priority": "normal",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "text": "Update the Dashboard FieldCard attribute list (Urgency, Value, Interest, Influence, Duration) so the attributes are laid out in a 3-column responsive grid, and on large screens they should remain on a single horizontal row (no wrapping) by using a horizontal scroll or other non-wrapping layout when needed.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-9",
-          "msg-11"
-        ],
-        "quotes": [
-          "make it 3 columns as I see it fits in one row.",
-          "attibutes of a field card in dashboard page",
-          "all of them. same row."
-        ]
-      },
-      "acceptanceCriteria": [
-        "On the dashboard fields view, each FieldCard shows the five attributes in a layout that uses 3 columns at the intended breakpoint(s).",
-        "On large screens, the five attributes do not wrap onto multiple lines within a FieldCard; if they exceed available width, the attribute area remains a single row and can be horizontally scrolled.",
-        "No other parts of the Dashboard (search/sort controls, field grid layout, field detail view) regress visually or functionally."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Add a user-selectable background color option for Dashboard FieldCards using a light color palette, and apply the selected background color to the FieldCard container in the dashboard.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-11"
-        ],
-        "quotes": [
-          "make possible to change the background colour of field card also (light pallette)",
-          "user selection"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Users can choose a background color for a field card from a predefined light palette using the existing field edit flow (or an equivalent obvious UI affordance on the dashboard).",
-        "The selected background color persists (survives page reload) and is applied whenever the field card is rendered on the dashboard.",
-        "The background color choices are visually light (high-contrast with text/icons in both light and dark theme modes).",
-        "Field create, edit, and list flows continue to work without errors."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Define a consistent light-palette background color set (IDs + labels) for field card backgrounds and expose it in the frontend where the background selection UI is implemented.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-11"
-        ],
-        "quotes": [
-          "light pallette",
-          "user selection"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A fixed list of light background color options exists in code (with stable IDs) for reuse across the UI.",
-        "User-facing labels for these colors are in English and displayed in the selection UI.",
-        "Selecting each option visibly changes the field card background to the corresponding color."
-      ]
-    }
-  ],
-  "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not edit frontend immutable hook/bootstrap files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if existing stable state requires migration."
-  ],
-  "nonGoals": [
-    "Changing the overall dashboard field grid (number of FieldCards per row) outside of adjusting the FieldCard attribute layout.",
-    "Adding third-party theming libraries or external persistence layers.",
-    "Adding real-time collaboration or syncing background choices across multiple users beyond existing per-user data storage."
-  ],
+  "requirements": [],
+  "constraints": [],
+  "nonGoals": [],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -10,6 +10,18 @@ export const FIELD_CARD_BACKGROUNDS = [
   { id: 'lemon', label: 'Lemon' },
   { id: 'rose', label: 'Rose' },
   { id: 'sage', label: 'Sage' },
+  { id: 'cream', label: 'Cream' },
+  { id: 'blush', label: 'Blush' },
+  { id: 'powder', label: 'Powder Blue' },
+  { id: 'seafoam', label: 'Seafoam' },
+  { id: 'lilac', label: 'Lilac' },
+  { id: 'sand', label: 'Sand' },
+  { id: 'coral', label: 'Coral' },
+  { id: 'ice', label: 'Ice Blue' },
+  { id: 'pearl', label: 'Pearl' },
+  { id: 'honey', label: 'Honey' },
+  { id: 'mist', label: 'Mist' },
+  { id: 'champagne', label: 'Champagne' },
 ] as const;
 
 export type BackgroundColorId = typeof FIELD_CARD_BACKGROUNDS[number]['id'];

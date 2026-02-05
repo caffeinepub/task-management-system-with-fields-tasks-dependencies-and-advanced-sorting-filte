@@ -99,7 +99,7 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
                   Selected: {selectedIcon}
                 </span>
               </div>
-              <ScrollArea className="h-48 border rounded-lg p-3">
+              <ScrollArea className="h-64 border rounded-lg p-3">
                 <div className="grid grid-cols-8 gap-2">
                   {PREDEFINED_ICONS.map((iconName) => {
                     const IconComponent = (LucideIcons as any)[iconName];
@@ -174,31 +174,33 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
                   {selectedBackgroundObj.label}
                 </span>
               </div>
-              <div className="grid grid-cols-4 gap-3">
-                {FIELD_CARD_BACKGROUNDS.map((bg) => {
-                  const isSelected = selectedBackground === bg.id;
-                  const bgColor = getBackgroundCssVar(bg.id);
-                  return (
-                    <button
-                      key={bg.id}
-                      type="button"
-                      onClick={() => setSelectedBackground(bg.id)}
-                      className={`
-                        flex flex-col items-center gap-2 p-3 rounded-lg border-2
-                        transition-all hover:border-primary/50
-                        ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
-                      `}
-                      title={bg.label}
-                    >
-                      <div 
-                        className="w-full h-12 rounded-md border border-border"
-                        style={{ backgroundColor: bgColor }}
-                      />
-                      <span className="text-xs text-center">{bg.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <ScrollArea className="h-64">
+                <div className="grid grid-cols-4 gap-3 pr-4">
+                  {FIELD_CARD_BACKGROUNDS.map((bg) => {
+                    const isSelected = selectedBackground === bg.id;
+                    const bgColor = getBackgroundCssVar(bg.id);
+                    return (
+                      <button
+                        key={bg.id}
+                        type="button"
+                        onClick={() => setSelectedBackground(bg.id)}
+                        className={`
+                          flex flex-col items-center gap-2 p-3 rounded-lg border-2
+                          transition-all hover:border-primary/50
+                          ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
+                        `}
+                        title={bg.label}
+                      >
+                        <div 
+                          className="w-full h-12 rounded-md border border-border"
+                          style={{ backgroundColor: bgColor }}
+                        />
+                        <span className="text-xs text-center">{bg.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
             </div>
           </div>
           <DialogFooter>

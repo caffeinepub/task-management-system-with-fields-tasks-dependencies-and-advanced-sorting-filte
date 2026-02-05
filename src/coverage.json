@@ -1,82 +1,28 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T21:00:50.263Z",
+  "generatedAt": "2026-02-05T22:56:34.592Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
-    "items": [
-      {
-        "id": "REQ-1",
-        "summary": "Update the Dashboard FieldCard attribute list (Urgency, Value, Interest, Influence, Duration) so the attributes are laid out in a 3-column responsive grid, and on large screens they should remain on a single horizontal row (no wrapping) by using a horizontal scroll or other non-wrapping layout when needed.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/FieldCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/FieldCard.tsx"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Add a user-selectable background color option for Dashboard FieldCards using a light color palette, and apply the selected background color to the FieldCard container in the dashboard.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/CreateFieldDialog.tsx",
-          "frontend/src/components/EditFieldDialog.tsx",
-          "frontend/src/components/FieldCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/CreateFieldDialog.tsx",
-          "frontend/src/components/EditFieldDialog.tsx",
-          "frontend/src/components/FieldCard.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Define a consistent light-palette background color set (IDs + labels) for field card backgrounds and expose it in the frontend where the background selection UI is implemented.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/fieldCardBackgrounds.ts",
-          "frontend/src/index.css",
-          "frontend/src/components/CreateFieldDialog.tsx",
-          "frontend/src/components/EditFieldDialog.tsx",
-          "frontend/src/components/FieldCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/fieldCardBackgrounds.ts",
-          "frontend/src/index.css",
-          "frontend/src/components/CreateFieldDialog.tsx",
-          "frontend/src/components/EditFieldDialog.tsx",
-          "frontend/src/components/FieldCard.tsx"
-        ]
-      }
-    ]
+    "total": 0,
+    "implemented": 0,
+    "items": []
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
     "frontend/src/components/CreateFieldDialog.tsx",
     "frontend/src/components/EditFieldDialog.tsx",
     "frontend/src/components/FieldCard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
     "frontend/src/index.css",
+    "frontend/src/utils/fieldAppearance.ts",
     "frontend/src/utils/fieldCardBackgrounds.ts",
-    "frontend/src/utils/parseExportPayload.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

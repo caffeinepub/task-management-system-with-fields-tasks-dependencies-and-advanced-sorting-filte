@@ -80,15 +80,15 @@ export default function FieldCard({ field, onClick }: FieldCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {/* 3-column grid on small/medium screens, single row with horizontal scroll on large screens */}
-        <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-nowrap lg:gap-3 lg:overflow-x-auto lg:pb-1">
+        {/* 3-column grid that wraps automatically */}
+        <div className="grid grid-cols-3 gap-3">
           {attributes.map((attr) => {
             const Icon = attr.icon;
             return (
-              <div key={attr.label} className="flex flex-col items-center justify-center text-sm lg:flex-shrink-0 lg:min-w-[100px]">
+              <div key={attr.label} className="flex flex-col items-center justify-center text-sm">
                 <span className="text-muted-foreground flex items-center gap-1.5 mb-1">
                   <Icon className="h-4 w-4" />
-                  <span className="text-xs lg:text-sm">{attr.label}</span>
+                  <span className="text-xs">{attr.label}</span>
                 </span>
                 <Badge variant="outline" className={attr.color}>
                   {attr.value}

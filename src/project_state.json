@@ -1,51 +1,36 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Dashboard UI improvements: adjust field card attributes layout to 3 columns in a single row and support user-selectable light-palette background colors for field cards.",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-update-the-dashboard-fieldcard-attribute-list-urgency-value-interest-influence-duration-so-the-attributes-are-laid-out-in-a-3-column-responsive-grid-and-on-large-screens-they-should-remain-on-a-single-horizontal-row-no-wrapping-by-using-a-horizontal-scroll-or-other-non-wrapping-layout-when-needed",
-      "title": "Update the Dashboard FieldCard attribute list (Urgency, Value, Interest, Influence, Duration) so the attributes are laid out in a 3-column responsive grid, and on large screens they should remain on a single horizontal row (no wrapping) by using a horizontal scroll or other non-wrapping layout when needed.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-user-selectable-background-color-option-for-dashboard-fieldcards-using-a-light-color-palette-and-apply-the-selected-background-color-to-the-fieldcard-container-in-the-dashboard",
-      "title": "Add a user-selectable background color option for Dashboard FieldCards using a light color palette, and apply the selected background color to the FieldCard container in the dashboard.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-define-a-consistent-light-palette-background-color-set-ids-labels-for-field-card-backgrounds-and-expose-it-in-the-frontend-where-the-background-selection-ui-is-implemented",
-      "title": "Define a consistent light-palette background color set (IDs + labels) for field card backgrounds and expose it in the frontend where the background selection UI is implemented.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    }
+  "summary": "Dashboard UI improvements: wrap field attribute cards into a 3-column layout, expand predefined background color options, and expand predefined icon set.",
+  "architectural_notes": [
+    "3-column layout should use wrapping behavior (auto-wrap every 3 items) for field attribute cards in the dashboard."
   ],
+  "known_issues": [
+    "Dashboard field attribute cards are currently laid out in a single row instead of wrapping into rows of 3."
+  ],
+  "isFixRequest": true,
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update dashboard field card attributes to a 3-column layout with all attributes on the same row.",
+      "summary": "Fix dashboard field attribute cards layout to wrap into rows of 3 (3-column wrap) instead of all in one row",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add user-selectable background color for dashboard field cards (light palette options).",
+      "summary": "Add 12 additional simple predefined background colors to the background selector",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add 100 additional hand-picked predefined icons to the icon selector/library",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Update dashboard FieldCard attribute layout to 3 columns and add user-selectable light background colors",
+  "projectName": "Untitled request",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

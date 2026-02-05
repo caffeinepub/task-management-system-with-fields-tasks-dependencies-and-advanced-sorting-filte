@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -57,7 +58,7 @@ export default function CreateFieldDialog({ open, onOpenChange }: CreateFieldDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create New Field</DialogTitle>
           <DialogDescription>
@@ -108,33 +109,35 @@ export default function CreateFieldDialog({ open, onOpenChange }: CreateFieldDia
 
             <div className="space-y-2">
               <Label>Background Color</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {FIELD_CARD_BACKGROUNDS.map((bg) => {
-                  const isSelected = selectedBackground === bg.id;
-                  const bgColor = getBackgroundCssVar(bg.id);
-                  return (
-                    <button
-                      key={bg.id}
-                      type="button"
-                      onClick={() => setSelectedBackground(bg.id)}
-                      disabled={!isAuthenticated || isActorInitializing || createField.isPending}
-                      className={`
-                        flex flex-col items-center gap-2 p-3 rounded-lg border-2
-                        transition-all hover:border-primary/50
-                        ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                      `}
-                      title={bg.label}
-                    >
-                      <div 
-                        className="w-full h-12 rounded-md border border-border"
-                        style={{ backgroundColor: bgColor }}
-                      />
-                      <span className="text-xs text-center">{bg.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <ScrollArea className="h-64">
+                <div className="grid grid-cols-4 gap-2 pr-4">
+                  {FIELD_CARD_BACKGROUNDS.map((bg) => {
+                    const isSelected = selectedBackground === bg.id;
+                    const bgColor = getBackgroundCssVar(bg.id);
+                    return (
+                      <button
+                        key={bg.id}
+                        type="button"
+                        onClick={() => setSelectedBackground(bg.id)}
+                        disabled={!isAuthenticated || isActorInitializing || createField.isPending}
+                        className={`
+                          flex flex-col items-center gap-2 p-3 rounded-lg border-2
+                          transition-all hover:border-primary/50
+                          ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                        `}
+                        title={bg.label}
+                      >
+                        <div 
+                          className="w-full h-12 rounded-md border border-border"
+                          style={{ backgroundColor: bgColor }}
+                        />
+                        <span className="text-xs text-center">{bg.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
             </div>
           </div>
           <DialogFooter>
