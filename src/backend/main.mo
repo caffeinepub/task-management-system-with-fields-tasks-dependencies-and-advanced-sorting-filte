@@ -8,7 +8,9 @@ import Iter "mo:core/Iter";
 import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type FieldId = Text;
   public type TaskId = Text;
@@ -28,6 +30,7 @@ actor {
     name : Text;
     icon : Text;
     color : Text;
+    backgroundColor : Text;
     createdBy : Principal;
     createdAt : Time.Time;
     avgUrgency : Nat;
@@ -108,7 +111,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  public shared ({ caller }) func createField(name : Text, icon : Text, color : Text) : async FieldId {
+  public shared ({ caller }) func createField(name : Text, icon : Text, color : Text, backgroundColor : Text) : async FieldId {
     requireUserPermission(caller);
     let fieldId = name # "_" # caller.toText() # "_" # Time.now().toText();
     let field : Field = {
@@ -116,6 +119,7 @@ actor {
       name;
       icon;
       color;
+      backgroundColor;
       createdBy = caller;
       createdAt = Time.now();
       avgUrgency = 0;
@@ -131,7 +135,7 @@ actor {
     fieldId;
   };
 
-  public shared ({ caller }) func updateField(fieldId : FieldId, name : Text, icon : Text, color : Text) : async () {
+  public shared ({ caller }) func updateField(fieldId : FieldId, name : Text, icon : Text, color : Text, backgroundColor : Text) : async () {
     requireUserPermission(caller);
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
@@ -144,6 +148,7 @@ actor {
           name;
           icon;
           color;
+          backgroundColor;
           createdBy = field.createdBy;
           createdAt = field.createdAt;
           avgUrgency = field.avgUrgency;
@@ -525,6 +530,7 @@ actor {
           name = field.name;
           icon = field.icon;
           color = field.color;
+          backgroundColor = field.backgroundColor;
           createdBy = field.createdBy;
           createdAt = field.createdAt;
           avgUrgency;
@@ -610,3 +616,4 @@ actor {
     };
   };
 };
+

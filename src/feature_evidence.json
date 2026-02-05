@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-all-tasks-view-remove-the-field-badge-currently-rendered-above-each-task-card-and-instead-render-the-task-s-field-tag-as-a-small-badge-inside-the-taskcard-e-g-in-the-card-header-row-near-the-task-title",
-      "featureTitle": "In the All Tasks view, remove the field badge currently rendered above each task card and instead render the task’s field tag as a small badge inside the TaskCard (e.g., in the card header row near the task title).",
+      "featureId": "feature-update-the-dashboard-fieldcard-attribute-list-urgency-value-interest-influence-duration-so-the-attributes-are-laid-out-in-a-3-column-responsive-grid-and-on-large-screens-they-should-remain-on-a-single-horizontal-row-no-wrapping-by-using-a-horizontal-scroll-or-other-non-wrapping-layout-when-needed",
+      "featureTitle": "Update the Dashboard FieldCard attribute list (Urgency, Value, Interest, Influence, Duration) so the attributes are laid out in a 3-column responsive grid, and on large screens they should remain on a single horizontal row (no wrapping) by using a horizontal scroll or other non-wrapping layout when needed.",
       "files": [
-        "frontend/src/components/AllTasksView.tsx",
-        "frontend/src/components/TaskCard.tsx"
+        "frontend/src/components/FieldCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -22,11 +21,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-slightly-reduce-vertical-spacing-in-the-all-tasks-view-to-make-the-task-list-more-compact-reduce-excess-margins-padding-between-cards-and-within-the-card-layout-without-changing-task-functionality-complete-undo-edit-delete-dependencies-display",
-      "featureTitle": "Slightly reduce vertical spacing in the All Tasks view to make the task list more compact (reduce excess margins/padding between cards and within the card layout), without changing task functionality (complete/undo, edit, delete, dependencies display).",
+      "featureId": "feature-add-a-user-selectable-background-color-option-for-dashboard-fieldcards-using-a-light-color-palette-and-apply-the-selected-background-color-to-the-fieldcard-container-in-the-dashboard",
+      "featureTitle": "Add a user-selectable background color option for Dashboard FieldCards using a light color palette, and apply the selected background color to the FieldCard container in the dashboard.",
       "files": [
-        "frontend/src/components/AllTasksView.tsx",
-        "frontend/src/components/TaskCard.tsx"
+        "frontend/src/components/CreateFieldDialog.tsx",
+        "frontend/src/components/EditFieldDialog.tsx",
+        "frontend/src/components/FieldCard.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,11 +43,14 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-keep-the-field-tag-s-current-visual-style-when-moved-inside-the-card-same-badge-variant-styling-as-currently-used-in-alltasksview",
-      "featureTitle": "Keep the field tag’s current visual style when moved inside the card (same badge variant/styling as currently used in AllTasksView).",
+      "featureId": "feature-define-a-consistent-light-palette-background-color-set-ids-labels-for-field-card-backgrounds-and-expose-it-in-the-frontend-where-the-background-selection-ui-is-implemented",
+      "featureTitle": "Define a consistent light-palette background color set (IDs + labels) for field card backgrounds and expose it in the frontend where the background selection UI is implemented.",
       "files": [
-        "frontend/src/components/AllTasksView.tsx",
-        "frontend/src/components/TaskCard.tsx"
+        "frontend/src/components/CreateFieldDialog.tsx",
+        "frontend/src/components/EditFieldDialog.tsx",
+        "frontend/src/components/FieldCard.tsx",
+        "frontend/src/index.css",
+        "frontend/src/utils/fieldCardBackgrounds.ts"
       ],
       "components": [
         "authorization@4.0.0",

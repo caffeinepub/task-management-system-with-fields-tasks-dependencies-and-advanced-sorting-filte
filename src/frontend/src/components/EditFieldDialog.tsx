@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Field } from '../backend';
 import { PREDEFINED_ICONS, PREDEFINED_COLORS, getIconComponent, getColorById } from '../utils/fieldAppearance';
+import { FIELD_CARD_BACKGROUNDS, getBackgroundById, getBackgroundCssVar, type BackgroundColorId } from '../utils/fieldCardBackgrounds';
 import * as LucideIcons from 'lucide-react';
 
 interface EditFieldDialogProps {
@@ -26,6 +27,7 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
   const [name, setName] = useState(field.name);
   const [selectedIcon, setSelectedIcon] = useState<string>(field.icon);
   const [selectedColor, setSelectedColor] = useState<string>(field.color);
+  const [selectedBackground, setSelectedBackground] = useState<BackgroundColorId>(field.backgroundColor as BackgroundColorId);
   const updateField = useUpdateField();
 
   useEffect(() => {
@@ -33,8 +35,9 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
       setName(field.name);
       setSelectedIcon(field.icon);
       setSelectedColor(field.color);
+      setSelectedBackground(field.backgroundColor as BackgroundColorId);
     }
-  }, [open, field.name, field.icon, field.color]);
+  }, [open, field.name, field.icon, field.color, field.backgroundColor]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,7 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
           name: name.trim(),
           icon: selectedIcon,
           color: selectedColor,
+          backgroundColor: selectedBackground,
         },
         {
           onSuccess: () => {
@@ -57,13 +61,14 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
 
   const SelectedIconComponent = getIconComponent(selectedIcon);
   const selectedColorObj = getColorById(selectedColor);
+  const selectedBackgroundObj = getBackgroundById(selectedBackground);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Field</DialogTitle>
-          <DialogDescription>Update the field name, icon, and color.</DialogDescription>
+          <DialogDescription>Update the field name, icon, color, and background.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-6 py-4">
@@ -151,6 +156,45 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
                         style={{ backgroundColor: color.value }}
                       />
                       <span className="text-xs">{color.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Background Color Picker */}
+            <div className="space-y-2">
+              <Label>Background Color</Label>
+              <div className="flex items-center gap-3 mb-3">
+                <div 
+                  className="w-8 h-8 rounded-md border-2 border-border"
+                  style={{ backgroundColor: getBackgroundCssVar(selectedBackground) }}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {selectedBackgroundObj.label}
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {FIELD_CARD_BACKGROUNDS.map((bg) => {
+                  const isSelected = selectedBackground === bg.id;
+                  const bgColor = getBackgroundCssVar(bg.id);
+                  return (
+                    <button
+                      key={bg.id}
+                      type="button"
+                      onClick={() => setSelectedBackground(bg.id)}
+                      className={`
+                        flex flex-col items-center gap-2 p-3 rounded-lg border-2
+                        transition-all hover:border-primary/50
+                        ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
+                      `}
+                      title={bg.label}
+                    >
+                      <div 
+                        className="w-full h-12 rounded-md border border-border"
+                        style={{ backgroundColor: bgColor }}
+                      />
+                      <span className="text-xs text-center">{bg.label}</span>
                     </button>
                   );
                 })}

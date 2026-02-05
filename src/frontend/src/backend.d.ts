@@ -9,6 +9,7 @@ export interface None {
 export type Option<T> = Some<T> | None;
 export interface Field {
     id: FieldId;
+    backgroundColor: string;
     avgUrgency: bigint;
     icon: string;
     totalTaskDuration: bigint;
@@ -60,7 +61,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createField(name: string, icon: string, color: string): Promise<FieldId>;
+    createField(name: string, icon: string, color: string, backgroundColor: string): Promise<FieldId>;
     createTask(fieldId: FieldId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<TaskId>;
     deleteField(fieldId: FieldId): Promise<void>;
     deleteTask(taskId: TaskId): Promise<void>;
@@ -79,6 +80,6 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchTasks(fieldId: FieldId, searchTerm: string): Promise<Array<Task>>;
     undoTaskCompletion(taskId: TaskId): Promise<void>;
-    updateField(fieldId: FieldId, name: string, icon: string, color: string): Promise<void>;
+    updateField(fieldId: FieldId, name: string, icon: string, color: string, backgroundColor: string): Promise<void>;
     updateTask(taskId: TaskId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<void>;
 }

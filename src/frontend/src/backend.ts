@@ -91,6 +91,7 @@ export class ExternalBlob {
 }
 export interface Field {
     id: FieldId;
+    backgroundColor: string;
     avgUrgency: bigint;
     icon: string;
     totalTaskDuration: bigint;
@@ -143,7 +144,7 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createField(name: string, icon: string, color: string): Promise<FieldId>;
+    createField(name: string, icon: string, color: string, backgroundColor: string): Promise<FieldId>;
     createTask(fieldId: FieldId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<TaskId>;
     deleteField(fieldId: FieldId): Promise<void>;
     deleteTask(taskId: TaskId): Promise<void>;
@@ -162,7 +163,7 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchTasks(fieldId: FieldId, searchTerm: string): Promise<Array<Task>>;
     undoTaskCompletion(taskId: TaskId): Promise<void>;
-    updateField(fieldId: FieldId, name: string, icon: string, color: string): Promise<void>;
+    updateField(fieldId: FieldId, name: string, icon: string, color: string, backgroundColor: string): Promise<void>;
     updateTask(taskId: TaskId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<void>;
 }
 import type { DurationUnit as _DurationUnit, ExportPayload as _ExportPayload, Field as _Field, FieldId as _FieldId, Task as _Task, TaskId as _TaskId, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -196,17 +197,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createField(arg0: string, arg1: string, arg2: string): Promise<FieldId> {
+    async createField(arg0: string, arg1: string, arg2: string, arg3: string): Promise<FieldId> {
         if (this.processError) {
             try {
-                const result = await this.actor.createField(arg0, arg1, arg2);
+                const result = await this.actor.createField(arg0, arg1, arg2, arg3);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createField(arg0, arg1, arg2);
+            const result = await this.actor.createField(arg0, arg1, arg2, arg3);
             return result;
         }
     }
@@ -462,17 +463,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateField(arg0: FieldId, arg1: string, arg2: string, arg3: string): Promise<void> {
+    async updateField(arg0: FieldId, arg1: string, arg2: string, arg3: string, arg4: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateField(arg0, arg1, arg2, arg3);
+                const result = await this.actor.updateField(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateField(arg0, arg1, arg2, arg3);
+            const result = await this.actor.updateField(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }

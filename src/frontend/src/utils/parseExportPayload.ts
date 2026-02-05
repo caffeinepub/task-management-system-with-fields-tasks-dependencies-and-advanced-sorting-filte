@@ -2,6 +2,7 @@ import { Principal } from '@dfinity/principal';
 import { DurationUnit } from '../backend';
 import type { ExportPayload, Field, Task } from '../backend';
 import { DEFAULT_ICON, DEFAULT_COLOR_ID } from './fieldAppearance';
+import { DEFAULT_BACKGROUND_ID } from './fieldCardBackgrounds';
 
 /**
  * Parse and validate an exported JSON payload.
@@ -42,9 +43,10 @@ export function parseExportPayload(json: unknown): ExportPayload {
       throw new Error(`Invalid field at index ${index}: Missing or invalid "name"`);
     }
 
-    // Parse icon and color with defaults for older exports
+    // Parse icon, color, and backgroundColor with defaults for older exports
     const icon = typeof f.icon === 'string' ? f.icon : DEFAULT_ICON;
     const color = typeof f.color === 'string' ? f.color : DEFAULT_COLOR_ID;
+    const backgroundColor = typeof f.backgroundColor === 'string' ? f.backgroundColor : DEFAULT_BACKGROUND_ID;
 
     // Parse Principal
     let createdBy: Principal;
@@ -69,6 +71,7 @@ export function parseExportPayload(json: unknown): ExportPayload {
       name: f.name,
       icon,
       color,
+      backgroundColor,
       createdBy,
       createdAt: parseBigInt(f.createdAt, 'createdAt'),
       avgUrgency: parseBigInt(f.avgUrgency, 'avgUrgency'),

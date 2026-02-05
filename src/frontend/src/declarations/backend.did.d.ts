@@ -19,6 +19,7 @@ export interface ExportPayload {
 }
 export interface Field {
   'id' : FieldId,
+  'backgroundColor' : string,
   'avgUrgency' : bigint,
   'icon' : string,
   'totalTaskDuration' : bigint,
@@ -58,7 +59,7 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createField' : ActorMethod<[string, string, string], FieldId>,
+  'createField' : ActorMethod<[string, string, string, string], FieldId>,
   'createTask' : ActorMethod<
     [
       FieldId,
@@ -93,7 +94,10 @@ export interface _SERVICE {
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchTasks' : ActorMethod<[FieldId, string], Array<Task>>,
   'undoTaskCompletion' : ActorMethod<[TaskId], undefined>,
-  'updateField' : ActorMethod<[FieldId, string, string, string], undefined>,
+  'updateField' : ActorMethod<
+    [FieldId, string, string, string, string],
+    undefined
+  >,
   'updateTask' : ActorMethod<
     [
       TaskId,

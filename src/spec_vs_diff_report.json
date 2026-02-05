@@ -1,24 +1,71 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T08:50:20.633Z",
-  "summary": "Diff appears to move the field tag into TaskCard via a new optional prop and tighten spacing for a more compact All Tasks list, but files are truncated so removal of the external badge cannot be fully verified. Diff also adds an undo toast on completion, which was not requested.",
+  "generatedAt": "2026-02-05T21:00:50.260Z",
+  "summary": "REQ-1/2/3 appear implemented: FieldCard attributes use a 3-column grid with non-wrapping horizontal scroll on large screens, and a user-selectable light background palette is defined, selectable in create/edit flows, persisted via backend field schema + migration, and applied to FieldCard styling. However, the diff summary indicates several additional UI/behavior changes not requested in the BuildRequest.",
   "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Add a 5-second undo toast/action when completing a task (and mutate with `silent: true` to suppress default toast).",
-      "reason": "BuildRequest only asked to move the field tag and reduce spacing; it explicitly says not to change task functionality. Adding an undo flow/toast changes completion behavior/UX.",
+      "description": "Boot orchestration and retry/error recovery flow changes in the main app (cache clearing, stage-aware boot errors, stopped-canister recovery)",
+      "reason": "Not requested; BuildRequest focuses only on FieldCard attribute layout and background color selection.",
       "evidence": [
-        "frontend/src/components/TaskCard.tsx",
+        "frontend/src/App.tsx (described in frontend-file-summaries.txt)",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Logout functionality added to header/profile dropdown, including clearing cached data",
+      "reason": "Not requested by any REQ; unrelated to FieldCard layout/background color.",
+      "evidence": [
+        "frontend/src/components/Header.tsx (described in frontend-file-summaries.txt)",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Dashboard page header responsiveness changes (stacking on small screens, wrapping action buttons)",
+      "reason": "Non-goal risk area; not requested (REQ-1 explicitly says no other dashboard parts regress; it does not ask for new header layout behavior).",
+      "evidence": [
+        "frontend/src/pages/Dashboard.tsx (described in frontend-file-summaries.txt)",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "FieldDetailView changes to display totalActiveTaskDuration in header badges and add delete-field confirmation dialog",
+      "reason": "Not requested; outside REQ-1/2/3 scope.",
+      "evidence": [
+        "frontend/src/components/FieldDetailView.tsx (described in frontend-file-summaries.txt)",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "TaskCard changes: completion checkbox undo toast, optional fieldTag badge, compact padding/spacing",
+      "reason": "Not requested; unrelated to field card attribute layout/background color.",
+      "evidence": [
+        "frontend/src/components/TaskCard.tsx (described in frontend-file-summaries.txt)",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "EditTaskDialog changes allowing duration to be cleared and altering unit conversion behavior",
+      "reason": "Not requested; outside REQ-1/2/3.",
+      "evidence": [
+        "frontend/src/components/EditTaskDialog.tsx (described in frontend-file-summaries.txt)",
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.72,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/AllTasksView.tsx",
-    "frontend/src/components/TaskCard.tsx",
+    "frontend/src/components/CreateFieldDialog.tsx",
+    "frontend/src/components/EditFieldDialog.tsx",
+    "frontend/src/components/FieldCard.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/utils/fieldCardBackgrounds.ts",
+    "frontend/src/utils/parseExportPayload.ts",
     "project_state.json"
   ]
 }

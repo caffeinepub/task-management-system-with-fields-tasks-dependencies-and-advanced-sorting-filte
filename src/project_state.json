@@ -1,284 +1,30 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Task Management System is an Internet Computer (ICP) web app with a React + TanStack React Query frontend and a Motoko canister backend. Users authenticate via Internet Identity, set up a simple user profile, and then manage \"Fields\" (custom categories with an icon/color) and \"Tasks\" within those fields. Tasks support prioritization attributes (urgency, value, interest, influence), duration with selectable units (stored as minutes in the backend), dependencies, moving between fields, completion with undo, editing, deletion, and list search/sort. The backend enforces role-based access control (admin/user/guest), computes per-field aggregate metrics (averages and total active-task duration), and supports JSON export/import (backup/restore) of a user’s fields and tasks.",
+  "summary": "Dashboard UI improvements: adjust field card attributes layout to 3 columns in a single row and support user-selectable light-palette background colors for field cards.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "IF-1",
-      "title": "Internet Identity authentication provider",
-      "synonyms": [
-        "InternetIdentityProvider",
-        "AuthClient login",
-        "II auth context"
-      ],
-      "description": "Provides a React context backed by @dfinity/auth-client to initialize/load persisted identities, perform Internet Identity login, expose login status flags, and logout/clear identity state.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-2",
-      "title": "Pre-React bootstrap shims and startup crash fallback UI",
-      "synonyms": [
-        "preReactGlobals",
-        "bootFallback",
-        "startup error screen"
-      ],
-      "description": "Installs browser-safe shims for process/env/global and registers global error/unhandledrejection handlers that render a standalone fallback UI if the app fails before React begins rendering; includes copy-to-clipboard diagnostics and retry via page reload.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-3",
-      "title": "Resilient backend actor initialization (identity-aware)",
-      "synonyms": [
-        "useResilientActor",
-        "actor-init",
-        "identity-scoped actor cache"
-      ],
-      "description": "Creates and caches a canister actor using React Query keyed by the user principal, with structured logging, stage='actor-init' error annotation, and limited retries for network failures; exposes an isReady flag used to guard mutations post-login.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-4",
-      "title": "Legacy actor initialization with access-control bootstrap via secret token",
-      "synonyms": [
-        "useActor",
-        "_initializeAccessControlWithSecret",
-        "admin token bootstrap"
-      ],
-      "description": "Alternative actor hook that calls the canister’s access-control initialization endpoint using a secret extracted from the URL hash/session storage, and invalidates dependent queries when the actor changes.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-5",
-      "title": "Boot orchestration with recoverable error handling",
-      "synonyms": [
-        "App boot flow",
-        "RecoverableBootError",
-        "boot retry/logout"
-      ],
-      "description": "App.tsx coordinates identity initialization, actor readiness, and profile loading; shows LoginPrompt when anonymous, ProfileSetupModal when profile is missing, and a recoverable boot error screen with retry (cache removal + refetch) and logout (clears identity + query cache).",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-6",
-      "title": "IC/canister error normalization and boot diagnostics utilities",
-      "synonyms": [
-        "bootErrorMessages",
-        "extractSafeErrorMessage",
-        "isStoppedCanisterError",
-        "isUserNotRegisteredError"
-      ],
-      "description": "Extracts readable text from nested IC reject/error shapes, detects specific conditions (missing registration/profile and stopped canister), normalizes errors into user-friendly messages, and produces structured diagnostics suitable for UI display and clipboard copying.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-7",
-      "title": "User profile fetch/save and first-time profile setup modal",
-      "synonyms": [
-        "useGetCallerUserProfile",
-        "useSaveCallerUserProfile",
-        "ProfileSetupModal"
-      ],
-      "description": "Fetches the authenticated caller’s profile (principal-scoped cache key) and treats missing registration as a new-user condition; provides guarded profile saving (login-required / actor-initializing / actor-unavailable) with normalized error messages and immediate cache update on success.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-8",
-      "title": "Header with theme toggle and authenticated user menu",
-      "synonyms": [
-        "Header",
-        "next-themes toggle",
-        "logout clears cache"
-      ],
-      "description": "Sticky header provides light/dark theme switching and an authenticated user dropdown (initials, name, principal snippet) with logout that clears Internet Identity session and clears React Query cache.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-9",
-      "title": "Dashboard with Fields and All Tasks tabs, plus guarded actions",
-      "synonyms": [
-        "Dashboard page",
-        "Tabs UI",
-        "auth-guarded buttons"
-      ],
-      "description": "Main UI with Fields and All Tasks tabs, search/sort controls for fields, navigation to field detail, and action buttons for New Field, Export Data, and Import Data that are guarded by authentication and actor readiness state.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-10",
-      "title": "Fields CRUD with icon/color support",
-      "synonyms": [
-        "useGetAllFields",
-        "useCreateField",
-        "useUpdateField",
-        "useDeleteField"
-      ],
-      "description": "Allows listing, creating (with default icon/color), updating (name + icon + color), and deleting fields. Uses React Query invalidation and includes optimistic cache updates on field deletion (removes deleted field and related tasks from cached lists).",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-11",
-      "title": "Predefined Field icon and color system",
-      "synonyms": [
-        "fieldAppearance",
-        "PREDEFINED_ICONS",
-        "PREDEFINED_COLORS"
-      ],
-      "description": "Defines a curated set of Lucide icon IDs and a color palette, plus helpers to map stored IDs to renderable icon components and color hex values with safe fallbacks and defaults.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-12",
-      "title": "Field cards and field detail view with metrics, task list search and sorting",
-      "synonyms": [
-        "FieldCard",
-        "FieldDetailView",
-        "field metrics badges"
-      ],
-      "description": "Field cards show icon/color accents, active task counts, and backend-computed averages and duration totals. Field detail view shows metrics, searchable/sortable active tasks, plus create task, edit field, and delete field flows with confirmation dialogs.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-13",
-      "title": "Task creation with attributes, duration units, and dependencies",
-      "synonyms": [
-        "CreateTaskDialog",
-        "useCreateTask",
-        "task dependency selection"
-      ],
-      "description": "Creates tasks with 1–5 scale attributes (urgency/value/interest/influence), a duration value with selectable unit (minutes/hours/days), and an optional list of task dependencies.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-14",
-      "title": "Task editing, moving between fields, and dependency management",
-      "synonyms": [
-        "EditTaskDialog",
-        "useUpdateTask",
-        "useMoveTaskToField"
-      ],
-      "description": "Edits task attributes, duration/unit (with unit conversion and support for clearing duration), and dependencies; supports moving tasks to another field with a silent backend mutation and an undo toast that can move the task back.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-15",
-      "title": "Task completion lifecycle with undo",
-      "synonyms": [
-        "markTaskCompleted",
-        "undoTaskCompletion",
-        "completion undo toast"
-      ],
-      "description": "Marks tasks completed and removes them from active views; provides an undo action via toast that calls undoTaskCompletion and refetches relevant queries to keep metrics and lists consistent.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-16",
-      "title": "Task deletion with confirmation",
-      "synonyms": [
-        "useDeleteTask",
-        "Task delete dialog"
-      ],
-      "description": "Deletes tasks via backend mutation with a confirmation dialog and toast feedback; invalidates task, allTasks, and fields queries to keep lists and field aggregates updated.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-17",
-      "title": "All Tasks view (cross-field) with search and sorting",
-      "synonyms": [
-        "AllTasksView",
-        "global task list"
-      ],
-      "description": "Displays all active tasks across fields with client-side search and sorting; shows each task’s field label by joining task.fieldId with the fields list.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-18",
-      "title": "Backend-powered task search and attribute-range filtering (hooks available)",
-      "synonyms": [
-        "searchTasks",
-        "filterTasksByAttribute",
-        "useSearchTasks",
-        "useFilterTasksByAttribute"
-      ],
-      "description": "Canister query methods (and corresponding frontend hooks) provide field-scoped task search and numeric attribute-range filtering for active tasks, with authorization checks.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-19",
-      "title": "Per-field aggregate metric recalculation in backend",
-      "synonyms": [
-        "recalculateFieldAverages",
-        "avgUrgency/avgValue/avgInterest/avgInfluence",
-        "totalActiveTaskDuration"
-      ],
-      "description": "Backend recomputes field averages and duration totals when tasks are created/updated/moved/completed/undone/deleted; averages and active duration are computed from uncompleted tasks while also tracking totals across all tasks.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-20",
-      "title": "Export and import user data as JSON backup/restore",
-      "synonyms": [
-        "exportUserData",
-        "importUserData",
-        "downloadJson",
-        "parseExportPayload",
-        "ImportDataConfirmDialog"
-      ],
-      "description": "Authenticated users can export fields/tasks via a guarded mutation and download JSON with BigInt serialization; import validates JSON structure, rehydrates BigInt/Principal/DurationUnit, applies defaults for missing field icon/color, prompts destructive overwrite confirmation, imports into the backend, and invalidates caches afterwards.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-21",
-      "title": "Role-based access control endpoints (admin/user/guest)",
-      "synonyms": [
-        "MixinAuthorization",
-        "access-control.mo",
-        "getCallerUserRole",
-        "assignCallerUserRole",
-        "isCallerAdmin"
-      ],
-      "description": "Motoko access-control module and mixin provide role management endpoints, token-gated initialization of roles (first valid token becomes admin), admin checks, and admin-only role assignment; backend CRUD methods gate access with requireUserPermission.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "feature-in-the-all-tasks-view-remove-the-field-badge-currently-rendered-above-each-task-card-and-instead-render-the-task-s-field-tag-as-a-small-badge-inside-the-taskcard-e-g-in-the-card-header-row-near-the-task-title",
-      "title": "In the All Tasks view, remove the field badge currently rendered above each task card and instead render the task’s field tag as a small badge inside the TaskCard (e.g., in the card header row near the task title).",
+      "id": "feature-update-the-dashboard-fieldcard-attribute-list-urgency-value-interest-influence-duration-so-the-attributes-are-laid-out-in-a-3-column-responsive-grid-and-on-large-screens-they-should-remain-on-a-single-horizontal-row-no-wrapping-by-using-a-horizontal-scroll-or-other-non-wrapping-layout-when-needed",
+      "title": "Update the Dashboard FieldCard attribute list (Urgency, Value, Interest, Influence, Duration) so the attributes are laid out in a 3-column responsive grid, and on large screens they should remain on a single horizontal row (no wrapping) by using a horizontal scroll or other non-wrapping layout when needed.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-slightly-reduce-vertical-spacing-in-the-all-tasks-view-to-make-the-task-list-more-compact-reduce-excess-margins-padding-between-cards-and-within-the-card-layout-without-changing-task-functionality-complete-undo-edit-delete-dependencies-display",
-      "title": "Slightly reduce vertical spacing in the All Tasks view to make the task list more compact (reduce excess margins/padding between cards and within the card layout), without changing task functionality (complete/undo, edit, delete, dependencies display).",
+      "id": "feature-add-a-user-selectable-background-color-option-for-dashboard-fieldcards-using-a-light-color-palette-and-apply-the-selected-background-color-to-the-fieldcard-container-in-the-dashboard",
+      "title": "Add a user-selectable background color option for Dashboard FieldCards using a light color palette, and apply the selected background color to the FieldCard container in the dashboard.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-keep-the-field-tag-s-current-visual-style-when-moved-inside-the-card-same-badge-variant-styling-as-currently-used-in-alltasksview",
-      "title": "Keep the field tag’s current visual style when moved inside the card (same badge variant/styling as currently used in AllTasksView).",
+      "id": "feature-define-a-consistent-light-palette-background-color-set-ids-labels-for-field-card-backgrounds-and-expose-it-in-the-frontend-where-the-background-selection-ui-is-implemented",
+      "title": "Define a consistent light-palette background color set (IDs + labels) for field card backgrounds and expose it in the frontend where the background selection UI is implemented.",
       "reqIds": [
         "REQ-3"
       ],
@@ -288,37 +34,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Make All Tasks view cards more compact by moving the field tag into the task card as a small badge (keep current style) and slightly reducing vertical spacing/padding.",
+      "summary": "Update dashboard field card attributes to a 3-column layout with all attributes on the same row.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add user-selectable background color for dashboard field cards (light palette options).",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "architectural_notes": [
-    "ICP architecture: Motoko canister exposes Candid methods; frontend calls via a generated actor created by createActorWithConfig.",
-    "Authentication uses Internet Identity (AuthClient) with long-lived delegations; identity is provided via a React context hook (useInternetIdentity).",
-    "Frontend server-state is managed with @tanstack/react-query; backend calls are centralized in custom query/mutation hooks (useQueries.ts).",
-    "Actor lifecycle is encapsulated in useResilientActor with identity-scoped caching, limited retry for network errors, and stage-annotated errors for better UX.",
-    "Boot flow in App.tsx gates UI on identity init + actor readiness + profile fetch, with dedicated LoginPrompt, ProfileSetupModal, and RecoverableBootError (retry/logout) screens.",
-    "Pre-React bootstrap layer installs process/global shims and global error handlers to render a fallback UI if the app crashes before React mounts.",
-    "UI uses TailwindCSS + shadcn/ui primitives and supports light/dark theming via next-themes.",
-    "Field appearance is standardized via predefined Lucide icon IDs and a color palette with safe fallbacks (DEFAULT_ICON/DEFAULT_COLOR_ID).",
-    "Export/Import is implemented as JSON backup/restore; BigInt values are stringified for download and validated/rehydrated (BigInt + Principal + enum mapping) on import.",
-    "Access control is implemented as a Motoko module (access-control.mo) included via a mixin exposing role/admin endpoints and a token-gated initialization call."
-  ],
-  "known_issues": [
-    "Backend AccessControl.getUserRole traps with \"User is not registered\" for new principals; main canister functions call ensureUserRole/requireUserPermission, so new users may be blocked unless _initializeAccessControlWithSecret is invoked at least once for that principal (useResilientActor does not call it; legacy useActor does).",
-    "Backend importUserData does not validate that imported fields/tasks belong to the caller (createdBy == caller), enabling inconsistent or malicious data injection if a crafted payload is submitted.",
-    "Backend importUserData does not recompute per-field aggregate metrics after import; imported averages/duration totals may be stale/incorrect unless the payload contains correct computed values.",
-    "Field cards call getTasksByField per field to compute active task counts, creating an N+1 query pattern that can cause many canister calls for users with many fields.",
-    "Frontend duration unit conversion uses rounding (Math.round) when converting minutes↔hours/days; repeated edits can lose precision/drift.",
-    "Backend searchTasks uses Text.contains on the raw search term (likely case-sensitive), while the frontend’s client-side search is case-insensitive; search behavior may differ between views/APIs.",
-    "React Query cache keys for fields/allTasks are not principal-scoped; correctness depends on cache invalidation/clearing on identity changes, which may still allow brief stale-data flashes during rapid account switching.",
-    "Backend does not validate task dependency integrity (existence, ownership, or cycles); invalid graphs can be stored, especially via import.",
-    "IDs for fields/tasks are generated by concatenating name + principal + timestamp text; this can create very long IDs and offers limited collision safety if timestamps repeat."
-  ],
-  "isFixRequest": false,
-  "gameProjectType": "none",
-  "projectName": "Task Management System",
+  "projectName": "Update dashboard FieldCard attribute layout to 3 columns and add user-selectable light background colors",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

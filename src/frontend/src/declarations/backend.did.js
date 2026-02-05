@@ -38,6 +38,7 @@ export const Task = IDL.Record({
 });
 export const Field = IDL.Record({
   'id' : FieldId,
+  'backgroundColor' : IDL.Text,
   'avgUrgency' : IDL.Nat,
   'icon' : IDL.Text,
   'totalTaskDuration' : IDL.Nat,
@@ -61,7 +62,11 @@ export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createField' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [FieldId], []),
+  'createField' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [FieldId],
+      [],
+    ),
   'createTask' : IDL.Func(
       [
         FieldId,
@@ -102,7 +107,11 @@ export const idlService = IDL.Service({
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchTasks' : IDL.Func([FieldId, IDL.Text], [IDL.Vec(Task)], ['query']),
   'undoTaskCompletion' : IDL.Func([TaskId], [], []),
-  'updateField' : IDL.Func([FieldId, IDL.Text, IDL.Text, IDL.Text], [], []),
+  'updateField' : IDL.Func(
+      [FieldId, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [],
+      [],
+    ),
   'updateTask' : IDL.Func(
       [
         TaskId,
@@ -153,6 +162,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Field = IDL.Record({
     'id' : FieldId,
+    'backgroundColor' : IDL.Text,
     'avgUrgency' : IDL.Nat,
     'icon' : IDL.Text,
     'totalTaskDuration' : IDL.Nat,
@@ -176,7 +186,11 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createField' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [FieldId], []),
+    'createField' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [FieldId],
+        [],
+      ),
     'createTask' : IDL.Func(
         [
           FieldId,
@@ -217,7 +231,11 @@ export const idlFactory = ({ IDL }) => {
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchTasks' : IDL.Func([FieldId, IDL.Text], [IDL.Vec(Task)], ['query']),
     'undoTaskCompletion' : IDL.Func([TaskId], [], []),
-    'updateField' : IDL.Func([FieldId, IDL.Text, IDL.Text, IDL.Text], [], []),
+    'updateField' : IDL.Func(
+        [FieldId, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
     'updateTask' : IDL.Func(
         [
           TaskId,

@@ -8,6 +8,7 @@ import { normalizeProfileSaveError } from '../utils/profileSaveErrors';
 import { normalizeExportUserDataError } from '../utils/exportUserDataErrors';
 import { isUserNotRegisteredError } from '../utils/bootErrorMessages';
 import { DEFAULT_ICON, DEFAULT_COLOR_ID } from '../utils/fieldAppearance';
+import { DEFAULT_BACKGROUND_ID } from '../utils/fieldCardBackgrounds';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
@@ -197,7 +198,7 @@ export function useCreateField() {
     : '';
 
   return useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, backgroundColor }: { name: string; backgroundColor?: string }) => {
       console.log('[CreateField] Mutation attempt started');
       console.log('[CreateField] Actor available:', !!actor);
       console.log('[CreateField] Actor loading:', actorLoading);
@@ -233,7 +234,7 @@ export function useCreateField() {
       
       console.log('[CreateField] All guards passed, calling backend createField...');
       try {
-        const result = await actor.createField(name, DEFAULT_ICON, DEFAULT_COLOR_ID);
+        const result = await actor.createField(name, DEFAULT_ICON, DEFAULT_COLOR_ID, backgroundColor || DEFAULT_BACKGROUND_ID);
         console.log('[CreateField] Backend call successful, fieldId:', result);
         return result;
       } catch (error) {
@@ -291,9 +292,9 @@ export function useUpdateField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ fieldId, name, icon, color }: { fieldId: FieldId; name: string; icon: string; color: string }) => {
+    mutationFn: async ({ fieldId, name, icon, color, backgroundColor }: { fieldId: FieldId; name: string; icon: string; color: string; backgroundColor: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.updateField(fieldId, name, icon, color);
+      return actor.updateField(fieldId, name, icon, color, backgroundColor);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fields'] });

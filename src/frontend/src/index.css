@@ -37,6 +37,16 @@
         --sidebar-accent-foreground: 0.15 0 0;
         --sidebar-border: 0.92 0.01 264;
         --sidebar-ring: 0.55 0.18 264;
+        
+        /* Field card background colors - light mode */
+        --field-bg-white: oklch(1 0 0);
+        --field-bg-sky: oklch(0.95 0.03 230);
+        --field-bg-mint: oklch(0.95 0.03 150);
+        --field-bg-lavender: oklch(0.95 0.03 280);
+        --field-bg-peach: oklch(0.95 0.03 40);
+        --field-bg-lemon: oklch(0.96 0.04 95);
+        --field-bg-rose: oklch(0.95 0.03 350);
+        --field-bg-sage: oklch(0.95 0.02 130);
     }
 
     .dark {
@@ -72,6 +82,16 @@
         --sidebar-accent-foreground: 0.98 0.01 264;
         --sidebar-border: 0.25 0.02 264;
         --sidebar-ring: 0.65 0.20 264;
+        
+        /* Field card background colors - dark mode (slightly lighter than card background) */
+        --field-bg-white: oklch(0.22 0.01 264);
+        --field-bg-sky: oklch(0.22 0.04 230);
+        --field-bg-mint: oklch(0.22 0.04 150);
+        --field-bg-lavender: oklch(0.22 0.04 280);
+        --field-bg-peach: oklch(0.22 0.04 40);
+        --field-bg-lemon: oklch(0.23 0.05 95);
+        --field-bg-rose: oklch(0.22 0.04 350);
+        --field-bg-sage: oklch(0.22 0.03 130);
     }
 
     * {
