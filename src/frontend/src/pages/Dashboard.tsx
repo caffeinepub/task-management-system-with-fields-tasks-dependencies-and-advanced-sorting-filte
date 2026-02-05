@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import FieldCard from '../components/FieldCard';
 import CreateFieldDialog from '../components/CreateFieldDialog';
 import FieldDetailView from '../components/FieldDetailView';
+import FieldDetailErrorBoundary from '../components/FieldDetailErrorBoundary';
 import AllTasksView from '../components/AllTasksView';
 import SortDirectionToggle from '../components/SortDirectionToggle';
 import ImportDataConfirmDialog from '../components/ImportDataConfirmDialog';
@@ -235,7 +236,11 @@ export default function Dashboard() {
   };
 
   if (selectedField) {
-    return <FieldDetailView field={selectedField} onBack={() => setSelectedFieldId(null)} />;
+    return (
+      <FieldDetailErrorBoundary onBack={() => setSelectedFieldId(null)}>
+        <FieldDetailView field={selectedField} onBack={() => setSelectedFieldId(null)} />
+      </FieldDetailErrorBoundary>
+    );
   }
 
   return (

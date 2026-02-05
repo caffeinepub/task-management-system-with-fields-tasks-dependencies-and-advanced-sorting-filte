@@ -1,12 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Untitled request",
-  "priority": "normal",
-  "requirements": [],
-  "constraints": [],
-  "nonGoals": [],
+  "title": "Fix blank screen when editing a Field on the Field Details page",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-8",
+          "msg-10",
+          "msg-12"
+        ],
+        "quotes": [
+          "fix error: tyring to edit a field I get blank screen",
+          "The details Field page",
+          "on all fields details page",
+          "inspect and fix accordingly"
+        ]
+      },
+      "acceptanceCriteria": [
+        "From the Field Details page, clicking the \"Edit\" button opens the Edit Field dialog without a blank screen crash.",
+        "If any icon name in the predefined icon list is not available in the installed lucide-react bundle, the dialog still renders (unknown icons are safely skipped or replaced with a fallback).",
+        "No uncaught exceptions are thrown during rendering of the Edit Field dialog icon grid."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-8",
+          "msg-10",
+          "msg-12"
+        ],
+        "quotes": [
+          "fix error: tyring to edit a field I get blank screen",
+          "The details Field page",
+          "on all fields details page",
+          "inspect and fix accordingly"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If a rendering error occurs within the Field Details page view/components, the UI displays an error panel with clear English text and an action to recover (e.g., go back to Dashboard and/or retry).",
+        "The rest of the app remains usable after recovering (no full blank screen)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files under frontend/src/components/ui (read-only).",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useActor.ts (read-only).",
+    "Keep backend architecture as a single Motoko actor; no additional backend services."
+  ],
+  "nonGoals": [
+    "Adding new field/task features beyond fixing the edit crash and improving error handling.",
+    "Changing the data model or performing backend state migrations."
+  ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

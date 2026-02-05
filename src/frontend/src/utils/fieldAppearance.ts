@@ -127,12 +127,24 @@ export type ColorId = typeof PREDEFINED_COLORS[number]['id'];
 export const DEFAULT_ICON: IconId = 'Briefcase';
 export const DEFAULT_COLOR_ID: ColorId = 'blue';
 
-// Get icon component from icon ID
-export function getIconComponent(iconId: string): LucideIcon {
-  // Validate and return icon component, fallback to default
+// Safe icon resolver: returns the icon component if valid, null if not found
+export function safeGetIconComponent(iconId: string): LucideIcon | null {
   if (iconId in LucideIcons) {
-    return (LucideIcons as any)[iconId] as LucideIcon;
+    const component = (LucideIcons as any)[iconId];
+    // Additional check: ensure it's actually a component (function)
+    if (typeof component === 'function') {
+      return component as LucideIcon;
+    }
   }
+  return null;
+}
+
+// Get icon component from icon ID (with fallback to default)
+export function getIconComponent(iconId: string): LucideIcon {
+  const component = safeGetIconComponent(iconId);
+  if (component) return component;
+  
+  // Fallback to default icon
   return (LucideIcons as any)[DEFAULT_ICON] as LucideIcon;
 }
 

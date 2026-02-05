@@ -1,4 +1,45 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-fix-the-blank-screen-crash-that-occurs-when-the-user-opens-the-edit-field-flow-from-the-field-details-page-by-making-the-editfielddialog-icon-picker-resilient-to-missing-invalid-lucide-icon-component-names-e-g-skip-unknown-icons-or-render-a-safe-fallback-icon-instead-of-throwing-during-render",
+      "featureTitle": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
+      "files": [
+        "frontend/src/components/EditFieldDialog.tsx",
+        "frontend/src/utils/fieldAppearance.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-react-level-error-boundary-for-the-field-details-page-area-so-that-if-a-runtime-error-still-occurs-while-rendering-fielddetailview-and-its-dialogs-the-app-shows-a-user-friendly-in-app-error-state-with-a-retry-back-action-instead-of-a-blank-screen",
+      "featureTitle": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
+      "files": [
+        "frontend/src/components/FieldDetailErrorBoundary.tsx",
+        "frontend/src/pages/Dashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

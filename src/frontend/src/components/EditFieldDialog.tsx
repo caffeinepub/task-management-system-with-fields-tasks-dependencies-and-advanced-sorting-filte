@@ -13,9 +13,9 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Field } from '../backend';
-import { PREDEFINED_ICONS, PREDEFINED_COLORS, getIconComponent, getColorById } from '../utils/fieldAppearance';
+import { PREDEFINED_ICONS, PREDEFINED_COLORS, getIconComponent, getColorById, safeGetIconComponent } from '../utils/fieldAppearance';
 import { FIELD_CARD_BACKGROUNDS, getBackgroundById, getBackgroundCssVar, type BackgroundColorId } from '../utils/fieldCardBackgrounds';
-import * as LucideIcons from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 interface EditFieldDialogProps {
   open: boolean;
@@ -102,7 +102,14 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
               <ScrollArea className="h-64 border rounded-lg p-3">
                 <div className="grid grid-cols-8 gap-2">
                   {PREDEFINED_ICONS.map((iconName) => {
-                    const IconComponent = (LucideIcons as any)[iconName];
+                    // Safely resolve icon component
+                    const IconComponent = safeGetIconComponent(iconName);
+                    
+                    // Skip icons that don't exist in the bundle
+                    if (!IconComponent) {
+                      return null;
+                    }
+                    
                     const isSelected = selectedIcon === iconName;
                     return (
                       <button

@@ -1,28 +1,52 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:56:34.592Z",
+  "generatedAt": "2026-02-05T23:35:21.457Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 0,
-    "implemented": 0,
-    "items": []
+    "total": 2,
+    "implemented": 2,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/fieldAppearance.ts",
+          "frontend/src/components/EditFieldDialog.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/fieldAppearance.ts",
+          "frontend/src/components/EditFieldDialog.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/FieldDetailErrorBoundary.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/FieldDetailErrorBoundary.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ]
+      }
+    ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/CreateFieldDialog.tsx",
     "frontend/src/components/EditFieldDialog.tsx",
-    "frontend/src/components/FieldCard.tsx",
-    "frontend/src/index.css",
+    "frontend/src/components/FieldDetailErrorBoundary.tsx",
+    "frontend/src/pages/Dashboard.tsx",
     "frontend/src/utils/fieldAppearance.ts",
-    "frontend/src/utils/fieldCardBackgrounds.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,6 +1,48 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Untitled request",
-  "requirements": []
+  "title": "Fix Edit Field icon-picker crash and add Field Details error boundary",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Prevent EditFieldDialog icon grid from crashing when a predefined Lucide icon name is missing/invalid by safely skipping or falling back instead of rendering an undefined component.",
+      "acceptanceCriteria": [
+        "From the Field Details page, clicking the \"Edit\" button opens the Edit Field dialog without a blank screen crash.",
+        "If any icon name in the predefined icon list is not available in the installed lucide-react bundle, the dialog still renders (unknown icons are safely skipped or replaced with a fallback).",
+        "No uncaught exceptions are thrown during rendering of the Edit Field dialog icon grid."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/fieldAppearance.ts",
+          "operation": "modify",
+          "description": "Add a small utility to safely resolve Lucide icons for the picker (e.g., a validation helper and/or a resolver that returns null for unknown icon names) so callers can skip invalid icons without throwing."
+        },
+        {
+          "path": "frontend/src/components/EditFieldDialog.tsx",
+          "operation": "modify",
+          "description": "Update the icon picker grid to use the safe icon resolver from fieldAppearance (skip invalid icon names or render a known fallback icon) and guard against undefined IconComponent rendering to prevent runtime render exceptions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add a React error boundary around the Field Details page area to show a recoverable in-app error state instead of a blank screen if FieldDetailView or its dialogs throw at runtime.",
+      "acceptanceCriteria": [
+        "If a rendering error occurs within the Field Details page view/components, the UI displays an error panel with clear English text and an action to recover (e.g., go back to Dashboard and/or retry).",
+        "The rest of the app remains usable after recovering (no full blank screen)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/FieldDetailErrorBoundary.tsx",
+          "operation": "create",
+          "description": "Create a dedicated React error boundary component for the Field Details area that renders a user-friendly error panel and provides actions to recover (retry by resetting boundary state and a Back-to-Dashboard action via callback)."
+        },
+        {
+          "path": "frontend/src/pages/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Wrap the selected Field Details rendering path (when selectedField is set) with the new FieldDetailErrorBoundary, wiring retry/back actions so a FieldDetailView crash does not blank the whole app and users can recover to the dashboard."
+        }
+      ]
+    }
+  ]
 }
