@@ -1,70 +1,67 @@
 {
   "kind": "build_request",
-  "title": "Remove backend Field deletion restrictions and allow deletion with existing tasks",
+  "title": "Make All Tasks cards more compact by moving field tag into the task card",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-7",
-      "text": "Update backend Field deletion logic so a user can delete their own Field without any multi-creator restriction (i.e., do not require “at least two actors/users exist” to allow Field deletion).",
-      "target": "backend",
+      "id": "REQ-1",
+      "text": "In the All Tasks view, remove the field badge currently rendered above each task card and instead render the task’s field tag as a small badge inside the TaskCard (e.g., in the card header row near the task title).",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "fix error: unable to delete field at least two actors required",
-          "1. yes"
+          "in all tasks view make the cards more compact i.e. the field tag that the task belongs to can be in the tasks card not above it",
+          "as a small tag inside the card"
         ]
       },
       "acceptanceCriteria": [
-        "When a user has only one principal/creator in the canister state, deleting a Field they own succeeds (does not trap with any “at least two actors/users required” error)."
+        "All Tasks view no longer shows a separate field badge above each card.",
+        "Each task card in All Tasks view shows the field tag inside the card as a small badge."
       ]
     },
     {
-      "id": "REQ-8",
-      "text": "Remove the backend rule that prevents Field deletion when the caller would have fewer than two Fields remaining (i.e., remove the “maintaining user fields requires at least two” restriction).",
-      "target": "backend",
+      "id": "REQ-2",
+      "text": "Slightly reduce vertical spacing in the All Tasks view to make the task list more compact (reduce excess margins/padding between cards and within the card layout), without changing task functionality (complete/undo, edit, delete, dependencies display).",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "2. yes remove the rule"
+          "yeah also reduce a bit the vertical spacing also"
         ]
       },
       "acceptanceCriteria": [
-        "If a user has exactly 1 Field, deleting that Field succeeds (subject only to the existing ownership/admin checks).",
-        "If a user has exactly 2 Fields, deleting either Field succeeds (subject only to the existing ownership/admin checks)."
+        "Vertical spacing between task cards in All Tasks view is reduced compared to current behavior.",
+        "TaskCard actions and content remain usable and visually clear after spacing reduction."
       ]
     },
     {
-      "id": "REQ-9",
-      "text": "Allow deleting a Field regardless of whether it contains tasks (including incomplete/uncompleted tasks) by ensuring backend Field deletion cascades and removes all tasks belonging to the deleted Field and removes/cleans any task dependencies that reference tasks removed by the cascade.",
-      "target": "backend",
+      "id": "REQ-3",
+      "text": "Keep the field tag’s current visual style when moved inside the card (same badge variant/styling as currently used in AllTasksView).",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "3. delete regardless tasks"
+          "keep the current visual style"
         ]
       },
       "acceptanceCriteria": [
-        "Deleting a Field that contains uncompleted tasks succeeds.",
-        "After Field deletion, no tasks remain in canister state with fieldId equal to the deleted FieldId.",
-        "After Field deletion, remaining tasks do not contain dependency IDs that reference tasks that were deleted during the cascade."
+        "The field tag inside the task card uses the same styling (e.g., outline badge appearance) as before."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister; implement changes in backend/main.mo.",
-    "Do not introduce a schema/state migration unless strictly required by state shape changes (not expected for this change).",
-    "Use English for any user-facing text."
+    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only).",
+    "Keep the current visual style of the field tag; only change its placement and spacing."
   ],
   "nonGoals": [
-    "Do not add new authentication providers or change Internet Identity behavior.",
-    "Do not change Field/Task schemas or introduce new persistence structures beyond what is required to remove the deletion restrictions.",
-    "Do not add new UI flows; only ensure the existing UI can successfully delete Fields under the new backend rules."
+    "No backend changes.",
+    "No changes to Field Detail view task cards beyond what is required to support the All Tasks view changes (e.g., if adding optional props to TaskCard, default behavior should remain unchanged elsewhere)."
   ],
   "imageRequirements": {
     "required": [],

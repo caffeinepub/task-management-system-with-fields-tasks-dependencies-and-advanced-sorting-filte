@@ -1,4 +1,65 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-in-the-all-tasks-view-remove-the-field-badge-currently-rendered-above-each-task-card-and-instead-render-the-task-s-field-tag-as-a-small-badge-inside-the-taskcard-e-g-in-the-card-header-row-near-the-task-title",
+      "featureTitle": "In the All Tasks view, remove the field badge currently rendered above each task card and instead render the task’s field tag as a small badge inside the TaskCard (e.g., in the card header row near the task title).",
+      "files": [
+        "frontend/src/components/AllTasksView.tsx",
+        "frontend/src/components/TaskCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-slightly-reduce-vertical-spacing-in-the-all-tasks-view-to-make-the-task-list-more-compact-reduce-excess-margins-padding-between-cards-and-within-the-card-layout-without-changing-task-functionality-complete-undo-edit-delete-dependencies-display",
+      "featureTitle": "Slightly reduce vertical spacing in the All Tasks view to make the task list more compact (reduce excess margins/padding between cards and within the card layout), without changing task functionality (complete/undo, edit, delete, dependencies display).",
+      "files": [
+        "frontend/src/components/AllTasksView.tsx",
+        "frontend/src/components/TaskCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-keep-the-field-tag-s-current-visual-style-when-moved-inside-the-card-same-badge-variant-styling-as-currently-used-in-alltasksview",
+      "featureTitle": "Keep the field tag’s current visual style when moved inside the card (same badge variant/styling as currently used in AllTasksView).",
+      "files": [
+        "frontend/src/components/AllTasksView.tsx",
+        "frontend/src/components/TaskCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

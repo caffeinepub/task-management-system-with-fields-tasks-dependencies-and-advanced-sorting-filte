@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Task Management System is an Internet Computer (ICP) web app (React + TanStack React Query frontend, Motoko canister backend) that uses Internet Identity for authentication and role-based access control. Authenticated users organize work into \"Fields\" (custom categories with user-chosen icon/color) and \"Tasks\". Tasks support prioritization attributes (urgency, value, interest, influence), duration with units (minutes/hours/days stored as minutes), dependencies, moving between fields, completion with undo, editing, and deletion. The backend computes per-field aggregate metrics (attribute averages and total active-task duration) based on uncompleted tasks. The frontend provides a dashboard with Fields and All Tasks views, robust boot/actor initialization with recoverable error UI, and JSON backup/restore via export/import with BigInt/Principal-safe parsing and backward-compatible defaults for older exports missing field icon/color.",
+  "summary": "Task Management System is an Internet Computer (ICP) web app with a React + TanStack React Query frontend and a Motoko canister backend. Users authenticate via Internet Identity, set up a simple user profile, and then manage \"Fields\" (custom categories with an icon/color) and \"Tasks\" within those fields. Tasks support prioritization attributes (urgency, value, interest, influence), duration with selectable units (stored as minutes in the backend), dependencies, moving between fields, completion with undo, editing, deletion, and list search/sort. The backend enforces role-based access control (admin/user/guest), computes per-field aggregate metrics (averages and total active-task duration), and supports JSON export/import (backup/restore) of a user’s fields and tasks.",
   "existing_features": [
     {
       "id": "IF-1",
@@ -11,97 +11,109 @@
         "AuthClient login",
         "II auth context"
       ],
-      "description": "Provides a React context backed by @dfinity/auth-client to load persisted identities, perform Internet Identity login with long-lived delegation, expose login status flags, and logout/clear identity state.",
+      "description": "Provides a React context backed by @dfinity/auth-client to initialize/load persisted identities, perform Internet Identity login, expose login status flags, and logout/clear identity state.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-2",
-      "title": "Resilient backend actor initialization (identity-aware)",
+      "title": "Pre-React bootstrap shims and startup crash fallback UI",
       "synonyms": [
-        "useResilientActor",
-        "actor-init",
-        "resilient-actor cache"
+        "preReactGlobals",
+        "bootFallback",
+        "startup error screen"
       ],
-      "description": "Creates and caches a canister actor (anonymous or authenticated) using React Query; includes structured logging, stage='actor-init' error annotation, limited retry for network errors, and invalidates/refetches dependent queries when the actor instance changes across login/logout.",
+      "description": "Installs browser-safe shims for process/env/global and registers global error/unhandledrejection handlers that render a standalone fallback UI if the app fails before React begins rendering; includes copy-to-clipboard diagnostics and retry via page reload.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-3",
-      "title": "Legacy actor hook with access-control initialization via secret",
+      "title": "Resilient backend actor initialization (identity-aware)",
       "synonyms": [
-        "useActor",
-        "_initializeAccessControlWithSecret",
-        "admin token bootstrap"
+        "useResilientActor",
+        "actor-init",
+        "identity-scoped actor cache"
       ],
-      "description": "Alternative actor hook that initializes backend access control by calling _initializeAccessControlWithSecret using a secret extracted from the URL hash/session, and forces refetch of dependent queries when identity changes.",
+      "description": "Creates and caches a canister actor using React Query keyed by the user principal, with structured logging, stage='actor-init' error annotation, and limited retries for network failures; exposes an isReady flag used to guard mutations post-login.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-4",
-      "title": "Pre-React bootstrap shims and crash fallback UI",
+      "title": "Legacy actor initialization with access-control bootstrap via secret token",
       "synonyms": [
-        "preReactGlobals",
-        "bootFallback",
-        "startup crash screen"
+        "useActor",
+        "_initializeAccessControlWithSecret",
+        "admin token bootstrap"
       ],
-      "description": "Installs browser-safe shims for process/env/global and registers global error/unhandledrejection handlers that render a standalone, sanitized fallback UI if the app fails before React starts rendering.",
+      "description": "Alternative actor hook that calls the canister’s access-control initialization endpoint using a secret extracted from the URL hash/session storage, and invalidates dependent queries when the actor changes.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-5",
-      "title": "Boot orchestration with recoverable error screen (retry + logout)",
+      "title": "Boot orchestration with recoverable error handling",
       "synonyms": [
         "App boot flow",
         "RecoverableBootError",
-        "boot retry"
+        "boot retry/logout"
       ],
-      "description": "Coordinates identity initialization, actor readiness, and profile loading; shows initializing screen, login prompt when anonymous, profile setup when missing profile, and a recoverable boot error screen with diagnostics, retry (clears boot-critical caches and refetches), and logout (clears identity and query cache).",
+      "description": "App.tsx coordinates identity initialization, actor readiness, and profile loading; shows LoginPrompt when anonymous, ProfileSetupModal when profile is missing, and a recoverable boot error screen with retry (cache removal + refetch) and logout (clears identity + query cache).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-6",
-      "title": "IC/canister error normalization and diagnostics utilities",
+      "title": "IC/canister error normalization and boot diagnostics utilities",
       "synonyms": [
         "bootErrorMessages",
         "extractSafeErrorMessage",
         "isStoppedCanisterError",
         "isUserNotRegisteredError"
       ],
-      "description": "Extracts readable text from nested IC error shapes, detects specific conditions (missing registration/profile and stopped canister), and normalizes errors into user-friendly messages plus structured diagnostics for UI/clipboard.",
+      "description": "Extracts readable text from nested IC reject/error shapes, detects specific conditions (missing registration/profile and stopped canister), normalizes errors into user-friendly messages, and produces structured diagnostics suitable for UI display and clipboard copying.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-7",
-      "title": "User profile fetch/save with first-time setup modal",
+      "title": "User profile fetch/save and first-time profile setup modal",
       "synonyms": [
         "useGetCallerUserProfile",
         "useSaveCallerUserProfile",
         "ProfileSetupModal"
       ],
-      "description": "Fetches the authenticated caller’s UserProfile with principal-scoped caching; shows a modal when the profile is missing; profile save is guarded against anonymous users and actor-not-ready states and uses normalized error messaging; on success updates cache and transitions into the dashboard.",
+      "description": "Fetches the authenticated caller’s profile (principal-scoped cache key) and treats missing registration as a new-user condition; provides guarded profile saving (login-required / actor-initializing / actor-unavailable) with normalized error messages and immediate cache update on success.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-8",
-      "title": "Dashboard with Fields/All Tasks tabs and auth-guarded actions",
+      "title": "Header with theme toggle and authenticated user menu",
       "synonyms": [
-        "Dashboard page",
-        "Fields tab",
-        "All Tasks tab"
+        "Header",
+        "next-themes toggle",
+        "logout clears cache"
       ],
-      "description": "Main UI for managing fields and tasks. Includes search/sort controls for fields, navigation to field detail view, and action buttons (New Field, Export Data, Import Data) that are guarded by authentication and actor readiness states.",
+      "description": "Sticky header provides light/dark theme switching and an authenticated user dropdown (initials, name, principal snippet) with logout that clears Internet Identity session and clears React Query cache.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-9",
+      "title": "Dashboard with Fields and All Tasks tabs, plus guarded actions",
+      "synonyms": [
+        "Dashboard page",
+        "Tabs UI",
+        "auth-guarded buttons"
+      ],
+      "description": "Main UI with Fields and All Tasks tabs, search/sort controls for fields, navigation to field detail, and action buttons for New Field, Export Data, and Import Data that are guarded by authentication and actor readiness state.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
       "title": "Fields CRUD with icon/color support",
       "synonyms": [
         "useGetAllFields",
@@ -109,253 +121,202 @@
         "useUpdateField",
         "useDeleteField"
       ],
-      "description": "Allows listing, creating (with default icon/color), updating (name + icon + color), and deleting fields. Frontend uses React Query invalidation and some optimistic cache updates on delete (also removes tasks in caches).",
+      "description": "Allows listing, creating (with default icon/color), updating (name + icon + color), and deleting fields. Uses React Query invalidation and includes optimistic cache updates on field deletion (removes deleted field and related tasks from cached lists).",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-10",
-      "title": "Predefined Field icon & color system",
+      "id": "IF-11",
+      "title": "Predefined Field icon and color system",
       "synonyms": [
         "fieldAppearance",
         "PREDEFINED_ICONS",
         "PREDEFINED_COLORS"
       ],
-      "description": "Defines a predefined set of Lucide icon IDs and a simple color palette, plus helpers to resolve stored IDs to renderable icon components and hex values with safe fallbacks and defaults.",
-      "reqIds": [
-        "REQ-5",
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "IF-11",
-      "title": "Field cards and field detail view with metrics, search, and sorting",
-      "synonyms": [
-        "FieldCard",
-        "FieldDetailView",
-        "field metrics"
-      ],
-      "description": "Field cards visually reflect chosen icon/color and show active task counts plus backend-computed averages and duration totals. Field detail view shows metric badges and a searchable/sortable task list with create/edit/delete field actions.",
+      "description": "Defines a curated set of Lucide icon IDs and a color palette, plus helpers to map stored IDs to renderable icon components and color hex values with safe fallbacks and defaults.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-12",
-      "title": "Task creation with attributes, duration units, and dependencies",
+      "title": "Field cards and field detail view with metrics, task list search and sorting",
       "synonyms": [
-        "CreateTaskDialog",
-        "useCreateTask",
-        "task dependencies"
+        "FieldCard",
+        "FieldDetailView",
+        "field metrics badges"
       ],
-      "description": "Creates tasks with 1–5 scale attributes (urgency/value/interest/influence), duration with selectable unit, and optional dependencies (task ID list). Mutations invalidate tasks, allTasks, and fields to keep aggregates and lists updated.",
+      "description": "Field cards show icon/color accents, active task counts, and backend-computed averages and duration totals. Field detail view shows metrics, searchable/sortable active tasks, plus create task, edit field, and delete field flows with confirmation dialogs.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-13",
-      "title": "Task editing including move-to-field and dependency management",
+      "title": "Task creation with attributes, duration units, and dependencies",
       "synonyms": [
-        "EditTaskDialog",
-        "useUpdateTask",
-        "useMoveTaskToField"
+        "CreateTaskDialog",
+        "useCreateTask",
+        "task dependency selection"
       ],
-      "description": "Edits task attributes, duration/unit (with conversion and support for empty/0 duration), and dependencies. Supports moving a task to another field (silent mutation) with an undo toast that moves it back.",
+      "description": "Creates tasks with 1–5 scale attributes (urgency/value/interest/influence), a duration value with selectable unit (minutes/hours/days), and an optional list of task dependencies.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-14",
-      "title": "Task completion lifecycle with undo",
+      "title": "Task editing, moving between fields, and dependency management",
       "synonyms": [
-        "markTaskCompleted",
-        "undoTaskCompletion",
-        "TaskCard complete undo"
+        "EditTaskDialog",
+        "useUpdateTask",
+        "useMoveTaskToField"
       ],
-      "description": "Marks tasks completed (removing them from active views) and supports undo within a toast action window; consistently invalidates task and field queries to keep metrics and lists in sync.",
+      "description": "Edits task attributes, duration/unit (with unit conversion and support for clearing duration), and dependencies; supports moving tasks to another field with a silent backend mutation and an undo toast that can move the task back.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-15",
-      "title": "Task deletion with confirmation",
+      "title": "Task completion lifecycle with undo",
       "synonyms": [
-        "useDeleteTask",
-        "TaskCard delete dialog"
+        "markTaskCompleted",
+        "undoTaskCompletion",
+        "completion undo toast"
       ],
-      "description": "Deletes tasks via backend mutation and invalidates task/field caches; UI provides an AlertDialog confirmation and success/error toasts.",
+      "description": "Marks tasks completed and removes them from active views; provides an undo action via toast that calls undoTaskCompletion and refetches relevant queries to keep metrics and lists consistent.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-16",
-      "title": "All Tasks view (cross-field) with search and sorting",
+      "title": "Task deletion with confirmation",
       "synonyms": [
-        "AllTasksView",
-        "global task list"
+        "useDeleteTask",
+        "Task delete dialog"
       ],
-      "description": "Displays all active (uncompleted) tasks across all fields with client-side search and sorting; shows the field name badge for each task by joining against the fields list.",
+      "description": "Deletes tasks via backend mutation with a confirmation dialog and toast feedback; invalidates task, allTasks, and fields queries to keep lists and field aggregates updated.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-17",
-      "title": "Backend-powered task search and attribute-range filtering APIs (hooks available)",
+      "title": "All Tasks view (cross-field) with search and sorting",
+      "synonyms": [
+        "AllTasksView",
+        "global task list"
+      ],
+      "description": "Displays all active tasks across fields with client-side search and sorting; shows each task’s field label by joining task.fieldId with the fields list.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Backend-powered task search and attribute-range filtering (hooks available)",
       "synonyms": [
         "searchTasks",
         "filterTasksByAttribute",
         "useSearchTasks",
         "useFilterTasksByAttribute"
       ],
-      "description": "Provides canister query methods (and corresponding React Query hooks) for field-scoped substring search and numeric attribute-range filtering for active tasks, gated by authorization checks.",
+      "description": "Canister query methods (and corresponding frontend hooks) provide field-scoped task search and numeric attribute-range filtering for active tasks, with authorization checks.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-18",
+      "id": "IF-19",
       "title": "Per-field aggregate metric recalculation in backend",
       "synonyms": [
         "recalculateFieldAverages",
         "avgUrgency/avgValue/avgInterest/avgInfluence",
         "totalActiveTaskDuration"
       ],
-      "description": "Backend recomputes field averages and duration totals when tasks are created/updated/moved/completed/undone/deleted; aggregates are computed from uncompleted tasks while also tracking totals across all tasks.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-19",
-      "title": "Export user data as JSON (download)",
-      "synonyms": [
-        "exportUserData",
-        "useExportUserData",
-        "downloadJson"
-      ],
-      "description": "Authenticated users can export their fields and tasks via a guarded mutation; frontend serializes BigInt values safely and triggers a client-side JSON download with a date-stamped filename and normalized export error messages.",
+      "description": "Backend recomputes field averages and duration totals when tasks are created/updated/moved/completed/undone/deleted; averages and active duration are computed from uncompleted tasks while also tracking totals across all tasks.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-20",
-      "title": "Import user data from JSON with validation and overwrite confirmation",
+      "title": "Export and import user data as JSON backup/restore",
       "synonyms": [
+        "exportUserData",
         "importUserData",
-        "useImportUserData",
+        "downloadJson",
         "parseExportPayload",
         "ImportDataConfirmDialog"
       ],
-      "description": "Accepts a JSON file, parses/validates it (restoring BigInt and Principal types), applies defaults for older exports missing field icon/color, asks for destructive overwrite confirmation, imports via backend mutation, and invalidates all relevant caches afterward.",
-      "reqIds": [
-        "REQ-4"
-      ],
+      "description": "Authenticated users can export fields/tasks via a guarded mutation and download JSON with BigInt serialization; import validates JSON structure, rehydrates BigInt/Principal/DurationUnit, applies defaults for missing field icon/color, prompts destructive overwrite confirmation, imports into the backend, and invalidates caches afterwards.",
+      "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-21",
-      "title": "Backend role/admin management endpoints (AccessControl mixin)",
+      "title": "Role-based access control endpoints (admin/user/guest)",
       "synonyms": [
         "MixinAuthorization",
+        "access-control.mo",
         "getCallerUserRole",
-        "isCallerAdmin",
         "assignCallerUserRole",
-        "_initializeAccessControlWithSecret"
+        "isCallerAdmin"
       ],
-      "description": "Motoko mixin exposes access-control initialization (token-gated via environment variable), role queries, admin checks, and admin-only role assignment; core backend methods enforce permissions via requireUserPermission.",
+      "description": "Motoko access-control module and mixin provide role management endpoints, token-gated initialization of roles (first valid token becomes admin), admin checks, and admin-only role assignment; backend CRUD methods gate access with requireUserPermission.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-22",
-      "title": "Backend data model includes Field icon/color and supports upgrade migration",
-      "synonyms": [
-        "Field.icon",
-        "Field.color",
-        "backend/migration.mo"
+      "id": "feature-in-the-all-tasks-view-remove-the-field-badge-currently-rendered-above-each-task-card-and-instead-render-the-task-s-field-tag-as-a-small-badge-inside-the-taskcard-e-g-in-the-card-header-row-near-the-task-title",
+      "title": "In the All Tasks view, remove the field badge currently rendered above each task card and instead render the task’s field tag as a small badge inside the TaskCard (e.g., in the card header row near the task title).",
+      "reqIds": [
+        "REQ-1"
       ],
-      "description": "Backend Field type persists icon and color fields; a migration module exists to backfill defaults on upgrade from an older Field record format.",
-      "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-23",
-      "title": "UI theming, header profile menu, and cache-clearing logout",
-      "synonyms": [
-        "Header",
-        "next-themes",
-        "logout clears react-query cache"
+      "id": "feature-slightly-reduce-vertical-spacing-in-the-all-tasks-view-to-make-the-task-list-more-compact-reduce-excess-margins-padding-between-cards-and-within-the-card-layout-without-changing-task-functionality-complete-undo-edit-delete-dependencies-display",
+      "title": "Slightly reduce vertical spacing in the All Tasks view to make the task list more compact (reduce excess margins/padding between cards and within the card layout), without changing task functionality (complete/undo, edit, delete, dependencies display).",
+      "reqIds": [
+        "REQ-2"
       ],
-      "description": "Header provides light/dark theme toggle, displays user initials/name/principal snippet when profile exists, and logs out by clearing Internet Identity session and clearing all cached React Query data.",
-      "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-24",
-      "title": "Operational documentation and regression checklists",
-      "synonyms": [
-        "repro guides",
-        "deploy/localdev regression checklist"
+      "id": "feature-keep-the-field-tag-s-current-visual-style-when-moved-inside-the-card-same-badge-variant-styling-as-currently-used-in-alltasksview",
+      "title": "Keep the field tag’s current visual style when moved inside the card (same badge variant/styling as currently used in AllTasksView).",
+      "reqIds": [
+        "REQ-3"
       ],
-      "description": "Includes documentation for reproducing key failures (field creation, profile save) and a comprehensive manual regression checklist covering build/deploy and core user flows (CRUD, search/sort, export/import, boot recovery).",
-      "reqIds": [],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Change backend Field deletion rules: remove multi-creator restriction and 'each creator must retain at least two fields' rule; allow deleting a field regardless of existing tasks (cascade delete associated tasks).",
+      "summary": "Make All Tasks view cards more compact by moving the field tag into the task card as a small badge (keep current style) and slightly reducing vertical spacing/padding.",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Update backend Field deletion logic so a user can delete their own Field without any multi-creator restriction (i.e., do not require “at least two actors/users exist” to allow Field deletion).",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Remove the backend rule that prevents Field deletion when the caller would have fewer than two Fields remaining (i.e., remove the “maintaining user fields requires at least two” restriction).",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Allow deleting a Field regardless of whether it contains tasks (including incomplete/uncompleted tasks) by ensuring backend Field deletion cascades and removes all tasks belonging to the deleted Field and removes/cleans any task dependencies that reference tasks removed by the cascade.",
-      "reqIds": [
-        "REQ-9"
-      ],
       "status": "pending"
     }
   ],
   "architectural_notes": [
-    "ICP architecture: Motoko canister exposes Candid methods; frontend calls through a generated actor interface created via createActorWithConfig.",
-    "Authorization uses an AccessControl module (admin/user/guest) and a Motoko mixin (MixinAuthorization) exposing role/admin endpoints and token-gated initialization.",
-    "Frontend server-state is managed with @tanstack/react-query; all canister operations are wrapped in custom hooks (useQueries.ts).",
-    "Actor lifecycle is encapsulated in useResilientActor with identity-aware caching, limited retry, and stage-annotated errors for better UX.",
-    "App boot flow gates UI on identity + actor readiness + profile fetch; provides a recoverable boot error screen with retry (cache removal/refetch) and logout.",
-    "Pre-React bootstrap layer installs browser shims (process/env/global) and a non-React boot fallback UI for early startup crashes.",
-    "Principal-scoped query keys are used for currentUserProfile to avoid cross-user cache bleed.",
-    "UI is built with shadcn/ui components + TailwindCSS and supports light/dark theme switching via next-themes.",
-    "Export/import is implemented as JSON backup/restore with BigInt-safe serialization and strict payload parsing/validation (including Principal decoding).",
-    "Field appearance is standardized via a predefined icon set and color palette, resolved at render time from stored IDs with safe fallbacks."
+    "ICP architecture: Motoko canister exposes Candid methods; frontend calls via a generated actor created by createActorWithConfig.",
+    "Authentication uses Internet Identity (AuthClient) with long-lived delegations; identity is provided via a React context hook (useInternetIdentity).",
+    "Frontend server-state is managed with @tanstack/react-query; backend calls are centralized in custom query/mutation hooks (useQueries.ts).",
+    "Actor lifecycle is encapsulated in useResilientActor with identity-scoped caching, limited retry for network errors, and stage-annotated errors for better UX.",
+    "Boot flow in App.tsx gates UI on identity init + actor readiness + profile fetch, with dedicated LoginPrompt, ProfileSetupModal, and RecoverableBootError (retry/logout) screens.",
+    "Pre-React bootstrap layer installs process/global shims and global error handlers to render a fallback UI if the app crashes before React mounts.",
+    "UI uses TailwindCSS + shadcn/ui primitives and supports light/dark theming via next-themes.",
+    "Field appearance is standardized via predefined Lucide icon IDs and a color palette with safe fallbacks (DEFAULT_ICON/DEFAULT_COLOR_ID).",
+    "Export/Import is implemented as JSON backup/restore; BigInt values are stringified for download and validated/rehydrated (BigInt + Principal + enum mapping) on import.",
+    "Access control is implemented as a Motoko module (access-control.mo) included via a mixin exposing role/admin endpoints and a token-gated initialization call."
   ],
   "known_issues": [
-    "New principals can trap in backend ensureUserRole(): AccessControl.getUserRole traps with \"User is not registered\" when no role exists; this can block profile/CRUD until some initialization path registers the user.",
-    "useResilientActor does not call _initializeAccessControlWithSecret (unlike legacy useActor), so depending on deployment/ops, users may remain unregistered and hit authorization traps.",
-    "importUserData trusts the incoming payload and does not validate that imported fields/tasks are owned by the caller (createdBy), allowing inconsistent or malicious data injection if the backend is exposed to arbitrary payloads.",
-    "importUserData does not recalculate per-field aggregate metrics after import; averages/duration totals may be stale until subsequent task mutations trigger recalculation.",
-    "Field deletion is constrained by backend rules (e.g., requires multiple distinct creators, requires a creator to retain at least two fields, and forbids deletion if any tasks are incomplete), which may conflict with the UI’s simpler delete messaging.",
-    "Field cards compute active task counts by calling useGetTasksByField per field, which can lead to an N+1 query pattern for users with many fields.",
-    "Duration unit conversions in the frontend use rounding (Math.round) when converting minutes↔hours/days, which can lose precision across repeated unit changes.",
-    "Backend does not validate task dependency integrity (existence, ownership, cycles), so inconsistent dependency graphs can be stored (especially via import).",
-    "Backend migration defaults (\"default_icon\" and a hex color) may not match the frontend’s expected icon IDs and palette IDs, relying on frontend fallbacks for unknown values."
+    "Backend AccessControl.getUserRole traps with \"User is not registered\" for new principals; main canister functions call ensureUserRole/requireUserPermission, so new users may be blocked unless _initializeAccessControlWithSecret is invoked at least once for that principal (useResilientActor does not call it; legacy useActor does).",
+    "Backend importUserData does not validate that imported fields/tasks belong to the caller (createdBy == caller), enabling inconsistent or malicious data injection if a crafted payload is submitted.",
+    "Backend importUserData does not recompute per-field aggregate metrics after import; imported averages/duration totals may be stale/incorrect unless the payload contains correct computed values.",
+    "Field cards call getTasksByField per field to compute active task counts, creating an N+1 query pattern that can cause many canister calls for users with many fields.",
+    "Frontend duration unit conversion uses rounding (Math.round) when converting minutes↔hours/days; repeated edits can lose precision/drift.",
+    "Backend searchTasks uses Text.contains on the raw search term (likely case-sensitive), while the frontend’s client-side search is case-insensitive; search behavior may differ between views/APIs.",
+    "React Query cache keys for fields/allTasks are not principal-scoped; correctness depends on cache invalidation/clearing on identity changes, which may still allow brief stale-data flashes during rapid account switching.",
+    "Backend does not validate task dependency integrity (existence, ownership, or cycles); invalid graphs can be stored, especially via import.",
+    "IDs for fields/tasks are generated by concatenating name + principal + timestamp text; this can create very long IDs and offers limited collision safety if timestamps repeat."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "gameProjectType": "none",
   "projectName": "Task Management System",
   "clarification_mode": "instant",

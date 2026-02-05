@@ -103,7 +103,7 @@ export default function AllTasksView() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="h-32 animate-pulse rounded-lg bg-muted" />
           ))}
@@ -115,14 +115,15 @@ export default function AllTasksView() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredAndSortedTasks.map((task) => (
-            <div key={task.id} className="space-y-2">
-              <Badge variant="outline" className="mb-2">
-                {getFieldName(task.fieldId)}
-              </Badge>
-              <TaskCard task={task} fieldId={task.fieldId} allTasks={tasks} />
-            </div>
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              fieldId={task.fieldId} 
+              allTasks={tasks}
+              fieldTag={getFieldName(task.fieldId)}
+            />
           ))}
         </div>
       )}

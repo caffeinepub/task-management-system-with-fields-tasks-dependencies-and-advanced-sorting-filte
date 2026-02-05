@@ -23,6 +23,7 @@ interface TaskCardProps {
   task: Task;
   fieldId: FieldId;
   allTasks: Task[];
+  fieldTag?: string;
 }
 
 // Helper function to format duration with unit
@@ -47,7 +48,7 @@ function formatDuration(durationInMinutes: number, unit: DurationUnit): string {
   return `${displayValue} ${displayUnit}`;
 }
 
-export default function TaskCard({ task, fieldId, allTasks }: TaskCardProps) {
+export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCardProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const markCompleted = useMarkTaskCompleted();
@@ -129,8 +130,8 @@ export default function TaskCard({ task, fieldId, allTasks }: TaskCardProps) {
   return (
     <>
       <Card className="transition-all hover:shadow-md">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
             <Checkbox
               checked={false}
               onCheckedChange={handleComplete}
@@ -138,10 +139,17 @@ export default function TaskCard({ task, fieldId, allTasks }: TaskCardProps) {
               className="mt-1"
               aria-label="Mark task as completed"
             />
-            <div className="flex-1 space-y-3">
-              <div className="flex items-start justify-between gap-4">
-                <h3 className="text-lg font-semibold">{task.name}</h3>
-                <div className="flex gap-1">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-lg font-semibold">{task.name}</h3>
+                  {fieldTag && (
+                    <Badge variant="outline" className="text-xs">
+                      {fieldTag}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex gap-1 shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"

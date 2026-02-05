@@ -1,6 +1,66 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "No frontend changes required for backend Field deletion rule removals",
-  "requirements": []
+  "title": "Compact All Tasks cards by moving field tag into TaskCard",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Remove the standalone field badge above each task in All Tasks and render the field tag as a small badge inside the TaskCard header near the title.",
+      "acceptanceCriteria": [
+        "All Tasks view no longer shows a separate field badge above each card.",
+        "Each task card in All Tasks view shows the field tag inside the card as a small badge."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AllTasksView.tsx",
+          "operation": "modify",
+          "description": "Remove the current Badge rendered above each TaskCard and instead pass the field name/tag down to TaskCard as an optional prop for in-card display."
+        },
+        {
+          "path": "frontend/src/components/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Add an optional prop for a field tag label and render it as a Badge in the card header row near the task title (only when provided), so All Tasks can show the field tag inside the card without affecting other TaskCard usages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Reduce vertical spacing in the All Tasks list and within TaskCard to make the list more compact without changing functionality.",
+      "acceptanceCriteria": [
+        "Vertical spacing between task cards in All Tasks view is reduced compared to current behavior.",
+        "TaskCard actions and content remain usable and visually clear after spacing reduction."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AllTasksView.tsx",
+          "operation": "modify",
+          "description": "Tighten list layout spacing for All Tasks (e.g., reduce container/list vertical spacing utilities and remove the extra per-item wrapper spacing now that the external badge is removed), keeping the same task ordering, filtering, and sorting behavior."
+        },
+        {
+          "path": "frontend/src/components/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Reduce excess vertical padding and internal gaps in TaskCard (e.g., CardContent padding and section spacing) while preserving all existing actions (complete/undo, edit, delete) and dependency display clarity."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Preserve the field tag’s current visual badge style when displayed inside the TaskCard.",
+      "acceptanceCriteria": [
+        "The field tag inside the task card uses the same styling (e.g., outline badge appearance) as before."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AllTasksView.tsx",
+          "operation": "modify",
+          "description": "Ensure the moved field tag continues using the same Badge variant/styling as before (keep using the outline Badge styling that was previously rendered above each card), only changing placement."
+        },
+        {
+          "path": "frontend/src/components/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Render the in-card field tag using the same Badge variant used previously in AllTasksView (outline), avoiding style changes beyond minimal sizing/placement needed for a compact header row."
+        }
+      ]
+    }
+  ]
 }
