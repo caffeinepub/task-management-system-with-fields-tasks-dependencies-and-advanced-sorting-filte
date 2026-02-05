@@ -13,13 +13,19 @@ import type { Principal } from '@icp-sdk/core/principal';
 export type DurationUnit = { 'hours' : null } |
   { 'days' : null } |
   { 'minutes' : null };
+export interface ExportPayload {
+  'tasks' : Array<Task>,
+  'fields' : Array<Field>,
+}
 export interface Field {
   'id' : FieldId,
   'avgUrgency' : bigint,
+  'icon' : string,
   'totalTaskDuration' : bigint,
   'name' : string,
   'createdAt' : Time,
   'createdBy' : Principal,
+  'color' : string,
   'avgInterest' : bigint,
   'totalTaskCount' : bigint,
   'taskCount' : bigint,
@@ -52,7 +58,7 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createField' : ActorMethod<[string], FieldId>,
+  'createField' : ActorMethod<[string, string, string], FieldId>,
   'createTask' : ActorMethod<
     [
       FieldId,
@@ -69,6 +75,7 @@ export interface _SERVICE {
   >,
   'deleteField' : ActorMethod<[FieldId], undefined>,
   'deleteTask' : ActorMethod<[TaskId], undefined>,
+  'exportUserData' : ActorMethod<[], ExportPayload>,
   'filterTasksByAttribute' : ActorMethod<
     [FieldId, string, bigint, bigint],
     Array<Task>
@@ -79,13 +86,14 @@ export interface _SERVICE {
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getTasksByField' : ActorMethod<[FieldId], Array<Task>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'importUserData' : ActorMethod<[ExportPayload], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'markTaskCompleted' : ActorMethod<[TaskId], undefined>,
   'moveTaskToField' : ActorMethod<[TaskId, FieldId], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchTasks' : ActorMethod<[FieldId, string], Array<Task>>,
   'undoTaskCompletion' : ActorMethod<[TaskId], undefined>,
-  'updateField' : ActorMethod<[FieldId, string], undefined>,
+  'updateField' : ActorMethod<[FieldId, string, string, string], undefined>,
   'updateTask' : ActorMethod<
     [
       TaskId,

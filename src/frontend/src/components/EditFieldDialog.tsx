@@ -11,7 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Field } from '../backend';
+import { PREDEFINED_ICONS, PREDEFINED_COLORS, getIconComponent, getColorById } from '../utils/fieldAppearance';
+import * as LucideIcons from 'lucide-react';
 
 interface EditFieldDialogProps {
   open: boolean;
@@ -21,19 +24,28 @@ interface EditFieldDialogProps {
 
 export default function EditFieldDialog({ open, onOpenChange, field }: EditFieldDialogProps) {
   const [name, setName] = useState(field.name);
+  const [selectedIcon, setSelectedIcon] = useState<string>(field.icon);
+  const [selectedColor, setSelectedColor] = useState<string>(field.color);
   const updateField = useUpdateField();
 
   useEffect(() => {
     if (open) {
       setName(field.name);
+      setSelectedIcon(field.icon);
+      setSelectedColor(field.color);
     }
-  }, [open, field.name]);
+  }, [open, field.name, field.icon, field.color]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
       updateField.mutate(
-        { fieldId: field.id, name: name.trim() },
+        { 
+          fieldId: field.id, 
+          name: name.trim(),
+          icon: selectedIcon,
+          color: selectedColor,
+        },
         {
           onSuccess: () => {
             onOpenChange(false);
@@ -43,15 +55,19 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
     }
   };
 
+  const SelectedIconComponent = getIconComponent(selectedIcon);
+  const selectedColorObj = getColorById(selectedColor);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Field</DialogTitle>
-          <DialogDescription>Update the field name.</DialogDescription>
+          <DialogDescription>Update the field name, icon, and color.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+          <div className="space-y-6 py-4">
+            {/* Field Name */}
             <div className="space-y-2">
               <Label htmlFor="edit-field-name">Field Name</Label>
               <Input
@@ -60,6 +76,85 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter field name"
               />
+            </div>
+
+            {/* Icon Picker */}
+            <div className="space-y-2">
+              <Label>Icon</Label>
+              <div className="flex items-center gap-3 mb-3">
+                <div 
+                  className="flex items-center justify-center w-12 h-12 rounded-lg border-2"
+                  style={{ borderColor: selectedColorObj.value }}
+                >
+                  <div style={{ color: selectedColorObj.value }}>
+                    <SelectedIconComponent size={24} />
+                  </div>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  Selected: {selectedIcon}
+                </span>
+              </div>
+              <ScrollArea className="h-48 border rounded-lg p-3">
+                <div className="grid grid-cols-8 gap-2">
+                  {PREDEFINED_ICONS.map((iconName) => {
+                    const IconComponent = (LucideIcons as any)[iconName];
+                    const isSelected = selectedIcon === iconName;
+                    return (
+                      <button
+                        key={iconName}
+                        type="button"
+                        onClick={() => setSelectedIcon(iconName)}
+                        className={`
+                          flex items-center justify-center w-10 h-10 rounded-md
+                          transition-all hover:bg-accent
+                          ${isSelected ? 'bg-accent ring-2 ring-primary' : 'bg-background'}
+                        `}
+                        title={iconName}
+                      >
+                        <IconComponent size={20} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Color Picker */}
+            <div className="space-y-2">
+              <Label>Color</Label>
+              <div className="flex items-center gap-3 mb-3">
+                <div 
+                  className="w-8 h-8 rounded-full border-2 border-border"
+                  style={{ backgroundColor: selectedColorObj.value }}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {selectedColorObj.label}
+                </span>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {PREDEFINED_COLORS.map((color) => {
+                  const isSelected = selectedColor === color.id;
+                  return (
+                    <button
+                      key={color.id}
+                      type="button"
+                      onClick={() => setSelectedColor(color.id)}
+                      className={`
+                        flex flex-col items-center gap-2 p-3 rounded-lg border-2
+                        transition-all hover:border-primary/50
+                        ${isSelected ? 'border-primary bg-accent' : 'border-border'}
+                      `}
+                      title={color.label}
+                    >
+                      <div 
+                        className="w-10 h-10 rounded-full"
+                        style={{ backgroundColor: color.value }}
+                      />
+                      <span className="text-xs">{color.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <DialogFooter>

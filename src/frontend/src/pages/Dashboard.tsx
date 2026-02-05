@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useGetAllFields } from '../hooks/useQueries';
+import { useState, useMemo, useRef } from 'react';
+import { useGetAllFields, useExportUserData, useImportUserData } from '../hooks/useQueries';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useResilientActor } from '../hooks/useResilientActor';
 import { Button } from '@/components/ui/button';
@@ -7,33 +7,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Folder, Search, SlidersHorizontal, ListTodo, DollarSign, Thermometer, Megaphone, Heart, Hourglass, LogIn } from 'lucide-react';
+import { Plus, Folder, Search, SlidersHorizontal, ListTodo, DollarSign, Thermometer, Megaphone, Heart, Hourglass, LogIn, Download, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import FieldCard from '../components/FieldCard';
 import CreateFieldDialog from '../components/CreateFieldDialog';
 import FieldDetailView from '../components/FieldDetailView';
 import AllTasksView from '../components/AllTasksView';
 import SortDirectionToggle from '../components/SortDirectionToggle';
-import type { Field, FieldId } from '../backend';
+import ImportDataConfirmDialog from '../components/ImportDataConfirmDialog';
+import { downloadJson } from '../utils/downloadJson';
+import { parseExportPayload } from '../utils/parseExportPayload';
+import type { Field, FieldId, ExportPayload } from '../backend';
 
 type SortOption = 'name' | 'createdAt' | 'avgUrgency' | 'avgValue' | 'avgInterest' | 'avgInfluence' | 'totalActiveTaskDuration';
-type FilterAttribute = 'avgUrgency' | 'avgValue' | 'avgInterest' | 'avgInfluence' | 'totalActiveTaskDuration' | 'none';
 
 export default function Dashboard() {
   const { data: fields = [], isLoading } = useGetAllFields();
   const { identity, login, isLoggingIn } = useInternetIdentity();
   const { isReady, isLoading: actorLoading } = useResilientActor();
+  const exportMutation = useExportUserData();
+  const importMutation = useImportUserData();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<FieldId | null>(null);
   const [activeTab, setActiveTab] = useState<'fields' | 'tasks'>('fields');
   
-  // Search and filter state
+  // Import state
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importPayload, setImportPayload] = useState<ExportPayload | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Search and sort state
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [filterAttribute, setFilterAttribute] = useState<FilterAttribute>('none');
-  const [filterMin, setFilterMin] = useState('0');
-  const [filterMax, setFilterMax] = useState('100');
 
   const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
   const isActorInitializing = isAuthenticated && (actorLoading || !isReady);
@@ -44,7 +50,7 @@ export default function Dashboard() {
     return fields.find(f => f.id === selectedFieldId) || null;
   }, [selectedFieldId, fields]);
 
-  // Filter, search, and sort fields
+  // Filter by search and sort fields
   const filteredAndSortedFields = useMemo(() => {
     let result = [...fields];
 
@@ -54,16 +60,6 @@ export default function Dashboard() {
       result = result.filter(field => 
         field.name.toLowerCase().includes(searchLower)
       );
-    }
-
-    // Apply attribute range filter
-    if (filterAttribute !== 'none') {
-      const min = Number(filterMin) || 0;
-      const max = Number(filterMax) || 100;
-      result = result.filter(field => {
-        const value = Number(field[filterAttribute]);
-        return value >= min && value <= max;
-      });
     }
 
     // Apply sorting
@@ -81,7 +77,7 @@ export default function Dashboard() {
     });
 
     return result;
-  }, [fields, searchTerm, sortBy, sortDirection, filterAttribute, filterMin, filterMax]);
+  }, [fields, searchTerm, sortBy, sortDirection]);
 
   const handleNewFieldClick = () => {
     if (!isAuthenticated) {
@@ -106,31 +102,224 @@ export default function Dashboard() {
     setCreateDialogOpen(true);
   };
 
+  const handleExportClick = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to export data', {
+        description: 'You must be logged in with Internet Identity to export your data.',
+        action: {
+          label: 'Log In',
+          onClick: () => login(),
+        },
+      });
+      return;
+    }
+    
+    // Prevent export if actor is still initializing
+    if (isActorInitializing) {
+      toast.info('Connecting...', {
+        description: 'Please wait while we connect to the backend.',
+      });
+      return;
+    }
+    
+    try {
+      console.log('[Dashboard] Starting export...');
+      const exportData = await exportMutation.mutateAsync();
+      console.log('[Dashboard] Export data received, attempting download...');
+      
+      try {
+        downloadJson(exportData);
+        console.log('[Dashboard] Download triggered successfully');
+        toast.success('Data exported successfully', {
+          description: `Exported ${exportData.fields.length} field${exportData.fields.length !== 1 ? 's' : ''} and ${exportData.tasks.length} task${exportData.tasks.length !== 1 ? 's' : ''}.`,
+        });
+      } catch (downloadError) {
+        console.error('[Dashboard] Download generation failed:', downloadError);
+        toast.error('Failed to download export file', {
+          description: 'The data was retrieved but could not be saved. Please try again.',
+        });
+      }
+    } catch (error) {
+      // Backend export error is already handled by the mutation's onError handler
+      console.error('[Dashboard] Export failed:', error);
+    }
+  };
+
+  const handleImportClick = () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to import data', {
+        description: 'You must be logged in with Internet Identity to import data.',
+        action: {
+          label: 'Log In',
+          onClick: () => login(),
+        },
+      });
+      return;
+    }
+    
+    // Prevent import if actor is still initializing
+    if (isActorInitializing) {
+      toast.info('Connecting...', {
+        description: 'Please wait while we connect to the backend.',
+      });
+      return;
+    }
+    
+    // Trigger file input
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Reset file input so the same file can be selected again
+    event.target.value = '';
+
+    try {
+      // Read file as text
+      const text = await file.text();
+      
+      // Parse JSON
+      let json: unknown;
+      try {
+        json = JSON.parse(text);
+      } catch (parseError) {
+        console.error('[Dashboard] JSON parse error:', parseError);
+        toast.error('Invalid file format', {
+          description: 'The selected file is not valid JSON.',
+        });
+        return;
+      }
+
+      // Validate and parse payload
+      try {
+        const payload = parseExportPayload(json);
+        console.log('[Dashboard] Payload parsed successfully:', payload.fields.length, 'fields,', payload.tasks.length, 'tasks');
+        
+        // Store payload and open confirmation dialog
+        setImportPayload(payload);
+        setImportDialogOpen(true);
+      } catch (validationError) {
+        console.error('[Dashboard] Payload validation error:', validationError);
+        const errorMessage = validationError instanceof Error ? validationError.message : 'Unknown validation error';
+        toast.error('Invalid export file', {
+          description: errorMessage,
+        });
+      }
+    } catch (error) {
+      console.error('[Dashboard] File read error:', error);
+      toast.error('Failed to read file', {
+        description: 'Could not read the selected file. Please try again.',
+      });
+    }
+  };
+
+  const handleImportConfirm = async () => {
+    if (!importPayload) return;
+
+    try {
+      await importMutation.mutateAsync(importPayload);
+      // Success toast is shown by the mutation's onSuccess handler
+      setImportDialogOpen(false);
+      setImportPayload(null);
+    } catch (error) {
+      // Error toast is shown by the mutation's onError handler
+      console.error('[Dashboard] Import failed:', error);
+    }
+  };
+
+  const handleImportCancel = () => {
+    setImportDialogOpen(false);
+    setImportPayload(null);
+  };
+
   if (selectedField) {
     return <FieldDetailView field={selectedField} onBack={() => setSelectedFieldId(null)} />;
   }
 
   return (
     <div className="container py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Manage your fields and tasks</p>
         </div>
-        <Button onClick={handleNewFieldClick} disabled={isLoggingIn || isActorInitializing}>
-          {isAuthenticated ? (
-            <>
-              <Plus className="mr-2 h-4 w-4" />
-              {isActorInitializing ? 'Connecting...' : 'New Field'}
-            </>
-          ) : (
-            <>
-              <LogIn className="mr-2 h-4 w-4" />
-              {isLoggingIn ? 'Logging in...' : 'Log In to Create'}
-            </>
-          )}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleImportClick} 
+            disabled={isLoggingIn || isActorInitializing || importMutation.isPending}
+            className="flex-shrink-0"
+          >
+            {importMutation.isPending ? (
+              <>
+                <Upload className="mr-2 h-4 w-4 animate-pulse" />
+                <span className="whitespace-nowrap">Importing...</span>
+              </>
+            ) : isAuthenticated ? (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isActorInitializing ? 'Connecting...' : 'Import Data'}</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isLoggingIn ? 'Logging in...' : 'Log In to Import'}</span>
+              </>
+            )}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleExportClick} 
+            disabled={isLoggingIn || isActorInitializing || exportMutation.isPending}
+            className="flex-shrink-0"
+          >
+            {exportMutation.isPending ? (
+              <>
+                <Download className="mr-2 h-4 w-4 animate-pulse" />
+                <span className="whitespace-nowrap">Exporting...</span>
+              </>
+            ) : isAuthenticated ? (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isActorInitializing ? 'Connecting...' : 'Export Data'}</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isLoggingIn ? 'Logging in...' : 'Log In to Export'}</span>
+              </>
+            )}
+          </Button>
+          <Button 
+            onClick={handleNewFieldClick} 
+            disabled={isLoggingIn || isActorInitializing}
+            className="flex-shrink-0"
+          >
+            {isAuthenticated ? (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isActorInitializing ? 'Connecting...' : 'New Field'}</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                <span className="whitespace-nowrap">{isLoggingIn ? 'Logging in...' : 'Log In to Create'}</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* Hidden file input for import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'fields' | 'tasks')} className="space-y-6">
         <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -145,16 +334,16 @@ export default function Dashboard() {
         </TabsList>
 
         <TabsContent value="fields" className="space-y-6">
-          {/* Search and Filter Controls */}
+          {/* Search and Sort Controls */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <SlidersHorizontal className="h-5 w-5" />
-                Search & Filter
+                Search & Sort
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 {/* Search */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Search by name</label>
@@ -218,81 +407,10 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
-
-                {/* Filter Attribute */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Filter by attribute</label>
-                  <Select value={filterAttribute} onValueChange={(value) => setFilterAttribute(value as FilterAttribute)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No filter</SelectItem>
-                      <SelectItem value="avgUrgency">
-                        <span className="flex items-center gap-2">
-                          <Thermometer className="h-4 w-4 text-red-600 dark:text-red-400" />
-                          Urgency
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="avgValue">
-                        <span className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-                          Value
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="avgInterest">
-                        <span className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          Interest
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="avgInfluence">
-                        <span className="flex items-center gap-2">
-                          <Megaphone className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                          Influence
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="totalActiveTaskDuration">
-                        <span className="flex items-center gap-2">
-                          <Hourglass className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                          Duration
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Filter Range */}
-                {filterAttribute !== 'none' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Range</label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Min"
-                        value={filterMin}
-                        onChange={(e) => setFilterMin(e.target.value)}
-                        className="w-20"
-                        min="0"
-                        max="100"
-                      />
-                      <span className="text-muted-foreground">-</span>
-                      <Input
-                        type="number"
-                        placeholder="Max"
-                        value={filterMax}
-                        onChange={(e) => setFilterMax(e.target.value)}
-                        className="w-20"
-                        min="0"
-                        max="100"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Active filters summary */}
-              {(searchTerm || filterAttribute !== 'none') && (
+              {/* Active search summary */}
+              {searchTerm && (
                 <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <span>
                     Showing {filteredAndSortedFields.length} of {fields.length} field{fields.length !== 1 ? 's' : ''}
@@ -300,15 +418,10 @@ export default function Dashboard() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setFilterAttribute('none');
-                      setFilterMin('0');
-                      setFilterMax('100');
-                    }}
+                    onClick={() => setSearchTerm('')}
                     className="h-7 px-2"
                   >
-                    Clear filters
+                    Clear search
                   </Button>
                 </div>
               )}
@@ -369,20 +482,15 @@ export default function Dashboard() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                   <Search className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <CardTitle>No fields match your filters</CardTitle>
-                <CardDescription>Try adjusting your search or filter criteria</CardDescription>
+                <CardTitle>No fields match your search</CardTitle>
+                <CardDescription>Try adjusting your search term</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterAttribute('none');
-                    setFilterMin('0');
-                    setFilterMax('100');
-                  }}
+                  onClick={() => setSearchTerm('')}
                 >
-                  Clear filters
+                  Clear search
                 </Button>
               </CardContent>
             </Card>
@@ -401,6 +509,17 @@ export default function Dashboard() {
       </Tabs>
 
       <CreateFieldDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+      
+      {importPayload && (
+        <ImportDataConfirmDialog
+          open={importDialogOpen}
+          onOpenChange={setImportDialogOpen}
+          onConfirm={handleImportConfirm}
+          isLoading={importMutation.isPending}
+          fieldCount={importPayload.fields.length}
+          taskCount={importPayload.tasks.length}
+        />
+      )}
     </div>
   );
 }

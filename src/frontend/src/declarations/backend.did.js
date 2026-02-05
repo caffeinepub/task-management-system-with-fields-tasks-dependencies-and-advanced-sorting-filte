@@ -39,10 +39,12 @@ export const Task = IDL.Record({
 export const Field = IDL.Record({
   'id' : FieldId,
   'avgUrgency' : IDL.Nat,
+  'icon' : IDL.Text,
   'totalTaskDuration' : IDL.Nat,
   'name' : IDL.Text,
   'createdAt' : Time,
   'createdBy' : IDL.Principal,
+  'color' : IDL.Text,
   'avgInterest' : IDL.Nat,
   'totalTaskCount' : IDL.Nat,
   'taskCount' : IDL.Nat,
@@ -50,12 +52,16 @@ export const Field = IDL.Record({
   'avgValue' : IDL.Nat,
   'totalActiveTaskDuration' : IDL.Nat,
 });
+export const ExportPayload = IDL.Record({
+  'tasks' : IDL.Vec(Task),
+  'fields' : IDL.Vec(Field),
+});
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createField' : IDL.Func([IDL.Text], [FieldId], []),
+  'createField' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [FieldId], []),
   'createTask' : IDL.Func(
       [
         FieldId,
@@ -73,6 +79,7 @@ export const idlService = IDL.Service({
     ),
   'deleteField' : IDL.Func([FieldId], [], []),
   'deleteTask' : IDL.Func([TaskId], [], []),
+  'exportUserData' : IDL.Func([], [ExportPayload], ['query']),
   'filterTasksByAttribute' : IDL.Func(
       [FieldId, IDL.Text, IDL.Nat, IDL.Nat],
       [IDL.Vec(Task)],
@@ -88,13 +95,14 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'importUserData' : IDL.Func([ExportPayload], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'markTaskCompleted' : IDL.Func([TaskId], [], []),
   'moveTaskToField' : IDL.Func([TaskId, FieldId], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchTasks' : IDL.Func([FieldId, IDL.Text], [IDL.Vec(Task)], ['query']),
   'undoTaskCompletion' : IDL.Func([TaskId], [], []),
-  'updateField' : IDL.Func([FieldId, IDL.Text], [], []),
+  'updateField' : IDL.Func([FieldId, IDL.Text, IDL.Text, IDL.Text], [], []),
   'updateTask' : IDL.Func(
       [
         TaskId,
@@ -146,10 +154,12 @@ export const idlFactory = ({ IDL }) => {
   const Field = IDL.Record({
     'id' : FieldId,
     'avgUrgency' : IDL.Nat,
+    'icon' : IDL.Text,
     'totalTaskDuration' : IDL.Nat,
     'name' : IDL.Text,
     'createdAt' : Time,
     'createdBy' : IDL.Principal,
+    'color' : IDL.Text,
     'avgInterest' : IDL.Nat,
     'totalTaskCount' : IDL.Nat,
     'taskCount' : IDL.Nat,
@@ -157,12 +167,16 @@ export const idlFactory = ({ IDL }) => {
     'avgValue' : IDL.Nat,
     'totalActiveTaskDuration' : IDL.Nat,
   });
+  const ExportPayload = IDL.Record({
+    'tasks' : IDL.Vec(Task),
+    'fields' : IDL.Vec(Field),
+  });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createField' : IDL.Func([IDL.Text], [FieldId], []),
+    'createField' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [FieldId], []),
     'createTask' : IDL.Func(
         [
           FieldId,
@@ -180,6 +194,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'deleteField' : IDL.Func([FieldId], [], []),
     'deleteTask' : IDL.Func([TaskId], [], []),
+    'exportUserData' : IDL.Func([], [ExportPayload], ['query']),
     'filterTasksByAttribute' : IDL.Func(
         [FieldId, IDL.Text, IDL.Nat, IDL.Nat],
         [IDL.Vec(Task)],
@@ -195,13 +210,14 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'importUserData' : IDL.Func([ExportPayload], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'markTaskCompleted' : IDL.Func([TaskId], [], []),
     'moveTaskToField' : IDL.Func([TaskId, FieldId], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchTasks' : IDL.Func([FieldId, IDL.Text], [IDL.Vec(Task)], ['query']),
     'undoTaskCompletion' : IDL.Func([TaskId], [], []),
-    'updateField' : IDL.Func([FieldId, IDL.Text], [], []),
+    'updateField' : IDL.Func([FieldId, IDL.Text, IDL.Text, IDL.Text], [], []),
     'updateTask' : IDL.Func(
         [
           TaskId,

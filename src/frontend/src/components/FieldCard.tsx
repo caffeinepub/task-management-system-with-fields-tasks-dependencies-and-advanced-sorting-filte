@@ -4,6 +4,7 @@ import { ChevronRight, DollarSign, Thermometer, Megaphone, Heart, Hourglass } fr
 import type { Field } from '../backend';
 import { useGetTasksByField } from '../hooks/useQueries';
 import { formatTotalDuration } from '../utils/duration';
+import { getIconComponent, getColorValue } from '../utils/fieldAppearance';
 
 interface FieldCardProps {
   field: Field;
@@ -46,6 +47,9 @@ export default function FieldCard({ field, onClick }: FieldCardProps) {
     },
   ];
 
+  const FieldIcon = getIconComponent(field.icon);
+  const fieldColor = getColorValue(field.color);
+
   return (
     <Card
       className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
@@ -53,13 +57,23 @@ export default function FieldCard({ field, onClick }: FieldCardProps) {
     >
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="line-clamp-1">{field.name}</CardTitle>
-            <CardDescription className="mt-1">
-              {tasks.length} active {tasks.length === 1 ? 'task' : 'tasks'}
-            </CardDescription>
+          <div className="flex items-start gap-3 flex-1">
+            <div 
+              className="flex items-center justify-center w-10 h-10 rounded-lg"
+              style={{ backgroundColor: `${fieldColor}20` }}
+            >
+              <div style={{ color: fieldColor }}>
+                <FieldIcon size={20} />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="line-clamp-1">{field.name}</CardTitle>
+              <CardDescription className="mt-1">
+                {tasks.length} active {tasks.length === 1 ? 'task' : 'tasks'}
+              </CardDescription>
+            </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
         </div>
       </CardHeader>
       <CardContent>

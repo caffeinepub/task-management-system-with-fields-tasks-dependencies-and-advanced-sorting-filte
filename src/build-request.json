@@ -1,71 +1,70 @@
 {
   "kind": "build_request",
-  "title": "Fix intermittent blocking message: \"Please complete your profile to continue\"",
-  "priority": "high",
+  "title": "Remove backend Field deletion restrictions and allow deletion with existing tasks",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-15",
-      "text": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
-      "target": "frontend",
+      "id": "REQ-7",
+      "text": "Update backend Field deletion logic so a user can delete their own Field without any multi-creator restriction (i.e., do not require “at least two actors/users exist” to allow Field deletion).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Fix error: \"Please complete your profile to continue\""
+          "fix error: unable to delete field at least two actors required",
+          "1. yes"
         ]
       },
       "acceptanceCriteria": [
-        "The helper used to detect the \"User is not registered\" condition (frontend/src/utils/bootErrorMessages.ts) no longer matches generic substrings like \"not registered\" that can misclassify unrelated errors.",
-        "When a non-registration-related error occurs (e.g., actor/network/authorization errors), the UI does not display \"Please complete your profile to continue\" or \"Please complete your profile setup to continue.\" unless the backend error explicitly indicates the specific \"User is not registered\" condition."
+        "When a user has only one principal/creator in the canister state, deleting a Field they own succeeds (does not trap with any “at least two actors/users required” error)."
       ]
     },
     {
-      "id": "REQ-16",
-      "text": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
-      "target": "frontend",
+      "id": "REQ-8",
+      "text": "Remove the backend rule that prevents Field deletion when the caller would have fewer than two Fields remaining (i.e., remove the “maintaining user fields requires at least two” restriction).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Fix error: \"Please complete your profile to continue\""
+          "2. yes remove the rule"
         ]
       },
       "acceptanceCriteria": [
-        "If an authenticated caller has no profile (getCallerUserProfile returns null or an equivalent \"not registered\" response), the ProfileSetupModal is shown and the user can continue after saving.",
-        "After a successful profile save, the profile cache is refreshed and the ProfileSetupModal is dismissed in favor of the Dashboard (no persistent blocking state).",
-        "The message \"Please complete your profile to continue\" is not shown during normal authenticated usage when the user already has a profile."
+        "If a user has exactly 1 Field, deleting that Field succeeds (subject only to the existing ownership/admin checks).",
+        "If a user has exactly 2 Fields, deleting either Field succeeds (subject only to the existing ownership/admin checks)."
       ]
     },
     {
-      "id": "REQ-17",
-      "text": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
-      "target": "frontend",
+      "id": "REQ-9",
+      "text": "Allow deleting a Field regardless of whether it contains tasks (including incomplete/uncompleted tasks) by ensuring backend Field deletion cascades and removes all tasks belonging to the deleted Field and removes/cleans any task dependencies that reference tasks removed by the cascade.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "Fix error: \"Please complete your profile to continue\""
+          "3. delete regardless tasks"
         ]
       },
       "acceptanceCriteria": [
-        "All user-visible messages for the true missing-profile condition are consistent across boot error normalization and profile-save error normalization.",
-        "No user-facing missing-profile message is shown for errors unrelated to profile registration."
+        "Deleting a Field that contains uncompleted tasks succeeds.",
+        "After Field deletion, no tasks remain in canister state with fieldId equal to the deleted FieldId.",
+        "After Field deletion, remaining tasks do not contain dependency IDs that reference tasks that were deleted during the cascade."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only UI primitives).",
-    "Do not edit immutable frontend paths listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Keep backend as a single-actor Motoko canister; only add migration.mo changes if state schema must change (not expected for this fix).",
+    "Backend must remain a single-actor Motoko canister; implement changes in backend/main.mo.",
+    "Do not introduce a schema/state migration unless strictly required by state shape changes (not expected for this change).",
     "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Adding new authentication providers (only Internet Identity is supported).",
-    "Changing the backend data schema for Fields/Tasks/UserProfile unless strictly required to fix the error.",
-    "Introducing new features unrelated to profile boot gating and error messaging."
+    "Do not add new authentication providers or change Internet Identity behavior.",
+    "Do not change Field/Task schemas or introduce new persistence structures beyond what is required to remove the deletion restrictions.",
+    "Do not add new UI flows; only ensure the existing UI can successfully delete Fields under the new backend rules."
   ],
   "imageRequirements": {
     "required": [],

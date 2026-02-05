@@ -19,11 +19,12 @@ export default function Header() {
   const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
 
-  const isAuthenticated = !!identity;
+  const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
   const isLoggingOut = loginStatus === 'logging-in';
 
   const handleLogout = async () => {
     await clear();
+    // Clear all cached data including principal-scoped profile queries
     queryClient.clear();
   };
 

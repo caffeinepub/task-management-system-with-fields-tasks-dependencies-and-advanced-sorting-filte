@@ -6,12 +6,8 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
 import Int "mo:core/Int";
-
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
-// Specify the data migration function in with-clause
 
 actor {
   public type FieldId = Text;
@@ -30,6 +26,8 @@ actor {
   public type Field = {
     id : FieldId;
     name : Text;
+    icon : Text;
+    color : Text;
     createdBy : Principal;
     createdAt : Time.Time;
     avgUrgency : Nat;
@@ -50,12 +48,17 @@ actor {
     value : Nat;
     interest : Nat;
     influence : Nat;
-    duration : Nat; // Duration always kept in minutes
-    durationUnit : DurationUnit; // Store user's preferred unit for display purposes
+    duration : Nat;
+    durationUnit : DurationUnit;
     dependencies : [TaskId];
-    completed : Bool;
     createdBy : Principal;
     createdAt : Time.Time;
+    completed : Bool;
+  };
+
+  public type ExportPayload = {
+    fields : [Field];
+    tasks : [Task];
   };
 
   let accessControlState = AccessControl.initState();
@@ -65,40 +68,29 @@ actor {
   var tasks = Map.empty<TaskId, Task>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // Auto-registration helper: ensures authenticated users get #user role automatically
   func ensureUserRole(caller : Principal) {
-    // Anonymous principal stays as guest
-    if (caller.isAnonymous()) {
-      return;
-    };
-
-    // Check current role
+    if (caller.isAnonymous()) { return };
     let currentRole = AccessControl.getUserRole(accessControlState, caller);
-
-    // If user is guest but authenticated (not anonymous), auto-promote to #user
     switch (currentRole) {
       case (#guest) {
-        // Auto-assign user role for authenticated principals
         AccessControl.assignRole(accessControlState, caller, caller, #user);
       };
-      case (#user or #admin) {
-        // Already has appropriate role
-      };
+      case (_) {};
     };
   };
 
-  // Helper to check user permission with auto-registration
   func requireUserPermission(caller : Principal) {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can perform this action");
+      Runtime.trap("Only users can access");
     };
   };
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     ensureUserRole(caller);
+    if (caller.isAnonymous()) { return null };
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
+      Runtime.trap("Users only");
     };
     userProfiles.get(caller);
   };
@@ -106,7 +98,7 @@ actor {
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     ensureUserRole(caller);
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
+      Runtime.trap("Can only view your own profile");
     };
     userProfiles.get(user);
   };
@@ -116,13 +108,14 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  public shared ({ caller }) func createField(name : Text) : async FieldId {
+  public shared ({ caller }) func createField(name : Text, icon : Text, color : Text) : async FieldId {
     requireUserPermission(caller);
-
     let fieldId = name # "_" # caller.toText() # "_" # Time.now().toText();
     let field : Field = {
       id = fieldId;
       name;
+      icon;
+      color;
       createdBy = caller;
       createdAt = Time.now();
       avgUrgency = 0;
@@ -134,27 +127,23 @@ actor {
       taskCount = 0;
       totalTaskCount = 0;
     };
-
     fields.add(fieldId, field);
     fieldId;
   };
 
-  public shared ({ caller }) func updateField(
-    fieldId : FieldId,
-    name : Text,
-  ) : async () {
+  public shared ({ caller }) func updateField(fieldId : FieldId, name : Text, icon : Text, color : Text) : async () {
     requireUserPermission(caller);
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only update your own fields");
+          Runtime.trap("Only own fields can be updated");
         };
-
         let updatedField : Field = {
           id = field.id;
           name;
+          icon;
+          color;
           createdBy = field.createdBy;
           createdAt = field.createdAt;
           avgUrgency = field.avgUrgency;
@@ -191,19 +180,16 @@ actor {
     dependencies : [TaskId],
   ) : async TaskId {
     requireUserPermission(caller);
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only create tasks in your own fields");
+          Runtime.trap("Only own tasks can be created");
         };
       };
     };
-
     let taskId = name # "_" # caller.toText() # "_" # Time.now().toText();
     let durationInMinutes = convertToMinutes(duration, durationUnit);
-
     let task : Task = {
       id = taskId;
       fieldId;
@@ -215,15 +201,12 @@ actor {
       duration = durationInMinutes;
       durationUnit;
       dependencies;
-      completed = false;
       createdBy = caller;
       createdAt = Time.now();
+      completed = false;
     };
-
     tasks.add(taskId, task);
-
     recalculateFieldAverages(fieldId);
-
     taskId;
   };
 
@@ -239,16 +222,13 @@ actor {
     dependencies : [TaskId],
   ) : async () {
     requireUserPermission(caller);
-
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only update your own tasks");
+          Runtime.trap("Can only update own tasks");
         };
-
         let durationInMinutes = convertToMinutes(duration, durationUnit);
-
         let updatedTask : Task = {
           id = task.id;
           fieldId = task.fieldId;
@@ -260,12 +240,11 @@ actor {
           duration = durationInMinutes;
           durationUnit;
           dependencies;
-          completed = task.completed;
           createdBy = task.createdBy;
           createdAt = task.createdAt;
+          completed = task.completed;
         };
         tasks.add(taskId, updatedTask);
-
         recalculateFieldAverages(task.fieldId);
       };
     };
@@ -273,26 +252,23 @@ actor {
 
   public shared ({ caller }) func moveTaskToField(taskId : TaskId, newFieldId : FieldId) : async () {
     requireUserPermission(caller);
-
     let (originalTask, oldFieldId) = switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only move your own tasks");
+          Runtime.trap("Move own tasks only");
         };
         (task, task.fieldId);
       };
     };
-
     switch (fields.get(newFieldId)) {
       case (null) { Runtime.trap("Target field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only move tasks to your own fields");
+          Runtime.trap("Can only move tasks to own fields");
         };
       };
     };
-
     let movedTask : Task = {
       id = originalTask.id;
       fieldId = newFieldId;
@@ -304,27 +280,23 @@ actor {
       duration = originalTask.duration;
       durationUnit = originalTask.durationUnit;
       dependencies = originalTask.dependencies;
-      completed = originalTask.completed;
       createdBy = originalTask.createdBy;
       createdAt = originalTask.createdAt;
+      completed = originalTask.completed;
     };
-
     tasks.add(taskId, movedTask);
-
     recalculateFieldAverages(oldFieldId);
     recalculateFieldAverages(newFieldId);
   };
 
   public shared ({ caller }) func markTaskCompleted(taskId : TaskId) : async () {
     requireUserPermission(caller);
-
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only mark your own tasks as completed");
+          Runtime.trap("Completion: own tasks only");
         };
-
         let updatedTask : Task = {
           id = task.id;
           fieldId = task.fieldId;
@@ -336,12 +308,11 @@ actor {
           duration = task.duration;
           durationUnit = task.durationUnit;
           dependencies = task.dependencies;
-          completed = true;
           createdBy = task.createdBy;
           createdAt = task.createdAt;
+          completed = true;
         };
         tasks.add(taskId, updatedTask);
-
         recalculateFieldAverages(task.fieldId);
       };
     };
@@ -349,14 +320,12 @@ actor {
 
   public shared ({ caller }) func undoTaskCompletion(taskId : TaskId) : async () {
     requireUserPermission(caller);
-
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only undo your own tasks");
+          Runtime.trap("Undo: own tasks only");
         };
-
         let updatedTask : Task = {
           id = task.id;
           fieldId = task.fieldId;
@@ -368,12 +337,11 @@ actor {
           duration = task.duration;
           durationUnit = task.durationUnit;
           dependencies = task.dependencies;
-          completed = false;
           createdBy = task.createdBy;
           createdAt = task.createdAt;
+          completed = false;
         };
         tasks.add(taskId, updatedTask);
-
         recalculateFieldAverages(task.fieldId);
       };
     };
@@ -381,97 +349,46 @@ actor {
 
   public shared ({ caller }) func deleteTask(taskId : TaskId) : async () {
     requireUserPermission(caller);
-
     switch (tasks.get(taskId)) {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Unauthorized: Can only delete your own tasks");
+          Runtime.trap("Delete: own tasks only");
         };
-
         tasks.remove(taskId);
         recalculateFieldAverages(task.fieldId);
       };
     };
   };
 
-  func checkDeletableField(
-    fieldId : FieldId,
-    _actorType : Text,
-    _userOwnershipMsg : Text,
-    _singleFieldMsg : Text,
-    _incompleteTasksMsg : Text,
-  ) : () {
-    switch (fields.get(fieldId)) {
-      case (null) { Runtime.trap("Field not found") };
-      case (?field) {
-        let creatorCount = getDistinctCreators().size();
-
-        if (creatorCount == 1) {
-          Runtime.trap("Insufficient field creators exist in the system. At least two user must exist to maintain ownership of fields.");
-        };
-
-        if (Int.abs(getFieldsByCreator(field.createdBy).size()) == 1) {
-          Runtime.trap("Insufficient user fields. At least two field must exist to maintain ownership.");
-        };
-
-        let remainingTasks = getTasksByFieldId(fieldId);
-        let incompleteTasks = remainingTasks.filter(
-          func(task) {
-            not task.completed;
-          }
-        );
-
-        if (incompleteTasks.size() > 0) {
-          Runtime.trap("Before deleting this field, please resolve all tasks.");
-        };
-      };
-    };
-  };
-
   public shared ({ caller }) func deleteField(fieldId : FieldId) : async () {
     requireUserPermission(caller);
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only delete your own fields");
+          Runtime.trap("Delete: own fields only (or admin)");
         };
       };
     };
 
-    checkDeletableField(
-      fieldId,
-      "user",
-      "you must maintain ownership",
-      "As a user, you must maintain at least one field.",
-      "Please resolve all incomplete tasks before deleting this field.",
-    );
-
+    // Remove only tasks linked to the deleted field
     let filteredTasks = tasks.entries().foldLeft(
       Map.empty<TaskId, Task>(),
       func(acc, (id, task)) {
-        if (task.fieldId != fieldId) {
-          acc.add(id, task);
-        };
+        if (task.fieldId != fieldId) { acc.add(id, task) };
         acc;
       },
     );
-
     tasks := filteredTasks;
-
+    // Remove dependencies that reference deleted tasks
     for ((taskId, task) in tasks.entries()) {
-      let filteredDependencies = task.dependencies.filter(
-        func(depId) {
-          switch (tasks.get(depId)) {
-            case (null) { false };
-            case (?depTask) {
-              depTask.fieldId != fieldId;
-            };
-          };
-        }
-      );
+      let filteredDependencies = task.dependencies.filter(func(depId) {
+        switch (tasks.get(depId)) {
+          case (null) { false };
+          case (?depTask) { depTask.fieldId != fieldId };
+        };
+      });
       tasks.add(taskId, { task with dependencies = filteredDependencies });
     };
     fields.remove(fieldId);
@@ -480,88 +397,63 @@ actor {
   public query ({ caller }) func getAllFields() : async [Field] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access fields");
+      Runtime.trap("Only users can access fields");
     };
-
-    let userFields = if (AccessControl.isAdmin(accessControlState, caller)) {
+    if (AccessControl.isAdmin(accessControlState, caller)) {
       fields.values().toArray();
     } else {
-      fields.values().toArray().filter(
-        func(field) {
-          field.createdBy == caller;
-        }
-      );
+      fields.values().toArray().filter(func(field) { field.createdBy == caller });
     };
-    userFields;
   };
 
   public query ({ caller }) func getAllTasks() : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access tasks");
+      Runtime.trap("Users only");
     };
-
-    let filteredTasks = if (AccessControl.isAdmin(accessControlState, caller)) {
-      tasks.values().toArray().filter(
-        func(task) {
-          not task.completed;
-        }
-      );
+    if (AccessControl.isAdmin(accessControlState, caller)) {
+      tasks.values().toArray().filter(func(task) { not task.completed });
     } else {
-      tasks.values().toArray().filter(
-        func(task) {
-          task.createdBy == caller and not task.completed;
-        }
-      );
+      tasks.values().toArray().filter(func(task) {
+        task.createdBy == caller and not task.completed
+      });
     };
-
-    filteredTasks;
   };
 
   public query ({ caller }) func getTasksByField(fieldId : FieldId) : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access tasks");
+      Runtime.trap("Users only");
     };
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only access tasks in your own fields");
+          Runtime.trap("Task access: own fields only (or admin)");
         };
       };
     };
-
-    let filteredTasks = tasks.values().toArray().filter(
-      func(task) {
-        task.fieldId == fieldId and not task.completed
-      }
-    );
-    filteredTasks;
+    tasks.values().toArray().filter(func(task) {
+      task.fieldId == fieldId and not task.completed
+    });
   };
 
   public query ({ caller }) func searchTasks(fieldId : FieldId, searchTerm : Text) : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can search tasks");
+      Runtime.trap("Users can search only");
     };
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only search tasks in your own fields");
+          Runtime.trap("Own field search only");
         };
       };
     };
-
-    let filteredTasks = tasks.values().toArray().filter(
-      func(task) {
-        task.fieldId == fieldId and not task.completed and task.name.contains(#text searchTerm)
-      }
-    );
-    filteredTasks;
+    tasks.values().toArray().filter(func(task) {
+      task.fieldId == fieldId and not task.completed and task.name.contains(#text searchTerm)
+    });
   };
 
   func filterTaskByAttributeRange(task : Task, attribute : Text, minValue : Nat, maxValue : Nat) : Bool {
@@ -583,45 +475,33 @@ actor {
   ) : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can filter tasks");
+      Runtime.trap("Restricted to users");
     };
-
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Can only filter tasks in your own fields");
+          Runtime.trap("Own fields only (or admin)");
         };
       };
     };
-
-    let filteredTasks = tasks.values().toArray().filter(
-      func(task) {
-        task.fieldId == fieldId and not task.completed and filterTaskByAttributeRange(task, attribute, minValue, maxValue);
-      }
-    );
-    filteredTasks;
+    tasks.values().toArray().filter(func(task) {
+      task.fieldId == fieldId and not task.completed and filterTaskByAttributeRange(task, attribute, minValue, maxValue)
+    });
   };
 
   func recalculateFieldAverages(fieldId : FieldId) {
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
-        let allTasks = tasks.values().toArray().filter(
-          func(task) {
-            task.fieldId == fieldId;
-          }
-        );
-
-        let uncompletedTasks = allTasks.filter(
-          func(task) {
-            not task.completed;
-          }
-        );
-
+        let allTasks = tasks.values().toArray().filter(func(task) {
+          task.fieldId == fieldId
+        });
+        let uncompletedTasks = allTasks.filter(func(task) {
+          not task.completed
+        });
         let taskCount = uncompletedTasks.size();
         let totalTaskCount = allTasks.size();
-
         let (totalUrgency, totalValue, totalInterest, totalInfluence, totalActiveTaskDuration, totalTaskDuration) = allTasks.foldRight(
           (0, 0, 0, 0, 0, 0),
           func(task, acc) {
@@ -636,15 +516,15 @@ actor {
             );
           },
         );
-
         let avgUrgency = if (taskCount > 0) { totalUrgency / taskCount } else { 0 };
         let avgValue = if (taskCount > 0) { totalValue / taskCount } else { 0 };
         let avgInterest = if (taskCount > 0) { totalInterest / taskCount } else { 0 };
         let avgInfluence = if (taskCount > 0) { totalInfluence / taskCount } else { 0 };
-
         let updatedField : Field = {
           id = field.id;
           name = field.name;
+          icon = field.icon;
+          color = field.color;
           createdBy = field.createdBy;
           createdAt = field.createdAt;
           avgUrgency;
@@ -656,7 +536,6 @@ actor {
           taskCount;
           totalTaskCount;
         };
-
         fields.add(fieldId, updatedField);
       };
     };
@@ -669,27 +548,65 @@ actor {
         case (null) { false };
         case (?_) { true };
       };
-      if (not creatorExists) {
-        creatorSet.add(field.createdBy, true);
-      };
+      if (not creatorExists) { creatorSet.add(field.createdBy, true) };
     };
     creatorSet.keys().toArray();
   };
 
   func getFieldsByCreator(creator : Principal) : [Field] {
-    fields.values().toArray().filter(
-      func(field) {
-        field.createdBy == creator;
-      }
-    );
+    fields.values().toArray().filter(func(field) { field.createdBy == creator });
   };
 
   func getTasksByFieldId(fieldId : FieldId) : [Task] {
-    tasks.values().toArray().filter(
-      func(task) {
-        task.fieldId == fieldId;
-      }
+    tasks.values().toArray().filter(func(task) { task.fieldId == fieldId });
+  };
+
+  public query ({ caller }) func exportUserData() : async ExportPayload {
+    requireUserPermission(caller);
+    let userFields = fields.values().toArray().filter(func(field) { field.createdBy == caller });
+    let userTasks = tasks.values().toArray().filter(func(task) { task.createdBy == caller });
+    {
+      fields = userFields;
+      tasks = userTasks;
+    };
+  };
+
+  public shared ({ caller }) func importUserData(payload : ExportPayload) : async () {
+    requireUserPermission(caller);
+    // Remove only the caller's existing fields and tasks
+    let filteredFields = fields.entries().foldLeft(
+      Map.empty<FieldId, Field>(),
+      func(acc, (id, field)) {
+        if (field.createdBy != caller) { acc.add(id, field) };
+        acc;
+      },
     );
+    
+    let filteredTasks = tasks.entries().foldLeft(
+      Map.empty<TaskId, Task>(),
+      func(acc, (id, task)) {
+        if (task.createdBy != caller) { acc.add(id, task) };
+        acc;
+      },
+    );
+
+    fields.clear();
+    for ((id, field) in filteredFields.entries()) {
+      fields.add(id, field);
+    };
+
+    tasks.clear();
+    for ((id, task) in filteredTasks.entries()) {
+      tasks.add(id, task);
+    };
+
+    // Add imported fields and tasks (all should belong to caller)
+    for (field in payload.fields.values()) {
+      fields.add(field.id, field);
+    };
+
+    for (task in payload.tasks.values()) {
+      tasks.add(task.id, task);
+    };
   };
 };
-

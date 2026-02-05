@@ -1,70 +1,47 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T13:43:27.094Z",
+  "generatedAt": "2026-02-05T07:52:26.577Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 3,
+    "implemented": 0,
     "items": [
       {
-        "id": "REQ-15",
-        "summary": "Fix the false-positive detection of the \"User is not registered\" condition so the app does not incorrectly show the blocking message \"Please complete your profile to continue\" during normal usage.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/hooks/useQueries.ts"
-        ]
+        "id": "REQ-7",
+        "summary": "Update backend Field deletion logic so a user can delete their own Field without any multi-creator restriction (i.e., do not require “at least two actors/users exist” to allow Field deletion).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-16",
-        "summary": "Ensure authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast) and that, after saving a profile successfully, the app proceeds to the Dashboard without showing the profile-completion blocking message.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx",
-          "frontend/src/components/ProfileSetupModal.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/ProfileSetupModal.tsx"
-        ]
+        "id": "REQ-8",
+        "summary": "Remove the backend rule that prevents Field deletion when the caller would have fewer than two Fields remaining (i.e., remove the “maintaining user fields requires at least two” restriction).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-17",
-        "summary": "Standardize user-facing copy related to missing profile so it uses a single consistent English string across error normalization and boot messaging (avoid multiple near-duplicates).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/utils/profileSaveErrors.ts",
-          "frontend/src/utils/fieldCreationErrors.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/bootErrorMessages.ts",
-          "frontend/src/utils/profileSaveErrors.ts",
-          "frontend/src/utils/fieldCreationErrors.ts"
-        ]
+        "id": "REQ-9",
+        "summary": "Allow deleting a Field regardless of whether it contains tasks (including incomplete/uncompleted tasks) by ensuring backend Field deletion cascades and removes all tasks belonging to the deleted Field and removes/cleans any task dependencies that reference tasks removed by the cascade.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/ProfileSetupModal.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/bootErrorMessages.ts",
-    "frontend/src/utils/fieldCreationErrors.ts",
-    "frontend/src/utils/profileSaveErrors.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

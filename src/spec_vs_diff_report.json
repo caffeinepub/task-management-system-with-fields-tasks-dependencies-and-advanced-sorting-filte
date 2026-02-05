@@ -1,43 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T13:43:27.055Z",
-  "summary": "Diff tightens the frontend detector for the true \"User is not registered\" condition and introduces a shared missing-profile message constant used across boot/profile/field error normalizers. It also adjusts the profile query to treat explicit \"not registered\" errors as a null-profile state (triggering setup flow) and updates ProfileSetupModal UX/guards. However, the diff evidence is truncated for key parts of the profile-save success path and boot routing (e.g., App.tsx), so some REQ-16 acceptance criteria cannot be confirmed from the provided diff summary.",
+  "generatedAt": "2026-02-05T07:52:26.559Z",
+  "summary": "The provided diff excerpt does not include the Field deletion implementation, so there is insufficient evidence that the requested backend deletion-rule removals and task-cascade behavior were implemented. Additionally, an unrelated documentation/state summary file was modified without being requested.",
   "missing_requirements": [
     {
-      "id": "REQ-16",
-      "requirement": "After a successful profile save, the profile cache is refreshed and the ProfileSetupModal is dismissed in favor of the Dashboard (no persistent blocking state).",
-      "reason": "The diff snippet for frontend/src/hooks/useQueries.ts is truncated before any onSuccess/onSettled logic for useSaveCallerUserProfile, so there is no direct evidence that the profile cache is refreshed and that the UI transitions away from the modal to the Dashboard after saving.",
+      "id": "REQ-7",
+      "requirement": "Update backend Field deletion logic so a user can delete their own Field without any multi-creator restriction (do not require “at least two actors/users exist” to allow Field deletion).",
+      "reason": "The diff snippet for backend/main.mo is truncated before any Field deletion function/logic is shown, and no visible changes reference removing a multi-creator restriction.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts (truncated)"
+        "backend/main.mo (truncated in diff; deletion logic not shown)"
       ]
     },
     {
-      "id": "REQ-16",
-      "requirement": "Authenticated users who truly have no profile are guided via the ProfileSetupModal flow (and not blocked by a boot error screen or toast).",
-      "reason": "While the profile query now returns null for \"not registered\" errors, the boot-flow orchestration/routing that ensures the modal is shown instead of an error screen/toast is described only in a summary file; App.tsx changes are not shown in the diff excerpt, so this behavior cannot be verified from code evidence provided.",
+      "id": "REQ-8",
+      "requirement": "Remove the backend rule that prevents Field deletion when the caller would have fewer than two Fields remaining (remove the “maintaining user fields requires at least two” restriction).",
+      "reason": "No Field deletion logic or checks about remaining Field count are visible in the truncated backend/main.mo diff excerpt.",
       "evidence": [
-        "frontend-file-summaries.txt (truncated)"
+        "backend/main.mo (truncated in diff; deletion logic not shown)"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "requirement": "Allow deleting a Field regardless of whether it contains tasks by cascading deletion of all tasks in the Field and cleaning task dependencies that reference deleted tasks.",
+      "reason": "The diff excerpt does not show any code that deletes tasks by fieldId during Field deletion, nor any code that removes dependency IDs referencing deleted tasks.",
+      "evidence": [
+        "backend/main.mo (truncated in diff; deletion/cascade logic not shown)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Unrequested UI/feature changes described in frontend-file-summaries.txt (e.g., undo toast on task completion, duration clearing behavior in EditTaskDialog, new task/field UI enhancements, computed metrics display updates).",
-      "reason": "These features are not part of REQ-15/16/17 and are only asserted in the modified summary text; the corresponding code files are not included among the modified files in the diff summary, so this appears to be unrelated/unsupported claims added to documentation.",
+      "description": "Updated/expanded project documentation/state summary in project_state.json (feature inventory text).",
+      "reason": "BuildRequest constraints emphasize implementing changes in backend/main.mo and do not request updating project_state.json or adding/updating documentation/feature inventory.",
       "evidence": [
-        "frontend-file-summaries.txt (truncated)"
+        "project_state.json"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.55,
   "changed_files": [
-    "frontend-file-summaries.txt",
-    "frontend/src/components/ProfileSetupModal.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/bootErrorMessages.ts",
-    "frontend/src/utils/fieldCreationErrors.ts",
-    "frontend/src/utils/profileSaveErrors.ts",
+    "backend/main.mo",
     "project_state.json"
   ]
 }

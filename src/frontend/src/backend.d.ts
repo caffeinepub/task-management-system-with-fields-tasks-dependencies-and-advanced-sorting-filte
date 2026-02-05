@@ -10,10 +10,12 @@ export type Option<T> = Some<T> | None;
 export interface Field {
     id: FieldId;
     avgUrgency: bigint;
+    icon: string;
     totalTaskDuration: bigint;
     name: string;
     createdAt: Time;
     createdBy: Principal;
+    color: string;
     avgInterest: bigint;
     totalTaskCount: bigint;
     taskCount: bigint;
@@ -39,6 +41,10 @@ export interface Task {
     dependencies: Array<TaskId>;
     fieldId: FieldId;
 }
+export interface ExportPayload {
+    tasks: Array<Task>;
+    fields: Array<Field>;
+}
 export interface UserProfile {
     name: string;
 }
@@ -54,10 +60,11 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createField(name: string): Promise<FieldId>;
+    createField(name: string, icon: string, color: string): Promise<FieldId>;
     createTask(fieldId: FieldId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<TaskId>;
     deleteField(fieldId: FieldId): Promise<void>;
     deleteTask(taskId: TaskId): Promise<void>;
+    exportUserData(): Promise<ExportPayload>;
     filterTasksByAttribute(fieldId: FieldId, attribute: string, minValue: bigint, maxValue: bigint): Promise<Array<Task>>;
     getAllFields(): Promise<Array<Field>>;
     getAllTasks(): Promise<Array<Task>>;
@@ -65,12 +72,13 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getTasksByField(fieldId: FieldId): Promise<Array<Task>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    importUserData(payload: ExportPayload): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     markTaskCompleted(taskId: TaskId): Promise<void>;
     moveTaskToField(taskId: TaskId, newFieldId: FieldId): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchTasks(fieldId: FieldId, searchTerm: string): Promise<Array<Task>>;
     undoTaskCompletion(taskId: TaskId): Promise<void>;
-    updateField(fieldId: FieldId, name: string): Promise<void>;
+    updateField(fieldId: FieldId, name: string, icon: string, color: string): Promise<void>;
     updateTask(taskId: TaskId, name: string, urgency: bigint, value: bigint, interest: bigint, influence: bigint, duration: bigint, durationUnit: DurationUnit, dependencies: Array<TaskId>): Promise<void>;
 }
