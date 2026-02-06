@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-complete-and-correct-the-documentation-in-frontend-docs-production-redeploy-runbook-md-so-it-provides-a-fully-actionable-end-to-end-procedure-for-doing-a-clean-production-redeploy-from-the-current-repository-state-fresh-build-artifacts-including-prerequisites-exact-commands-verification-steps-and-rollback-guidance",
-      "featureTitle": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
+      "featureId": "feature-make-every-taskcard-render-with-a-solid-non-transparent-background-in-both-light-and-dark-themes-so-content-behind-the-card-does-not-bleed-through",
+      "featureTitle": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
       "files": [
-        "frontend/docs/production-redeploy-runbook.md"
+        "frontend/src/components/TaskCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,11 +21,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-lightweight-production-smoke-test-procedure-that-references-frontend-docs-production-smoke-check-results-template-md-and-the-existing-regression-checklist-so-a-redeploy-can-be-verified-quickly-after-a-fresh-draft-rebuild-and-production-deploy",
-      "featureTitle": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
+      "featureId": "feature-ensure-all-task-related-modal-dialogs-use-a-solid-non-transparent-background-everywhere-they-appear-including-create-task-dialog-edit-task-dialog-and-the-delete-task-confirmation-dialog",
+      "featureTitle": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
       "files": [
-        "frontend/docs/production-redeploy-runbook.md",
-        "frontend/docs/production-smoke-check-procedure.md"
+        "frontend/src/components/CreateTaskDialog.tsx",
+        "frontend/src/components/EditTaskDialog.tsx",
+        "frontend/src/components/TaskCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",

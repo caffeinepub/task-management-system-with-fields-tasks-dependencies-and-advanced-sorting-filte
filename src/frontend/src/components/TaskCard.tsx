@@ -129,7 +129,7 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
 
   return (
     <>
-      <Card className="transition-all hover:shadow-md">
+      <Card className="bg-card text-card-foreground transition-all hover:shadow-md">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Checkbox
@@ -213,7 +213,7 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-popover text-popover-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Task</AlertDialogTitle>
             <AlertDialogDescription>

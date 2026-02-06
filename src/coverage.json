@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T23:57:08.193Z",
+  "generatedAt": "2026-02-06T07:17:25.577Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,38 +12,40 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
+        "summary": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/docs/production-redeploy-runbook.md"
+          "frontend/src/components/TaskCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/docs/production-redeploy-runbook.md"
+          "frontend/src/components/TaskCard.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
+        "summary": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/docs/production-smoke-check-procedure.md",
-          "frontend/docs/production-redeploy-runbook.md"
+          "frontend/src/components/CreateTaskDialog.tsx",
+          "frontend/src/components/EditTaskDialog.tsx",
+          "frontend/src/components/TaskCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/docs/production-smoke-check-procedure.md",
-          "frontend/docs/production-redeploy-runbook.md"
+          "frontend/src/components/CreateTaskDialog.tsx",
+          "frontend/src/components/EditTaskDialog.tsx",
+          "frontend/src/components/TaskCard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/docs/production-redeploy-runbook.md",
-    "frontend/docs/production-smoke-check-procedure.md",
+    "frontend/src/components/CreateTaskDialog.tsx",
+    "frontend/src/components/EditTaskDialog.tsx",
+    "frontend/src/components/TaskCard.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

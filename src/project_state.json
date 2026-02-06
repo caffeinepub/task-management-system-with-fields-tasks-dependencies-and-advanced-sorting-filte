@@ -3,32 +3,39 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [
-    "Deployment workflow: if production redeploy fails, rebuild a fresh draft first, then deploy to production."
+    "UI styling: task card and modal should not be transparent; use a solid background consistently across all usages."
   ],
   "known_issues": [
-    "Production redeploy encountered a deployment error; user requested a fix and opted to rebuild a fresh draft before redeploying."
+    "Task card and modal backgrounds are currently transparent, causing confusing bleed-through of content behind them."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-complete-and-correct-the-documentation-in-frontend-docs-production-redeploy-runbook-md-so-it-provides-a-fully-actionable-end-to-end-procedure-for-doing-a-clean-production-redeploy-from-the-current-repository-state-fresh-build-artifacts-including-prerequisites-exact-commands-verification-steps-and-rollback-guidance",
-      "title": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
+      "id": "feature-make-every-taskcard-render-with-a-solid-non-transparent-background-in-both-light-and-dark-themes-so-content-behind-the-card-does-not-bleed-through",
+      "title": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-lightweight-production-smoke-test-procedure-that-references-frontend-docs-production-smoke-check-results-template-md-and-the-existing-regression-checklist-so-a-redeploy-can-be-verified-quickly-after-a-fresh-draft-rebuild-and-production-deploy",
-      "title": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
+      "id": "feature-ensure-all-task-related-modal-dialogs-use-a-solid-non-transparent-background-everywhere-they-appear-including-create-task-dialog-edit-task-dialog-and-the-delete-task-confirmation-dialog",
+      "title": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Harden redeploy workflow after production deployment error (fresh draft rebuild + runbook)",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix transparent backgrounds: make task card and modal use a solid (non-transparent) background everywhere they appear",
+      "reqIds": [],
+      "status": "in_progress"
+    }
+  ],
+  "projectName": "Fix transparent backgrounds on task cards and task modals",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

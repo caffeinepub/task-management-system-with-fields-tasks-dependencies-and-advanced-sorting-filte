@@ -1,61 +1,20 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T23:57:08.190Z",
-  "summary": "The diff adds a new smoke-check document and makes substantial backend/frontend product changes, while the redeploy runbook appears incomplete/truncated and does not clearly include the required end-to-end redeploy + verification + rollback and smoke-test recording instructions.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Complete and correct `frontend/docs/production-redeploy-runbook.md` to provide a fully actionable, end-to-end clean production redeploy procedure (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
-      "reason": "The runbook content shown is not end-to-end and appears malformed/truncated (it stops mid-section and contains an unrelated `project_state.json` block). It does not clearly provide the required exact command sequence, full verification steps, or rollback procedure details based on the provided diff excerpt.",
-      "evidence": [
-        "frontend/docs/production-redeploy-runbook.md"
-      ]
-    },
-    {
-      "id": "REQ-1",
-      "requirement": "Runbook includes (at minimum): clean/build steps, deploy steps, how to confirm canisters and frontend assets are updated in production, and how to capture/record canister IDs for rollback.",
-      "reason": "In the visible portion, the runbook does not show clean/build steps, deploy commands, or explicit verification of canisters/frontend asset updates. The 'Record Current Canister IDs' section is started but not completed with actionable commands/output capture.",
-      "evidence": [
-        "frontend/docs/production-redeploy-runbook.md"
-      ]
-    },
-    {
-      "id": "REQ-1",
-      "requirement": "Runbook explains how to validate production boots and reaches the authenticated Dashboard after Internet Identity login.",
-      "reason": "Although the intro mentions validating the authenticated Dashboard after Internet Identity login, the diff excerpt does not show concrete validation steps/checks as part of the procedure.",
-      "evidence": [
-        "frontend/docs/production-redeploy-runbook.md"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Redeploy runbook clearly instructs how to execute a short smoke test after deployment (login, dashboard load, minimal core CRUD flows) and how to record results using `frontend/docs/production-smoke-check-results-template.md`, consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md`.",
-      "reason": "A separate smoke-check procedure doc was added, but the requirement is specifically that the redeploy runbook instructs how to execute the smoke test and record results using the provided template, and that it is consistent with the regression checklist. The visible runbook excerpt does not include those smoke-test execution/recording instructions or references.",
-      "evidence": [
-        "frontend/docs/production-redeploy-runbook.md",
-        "frontend/docs/production-smoke-check-procedure.md"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-06T07:17:25.574Z",
+  "summary": "Diff appears to address the transparency issue by adding explicit opaque background utility classes to TaskCard and task-related dialog content surfaces. Some additional non-requested metadata/documentation updates are also present.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Added a new standalone documentation file `frontend/docs/production-smoke-check-procedure.md`.",
-      "reason": "REQ-2 asked for adding a lightweight smoke-test procedure referenced from the redeploy runbook and using the existing results template/regression checklist; it did not explicitly request creating a new separate procedure document.",
+      "description": "Updates to internal project tracking metadata (new_feature_requests/status entries) not requested in the BuildRequest.",
+      "reason": "BuildRequest only asks for UI transparency fixes; it does not mention maintaining/updating project_state.json tracking fields.",
       "evidence": [
-        "frontend/docs/production-smoke-check-procedure.md"
+        "project_state.json"
       ]
     },
     {
-      "description": "Backend authorization/role and user profile permission logic changes (e.g., ensureUserRole, requireUserPermission, role assignment, permission checks).",
-      "reason": "BuildRequest scope is documentation/runbook hardening for redeploy and smoke-test process, with a non-goal of not implementing new product features unrelated to redeploy recovery. Backend behavioral changes are not requested by REQ-1/REQ-2.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Extensive frontend behavior and UI feature changes (boot orchestration retry/cache clearing, logout from error screen, new/changed dialogs, color pickers, task undo toast, dashboard tabs, export/import buttons, etc.).",
-      "reason": "BuildRequest explicitly focuses on redeploy workflow documentation and smoke-test procedure; it also states non-goal of implementing new product features unrelated to fixing/recovering from the deployment/redeploy failure. The diff summary indicates many product/UI feature modifications beyond documentation.",
+      "description": "Updates to the repository-wide frontend file summaries containing many unrelated feature descriptions (boot orchestration, auth recovery flows, field background color variables, etc.).",
+      "reason": "These summary/documentation updates are not requested by the BuildRequest, which is narrowly scoped to task card and task modal opacity.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
@@ -63,10 +22,10 @@
   ],
   "confidence": 0.72,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/docs/production-redeploy-runbook.md",
-    "frontend/docs/production-smoke-check-procedure.md",
+    "frontend/src/components/CreateTaskDialog.tsx",
+    "frontend/src/components/EditTaskDialog.tsx",
+    "frontend/src/components/TaskCard.tsx",
     "project_state.json"
   ]
 }

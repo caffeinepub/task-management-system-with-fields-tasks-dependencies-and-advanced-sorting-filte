@@ -1,75 +1,60 @@
 {
   "kind": "build_request",
-  "title": "Harden redeploy workflow after production deployment error (fresh draft rebuild + runbook)",
+  "title": "Fix transparent backgrounds on task cards and task modals",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
-      "target": "unknown",
+      "text": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6",
+          "msg-8"
         ],
         "quotes": [
-          "🙏 Something went wrong with the deployment",
-          "fix it",
-          "2",
-          "proceed"
+          "fix: background of task card / modal is transparent which not good as I see behind and its confusing.",
+          "1. both\n2. solid color\n3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/docs/production-redeploy-runbook.md` is no longer truncated and contains a step-by-step redeploy procedure from start to finish.",
-        "Runbook includes (at minimum): clean/build steps, deploy steps, how to confirm canisters and frontend assets are updated in production, and how to capture/record canister IDs for rollback.",
-        "All user-facing text in the runbook is in English.",
-        "Runbook explicitly calls out that the goal is a redeploy-only (no new features) and how to validate that production boots and reaches the authenticated Dashboard after Internet Identity login."
+        "In light theme, each task card has an opaque background (no page content visible through the card).",
+        "In dark theme, each task card has an opaque background (no page content visible through the card).",
+        "Hover/focus styles still work and do not reintroduce transparency."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
-      "target": "unknown",
+      "text": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6",
+          "msg-8"
         ],
         "quotes": [
-          "🙏 Something went wrong with the deployment",
-          "yes, redeploy",
-          "to production",
-          "2",
-          "proceed"
+          "fix: background of task card / modal is transparent which not good as I see behind and its confusing.",
+          "1. both\n2. solid color\n3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "The redeploy runbook clearly instructs how to execute a short smoke test after deployment (login, dashboard load, and a minimal set of core CRUD flows).",
-        "The runbook instructs how to record results using `frontend/docs/production-smoke-check-results-template.md`.",
-        "Smoke-test steps are consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md` (no contradictory guidance)."
+        "Create Task dialog content is opaque (no underlying UI visible through the modal surface).",
+        "Edit Task dialog content is opaque (no underlying UI visible through the modal surface).",
+        "Delete Task confirmation dialog content is opaque (no underlying UI visible through the modal surface).",
+        "The fix applies consistently anywhere these dialogs are opened in the app.",
+        "Modal readability is maintained in both light and dark themes (text remains legible against the new solid background)."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text in the build request.",
-    "Do not modify files under `frontend/src/components/ui` or other paths listed as immutable in SYSTEM_CONTEXT.",
-    "Backend must remain a single Motoko actor (no additional backend services)."
+    "Do not modify any files under frontend/src/components/ui (these are read-only/immutable)."
   ],
   "nonGoals": [
-    "Implementing new product features unrelated to fixing/recovering from the deployment/redeploy failure.",
-    "Changing authentication providers (Internet Identity remains the only auth mechanism).",
-    "Adding external CI/CD services or third-party deployment tooling integrations."
+    "Redesigning the overall UI theme beyond fixing the transparency issue.",
+    "Changing modal overlay behavior (e.g., blur effects, dimming intensity) unless required to eliminate transparency of the modal surface itself."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

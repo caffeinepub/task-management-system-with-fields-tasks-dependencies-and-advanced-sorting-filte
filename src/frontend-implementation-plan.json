@@ -1,43 +1,49 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Production redeploy hardening: fresh rebuild runbook + smoke-test procedure",
+  "title": "Fix opaque surfaces for TaskCard and task modals (light/dark)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Expand and correct the production redeploy runbook to be fully actionable end-to-end (clean rebuild, deploy, verify, rollback-ready), in English, and explicitly validated to reach the authenticated Dashboard after Internet Identity login.",
+      "summary": "Ensure TaskCard always renders with an opaque (non-transparent) card surface in light and dark themes, including hover/focus states.",
       "acceptanceCriteria": [
-        "`frontend/docs/production-redeploy-runbook.md` is no longer truncated and contains a step-by-step redeploy procedure from start to finish.",
-        "Runbook includes (at minimum): clean/build steps, deploy steps, how to confirm canisters and frontend assets are updated in production, and how to capture/record canister IDs for rollback.",
-        "All user-facing text in the runbook is in English.",
-        "Runbook explicitly calls out that the goal is a redeploy-only (no new features) and how to validate that production boots and reaches the authenticated Dashboard after Internet Identity login."
+        "In light theme, each task card has an opaque background (no page content visible through the card).",
+        "In dark theme, each task card has an opaque background (no page content visible through the card).",
+        "Hover/focus styles still work and do not reintroduce transparency."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/production-redeploy-runbook.md",
+          "path": "frontend/src/components/TaskCard.tsx",
           "operation": "modify",
-          "description": "Rewrite/complete the runbook so it is end-to-end and non-truncated. Include: purpose/scope (redeploy-only), prerequisites (access, correct tool versions, wallet/identity readiness), exact command sequence for a clean rebuild and production deploy from the current repo state (including cleaning prior build artifacts and reinstalling deps), explicit steps to capture/record the currently deployed canister IDs before changing anything, explicit post-deploy verification (confirm canister IDs and asset canister updates, validate app boot and that Internet Identity login reaches the authenticated Dashboard), and rollback guidance (what to record, what constitutes rollback triggers, and how to redeploy the prior known-good canister IDs/artifacts per project conventions). Ensure the runbook references the existing regression checklist where appropriate and stays consistent with it."
+          "description": "Update the shadcn-ui Card usage to explicitly apply opaque background/text surface classes (e.g., using theme tokens like card/popover with full opacity) so the task content behind never bleeds through in light/dark, and ensure hover/focus styles don’t introduce alpha. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add a lightweight production smoke-test procedure that can be executed quickly after redeploy and recorded using the provided results template, aligned with the existing regression checklist.",
+      "summary": "Make all task-related modal dialog surfaces (Create, Edit, Delete confirmation) render with an opaque background in light and dark themes everywhere they are used.",
       "acceptanceCriteria": [
-        "The redeploy runbook clearly instructs how to execute a short smoke test after deployment (login, dashboard load, and a minimal set of core CRUD flows).",
-        "The runbook instructs how to record results using `frontend/docs/production-smoke-check-results-template.md`.",
-        "Smoke-test steps are consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md` (no contradictory guidance)."
+        "Create Task dialog content is opaque (no underlying UI visible through the modal surface).",
+        "Edit Task dialog content is opaque (no underlying UI visible through the modal surface).",
+        "Delete Task confirmation dialog content is opaque (no underlying UI visible through the modal surface).",
+        "The fix applies consistently anywhere these dialogs are opened in the app.",
+        "Modal readability is maintained in both light and dark themes (text remains legible against the new solid background)."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/production-smoke-check-procedure.md",
-          "operation": "create",
-          "description": "Create a concise, production-focused smoke-test procedure designed to be run immediately after a production redeploy. It must: (1) reference `frontend/docs/production-smoke-check-results-template.md` as the place to record results, (2) explicitly align with and point to the relevant subset of `frontend/docs/deploy-and-localdev-regression-checklist.md` for consistency, and (3) list a minimal critical path (Internet Identity login → authenticated Dashboard load) plus a small set of core flows (field create/edit/delete when allowed, task create/edit/complete/undo, export/import sanity) without expanding into a full regression suite."
+          "path": "frontend/src/components/CreateTaskDialog.tsx",
+          "operation": "modify",
+          "description": "Adjust the shadcn-ui DialogContent usage to explicitly set an opaque modal surface background and appropriate foreground text colors for both themes (avoid any transparent/alpha backgrounds). Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/docs/production-redeploy-runbook.md",
+          "path": "frontend/src/components/EditTaskDialog.tsx",
           "operation": "modify",
-          "description": "Update the redeploy runbook to include an explicit post-deploy smoke-test section that: (1) links to `frontend/docs/production-smoke-check-procedure.md`, (2) instructs recording outcomes in `frontend/docs/production-smoke-check-results-template.md`, and (3) calls out the specific quick checks (login, dashboard load, minimal CRUD flows) as the required verification gate before declaring the redeploy successful—ensuring wording matches the existing regression checklist guidance."
+          "description": "Adjust the shadcn-ui DialogContent usage to explicitly set an opaque modal surface background and appropriate foreground text colors for both themes (avoid any transparent/alpha backgrounds). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/TaskCard.tsx",
+          "operation": "modify",
+          "description": "Update the shadcn-ui AlertDialogContent (Delete Task confirmation) usage to apply an explicit opaque surface background and foreground text colors, ensuring the dialog surface itself is not transparent in light/dark themes. Verify the component's usage instructions before implementing."
         }
       ]
     }
