@@ -9,8 +9,6 @@ import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-
-
 actor {
   public type FieldId = Text;
   public type TaskId = Text;
@@ -616,5 +614,3 @@ actor {
     };
   };
 };
-
-

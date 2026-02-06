@@ -1,64 +1,62 @@
 {
   "kind": "build_request",
-  "title": "Fix blank screen when editing a Field on the Field Details page",
-  "priority": "high",
+  "title": "Harden redeploy workflow after production deployment error (fresh draft rebuild + runbook)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
-      "target": "frontend",
+      "text": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8",
-          "msg-10",
-          "msg-12"
+          "recent-messages"
         ],
         "quotes": [
-          "fix error: tyring to edit a field I get blank screen",
-          "The details Field page",
-          "on all fields details page",
-          "inspect and fix accordingly"
+          "🙏 Something went wrong with the deployment",
+          "fix it",
+          "2",
+          "proceed"
         ]
       },
       "acceptanceCriteria": [
-        "From the Field Details page, clicking the \"Edit\" button opens the Edit Field dialog without a blank screen crash.",
-        "If any icon name in the predefined icon list is not available in the installed lucide-react bundle, the dialog still renders (unknown icons are safely skipped or replaced with a fallback).",
-        "No uncaught exceptions are thrown during rendering of the Edit Field dialog icon grid."
+        "`frontend/docs/production-redeploy-runbook.md` is no longer truncated and contains a step-by-step redeploy procedure from start to finish.",
+        "Runbook includes (at minimum): clean/build steps, deploy steps, how to confirm canisters and frontend assets are updated in production, and how to capture/record canister IDs for rollback.",
+        "All user-facing text in the runbook is in English.",
+        "Runbook explicitly calls out that the goal is a redeploy-only (no new features) and how to validate that production boots and reaches the authenticated Dashboard after Internet Identity login."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
-      "target": "frontend",
+      "text": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8",
-          "msg-10",
-          "msg-12"
+          "recent-messages"
         ],
         "quotes": [
-          "fix error: tyring to edit a field I get blank screen",
-          "The details Field page",
-          "on all fields details page",
-          "inspect and fix accordingly"
+          "🙏 Something went wrong with the deployment",
+          "yes, redeploy",
+          "to production",
+          "2",
+          "proceed"
         ]
       },
       "acceptanceCriteria": [
-        "If a rendering error occurs within the Field Details page view/components, the UI displays an error panel with clear English text and an action to recover (e.g., go back to Dashboard and/or retry).",
-        "The rest of the app remains usable after recovering (no full blank screen)."
+        "The redeploy runbook clearly instructs how to execute a short smoke test after deployment (login, dashboard load, and a minimal set of core CRUD flows).",
+        "The runbook instructs how to record results using `frontend/docs/production-smoke-check-results-template.md`.",
+        "Smoke-test steps are consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md` (no contradictory guidance)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only).",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useActor.ts (read-only).",
-    "Keep backend architecture as a single Motoko actor; no additional backend services."
+    "Use English for any user-facing text in the build request.",
+    "Do not modify files under `frontend/src/components/ui` or other paths listed as immutable in SYSTEM_CONTEXT.",
+    "Backend must remain a single Motoko actor (no additional backend services)."
   ],
   "nonGoals": [
-    "Adding new field/task features beyond fixing the edit crash and improving error handling.",
-    "Changing the data model or performing backend state migrations."
+    "Implementing new product features unrelated to fixing/recovering from the deployment/redeploy failure.",
+    "Changing authentication providers (Internet Identity remains the only auth mechanism).",
+    "Adding external CI/CD services or third-party deployment tooling integrations."
   ],
   "imageRequirements": {
     "required": [],

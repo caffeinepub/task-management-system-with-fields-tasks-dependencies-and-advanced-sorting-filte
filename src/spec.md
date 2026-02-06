@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Prevent the Field Details page from going blank when opening the Edit Field dialog, and provide a friendly recovery UI if a rendering error occurs.
+**Goal:** Provide a complete, actionable production redeploy runbook for performing a clean redeploy from the current repository state (fresh build artifacts), including verification, rollback guidance, and a lightweight post-deploy smoke test.
 
 **Planned changes:**
-- Make the Edit Field dialog icon picker resilient to missing/invalid lucide-react icon component names by skipping unknown icons or rendering a safe fallback.
-- Add a React error boundary around the Field Details page area (FieldDetailView and related dialogs) to show an in-app error state with recovery actions instead of a blank screen.
+- Update `frontend/docs/production-redeploy-runbook.md` to be complete (not truncated) and fully step-by-step, covering prerequisites, exact commands for clean build + deploy, verification that canisters and frontend assets updated in production, and how to capture/record canister IDs for rollback.
+- Ensure all runbook text is in English and explicitly frames the process as a redeploy-only (no new features), including validation that production boots and reaches the authenticated Dashboard after Internet Identity login.
+- Add a lightweight smoke-test procedure in the redeploy runbook that references `frontend/docs/production-smoke-check-results-template.md` for recording results and stays consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md`.
 
-**User-visible outcome:** From the Field Details page, users can click “Edit” and reliably see the Edit Field dialog without a blank screen; if something still breaks at runtime, they see an error panel with options like retry or go back rather than the app becoming unusable.
+**User-visible outcome:** After a production deployment issue, a maintainer can follow an end-to-end runbook to perform a clean production redeploy, quickly verify core functionality via a short smoke test, and record rollback-critical details and test results.

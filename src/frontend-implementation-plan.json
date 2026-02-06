@@ -1,46 +1,43 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Edit Field icon-picker crash and add Field Details error boundary",
+  "title": "Production redeploy hardening: fresh rebuild runbook + smoke-test procedure",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Prevent EditFieldDialog icon grid from crashing when a predefined Lucide icon name is missing/invalid by safely skipping or falling back instead of rendering an undefined component.",
+      "summary": "Expand and correct the production redeploy runbook to be fully actionable end-to-end (clean rebuild, deploy, verify, rollback-ready), in English, and explicitly validated to reach the authenticated Dashboard after Internet Identity login.",
       "acceptanceCriteria": [
-        "From the Field Details page, clicking the \"Edit\" button opens the Edit Field dialog without a blank screen crash.",
-        "If any icon name in the predefined icon list is not available in the installed lucide-react bundle, the dialog still renders (unknown icons are safely skipped or replaced with a fallback).",
-        "No uncaught exceptions are thrown during rendering of the Edit Field dialog icon grid."
+        "`frontend/docs/production-redeploy-runbook.md` is no longer truncated and contains a step-by-step redeploy procedure from start to finish.",
+        "Runbook includes (at minimum): clean/build steps, deploy steps, how to confirm canisters and frontend assets are updated in production, and how to capture/record canister IDs for rollback.",
+        "All user-facing text in the runbook is in English.",
+        "Runbook explicitly calls out that the goal is a redeploy-only (no new features) and how to validate that production boots and reaches the authenticated Dashboard after Internet Identity login."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/fieldAppearance.ts",
+          "path": "frontend/docs/production-redeploy-runbook.md",
           "operation": "modify",
-          "description": "Add a small utility to safely resolve Lucide icons for the picker (e.g., a validation helper and/or a resolver that returns null for unknown icon names) so callers can skip invalid icons without throwing."
-        },
-        {
-          "path": "frontend/src/components/EditFieldDialog.tsx",
-          "operation": "modify",
-          "description": "Update the icon picker grid to use the safe icon resolver from fieldAppearance (skip invalid icon names or render a known fallback icon) and guard against undefined IconComponent rendering to prevent runtime render exceptions."
+          "description": "Rewrite/complete the runbook so it is end-to-end and non-truncated. Include: purpose/scope (redeploy-only), prerequisites (access, correct tool versions, wallet/identity readiness), exact command sequence for a clean rebuild and production deploy from the current repo state (including cleaning prior build artifacts and reinstalling deps), explicit steps to capture/record the currently deployed canister IDs before changing anything, explicit post-deploy verification (confirm canister IDs and asset canister updates, validate app boot and that Internet Identity login reaches the authenticated Dashboard), and rollback guidance (what to record, what constitutes rollback triggers, and how to redeploy the prior known-good canister IDs/artifacts per project conventions). Ensure the runbook references the existing regression checklist where appropriate and stays consistent with it."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add a React error boundary around the Field Details page area to show a recoverable in-app error state instead of a blank screen if FieldDetailView or its dialogs throw at runtime.",
+      "summary": "Add a lightweight production smoke-test procedure that can be executed quickly after redeploy and recorded using the provided results template, aligned with the existing regression checklist.",
       "acceptanceCriteria": [
-        "If a rendering error occurs within the Field Details page view/components, the UI displays an error panel with clear English text and an action to recover (e.g., go back to Dashboard and/or retry).",
-        "The rest of the app remains usable after recovering (no full blank screen)."
+        "The redeploy runbook clearly instructs how to execute a short smoke test after deployment (login, dashboard load, and a minimal set of core CRUD flows).",
+        "The runbook instructs how to record results using `frontend/docs/production-smoke-check-results-template.md`.",
+        "Smoke-test steps are consistent with `frontend/docs/deploy-and-localdev-regression-checklist.md` (no contradictory guidance)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/FieldDetailErrorBoundary.tsx",
+          "path": "frontend/docs/production-smoke-check-procedure.md",
           "operation": "create",
-          "description": "Create a dedicated React error boundary component for the Field Details area that renders a user-friendly error panel and provides actions to recover (retry by resetting boundary state and a Back-to-Dashboard action via callback)."
+          "description": "Create a concise, production-focused smoke-test procedure designed to be run immediately after a production redeploy. It must: (1) reference `frontend/docs/production-smoke-check-results-template.md` as the place to record results, (2) explicitly align with and point to the relevant subset of `frontend/docs/deploy-and-localdev-regression-checklist.md` for consistency, and (3) list a minimal critical path (Internet Identity login → authenticated Dashboard load) plus a small set of core flows (field create/edit/delete when allowed, task create/edit/complete/undo, export/import sanity) without expanding into a full regression suite."
         },
         {
-          "path": "frontend/src/pages/Dashboard.tsx",
+          "path": "frontend/docs/production-redeploy-runbook.md",
           "operation": "modify",
-          "description": "Wrap the selected Field Details rendering path (when selectedField is set) with the new FieldDetailErrorBoundary, wiring retry/back actions so a FieldDetailView crash does not blank the whole app and users can recover to the dashboard."
+          "description": "Update the redeploy runbook to include an explicit post-deploy smoke-test section that: (1) links to `frontend/docs/production-smoke-check-procedure.md`, (2) instructs recording outcomes in `frontend/docs/production-smoke-check-results-template.md`, and (3) calls out the specific quick checks (login, dashboard load, minimal CRUD flows) as the required verification gate before declaring the redeploy successful—ensuring wording matches the existing regression checklist guidance."
         }
       ]
     }

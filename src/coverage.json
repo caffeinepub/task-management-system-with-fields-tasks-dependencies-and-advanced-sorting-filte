@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T23:35:21.457Z",
+  "generatedAt": "2026-02-05T23:57:08.193Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,41 +12,38 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
+        "summary": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/fieldAppearance.ts",
-          "frontend/src/components/EditFieldDialog.tsx"
+          "frontend/docs/production-redeploy-runbook.md"
         ],
         "matchedFiles": [
-          "frontend/src/utils/fieldAppearance.ts",
-          "frontend/src/components/EditFieldDialog.tsx"
+          "frontend/docs/production-redeploy-runbook.md"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
+        "summary": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/FieldDetailErrorBoundary.tsx",
-          "frontend/src/pages/Dashboard.tsx"
+          "frontend/docs/production-smoke-check-procedure.md",
+          "frontend/docs/production-redeploy-runbook.md"
         ],
         "matchedFiles": [
-          "frontend/src/components/FieldDetailErrorBoundary.tsx",
-          "frontend/src/pages/Dashboard.tsx"
+          "frontend/docs/production-smoke-check-procedure.md",
+          "frontend/docs/production-redeploy-runbook.md"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/EditFieldDialog.tsx",
-    "frontend/src/components/FieldDetailErrorBoundary.tsx",
-    "frontend/src/pages/Dashboard.tsx",
-    "frontend/src/utils/fieldAppearance.ts",
+    "frontend/docs/production-redeploy-runbook.md",
+    "frontend/docs/production-smoke-check-procedure.md",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

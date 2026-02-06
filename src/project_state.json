@@ -2,23 +2,25 @@
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
   "summary": "New project",
-  "architectural_notes": [],
+  "architectural_notes": [
+    "Deployment workflow: if production redeploy fails, rebuild a fresh draft first, then deploy to production."
+  ],
   "known_issues": [
-    "Blank screen occurs when trying to edit any field on the Field Details page (across multiple fields); user requests inspection of current live deployment and fix."
+    "Production redeploy encountered a deployment error; user requested a fix and opted to rebuild a fresh draft before redeploying."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-blank-screen-crash-that-occurs-when-the-user-opens-the-edit-field-flow-from-the-field-details-page-by-making-the-editfielddialog-icon-picker-resilient-to-missing-invalid-lucide-icon-component-names-e-g-skip-unknown-icons-or-render-a-safe-fallback-icon-instead-of-throwing-during-render",
-      "title": "Fix the blank-screen crash that occurs when the user opens the Edit Field flow from the Field Details page by making the EditFieldDialog icon picker resilient to missing/invalid Lucide icon component names (e.g., skip unknown icons or render a safe fallback icon instead of throwing during render).",
+      "id": "feature-complete-and-correct-the-documentation-in-frontend-docs-production-redeploy-runbook-md-so-it-provides-a-fully-actionable-end-to-end-procedure-for-doing-a-clean-production-redeploy-from-the-current-repository-state-fresh-build-artifacts-including-prerequisites-exact-commands-verification-steps-and-rollback-guidance",
+      "title": "Complete and correct the documentation in `frontend/docs/production-redeploy-runbook.md` so it provides a fully actionable, end-to-end procedure for doing a clean production redeploy from the current repository state (fresh build artifacts), including prerequisites, exact commands, verification steps, and rollback guidance.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-react-level-error-boundary-for-the-field-details-page-area-so-that-if-a-runtime-error-still-occurs-while-rendering-fielddetailview-and-its-dialogs-the-app-shows-a-user-friendly-in-app-error-state-with-a-retry-back-action-instead-of-a-blank-screen",
-      "title": "Add a React-level error boundary for the Field Details page area so that if a runtime error still occurs while rendering FieldDetailView and its dialogs, the app shows a user-friendly in-app error state (with a retry/back action) instead of a blank screen.",
+      "id": "feature-add-a-lightweight-production-smoke-test-procedure-that-references-frontend-docs-production-smoke-check-results-template-md-and-the-existing-regression-checklist-so-a-redeploy-can-be-verified-quickly-after-a-fresh-draft-rebuild-and-production-deploy",
+      "title": "Add a lightweight production smoke-test procedure that references `frontend/docs/production-smoke-check-results-template.md` and the existing regression checklist so a redeploy can be verified quickly after a fresh draft rebuild and production deploy.",
       "reqIds": [
         "REQ-2"
       ],
@@ -26,7 +28,7 @@
     }
   ],
   "new_feature_requests": [],
-  "projectName": "Fix blank screen when editing a Field on the Field Details page",
+  "projectName": "Harden redeploy workflow after production deployment error (fresh draft rebuild + runbook)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
