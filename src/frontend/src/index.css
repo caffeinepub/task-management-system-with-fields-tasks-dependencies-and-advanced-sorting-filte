@@ -111,3 +111,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Make Dialog and AlertDialog overlays and content fully opaque */
+@layer components {
+  [data-radix-dialog-overlay],
+  [data-radix-alert-dialog-overlay] {
+    background-color: oklch(0% 0 0 / 0.8) !important;
+  }
+
+  .dark [data-radix-dialog-overlay],
+  .dark [data-radix-alert-dialog-overlay] {
+    background-color: oklch(0% 0 0 / 0.85) !important;
+  }
+
+  /* Ensure dialog content has opaque background */
+  [data-radix-dialog-content],
+  [data-radix-alert-dialog-content] {
+    background-color: hsl(var(--popover)) !important;
+  }
+}

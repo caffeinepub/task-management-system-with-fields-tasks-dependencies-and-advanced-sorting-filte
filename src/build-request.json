@@ -1,58 +1,10 @@
 {
   "kind": "build_request",
-  "title": "Fix transparent backgrounds on task cards and task modals",
+  "title": "Untitled request",
   "priority": "normal",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "text": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-8"
-        ],
-        "quotes": [
-          "fix: background of task card / modal is transparent which not good as I see behind and its confusing.",
-          "1. both\n2. solid color\n3. yes"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In light theme, each task card has an opaque background (no page content visible through the card).",
-        "In dark theme, each task card has an opaque background (no page content visible through the card).",
-        "Hover/focus styles still work and do not reintroduce transparency."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-8"
-        ],
-        "quotes": [
-          "fix: background of task card / modal is transparent which not good as I see behind and its confusing.",
-          "1. both\n2. solid color\n3. yes"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Create Task dialog content is opaque (no underlying UI visible through the modal surface).",
-        "Edit Task dialog content is opaque (no underlying UI visible through the modal surface).",
-        "Delete Task confirmation dialog content is opaque (no underlying UI visible through the modal surface).",
-        "The fix applies consistently anywhere these dialogs are opened in the app.",
-        "Modal readability is maintained in both light and dark themes (text remains legible against the new solid background)."
-      ]
-    }
-  ],
-  "constraints": [
-    "Do not modify any files under frontend/src/components/ui (these are read-only/immutable)."
-  ],
-  "nonGoals": [
-    "Redesigning the overall UI theme beyond fixing the transparency issue.",
-    "Changing modal overlay behavior (e.g., blur effects, dimming intensity) unless required to eliminate transparency of the modal surface itself."
-  ],
+  "requirements": [],
+  "constraints": [],
+  "nonGoals": [],
   "imageRequirements": {
     "required": [],
     "edits": []

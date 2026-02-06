@@ -1,31 +1,70 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T07:17:25.574Z",
-  "summary": "Diff appears to address the transparency issue by adding explicit opaque background utility classes to TaskCard and task-related dialog content surfaces. Some additional non-requested metadata/documentation updates are also present.",
+  "generatedAt": "2026-02-06T07:57:27.226Z",
+  "summary": "BuildRequest contained no explicit requirements or acceptance criteria, so no missing requirements can be identified. The diff introduces multiple new behaviors/features across backend and frontend (authorization, user profiles, field/task enhancements, UI styling changes), which are not traceable to any stated request.",
   "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Updates to internal project tracking metadata (new_feature_requests/status entries) not requested in the BuildRequest.",
-      "reason": "BuildRequest only asks for UI transparency fixes; it does not mention maintaining/updating project_state.json tracking fields.",
+      "description": "Added/expanded backend authorization and role/permission gating for user access.",
+      "reason": "No requirements were provided in the BuildRequest, so implementing authorization logic is not requested by the spec.",
       "evidence": [
-        "project_state.json"
+        "backend/main.mo"
       ]
     },
     {
-      "description": "Updates to the repository-wide frontend file summaries containing many unrelated feature descriptions (boot orchestration, auth recovery flows, field background color variables, etc.).",
-      "reason": "These summary/documentation updates are not requested by the BuildRequest, which is narrowly scoped to task card and task modal opacity.",
+      "description": "Added user profile functionality (get/save caller profile, get other user profile with admin/self restriction).",
+      "reason": "No requirements were provided in the BuildRequest, so adding user profile APIs/UI is not requested by the spec.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Implemented/expanded field creation/update to include icon, color, and backgroundColor plus additional field statistics (avg* and duration totals).",
+      "reason": "No requirements were provided in the BuildRequest, so adding these field properties/statistics is not requested by the spec.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "UI changes for task editing/creation including 1–5 scale inputs, duration unit conversions/clearing, dependency management, and moving tasks between fields.",
+      "reason": "No requirements were provided in the BuildRequest, so these UI behaviors are not requested by the spec.",
+      "evidence": [
+        "frontend/src/components/EditTaskDialog.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Global styling/theme overhaul using OKLCH variables and adding 20 field card background color tokens; opacity fixes for dialog surfaces/overlays.",
+      "reason": "No requirements were provided in the BuildRequest, so the theme/styling changes are not requested by the spec.",
+      "evidence": [
+        "frontend/src/index.css",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Frontend boot orchestration, error recovery flow, logout behavior, and React Query cache-clearing/invalidation improvements.",
+      "reason": "No requirements were provided in the BuildRequest, so these application-flow changes are not requested by the spec.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Dashboard additions such as Fields/All Tasks tabs, Export/Import buttons, responsive header behavior, and error boundary wrapping.",
+      "reason": "No requirements were provided in the BuildRequest, so these page-level features are not requested by the spec.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.74,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/CreateTaskDialog.tsx",
     "frontend/src/components/EditTaskDialog.tsx",
-    "frontend/src/components/TaskCard.tsx",
+    "frontend/src/index.css",
     "project_state.json"
   ]
 }

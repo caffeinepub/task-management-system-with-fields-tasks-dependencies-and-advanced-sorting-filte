@@ -2,40 +2,14 @@
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
   "summary": "New project",
-  "architectural_notes": [
-    "UI styling: task card and modal should not be transparent; use a solid background consistently across all usages."
-  ],
+  "architectural_notes": [],
   "known_issues": [
-    "Task card and modal backgrounds are currently transparent, causing confusing bleed-through of content behind them."
+    "Edit task view/modal still has a transparent background (can see through), expected solid background."
   ],
   "isFixRequest": true,
-  "existing_features": [
-    {
-      "id": "feature-make-every-taskcard-render-with-a-solid-non-transparent-background-in-both-light-and-dark-themes-so-content-behind-the-card-does-not-bleed-through",
-      "title": "Make every TaskCard render with a solid, non-transparent background in both light and dark themes so content behind the card does not bleed through.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-all-task-related-modal-dialogs-use-a-solid-non-transparent-background-everywhere-they-appear-including-create-task-dialog-edit-task-dialog-and-the-delete-task-confirmation-dialog",
-      "title": "Ensure all task-related modal dialogs use a solid, non-transparent background everywhere they appear, including: Create Task dialog, Edit Task dialog, and the Delete Task confirmation dialog.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    }
-  ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Fix transparent backgrounds: make task card and modal use a solid (non-transparent) background everywhere they appear",
-      "reqIds": [],
-      "status": "in_progress"
-    }
-  ],
-  "projectName": "Fix transparent backgrounds on task cards and task modals",
+  "existing_features": [],
+  "new_feature_requests": [],
+  "projectName": "Untitled request",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

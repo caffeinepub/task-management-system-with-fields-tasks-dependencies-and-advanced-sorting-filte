@@ -1,51 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix opaque surfaces for TaskCard and task modals (light/dark)",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "summary": "Ensure TaskCard always renders with an opaque (non-transparent) card surface in light and dark themes, including hover/focus states.",
-      "acceptanceCriteria": [
-        "In light theme, each task card has an opaque background (no page content visible through the card).",
-        "In dark theme, each task card has an opaque background (no page content visible through the card).",
-        "Hover/focus styles still work and do not reintroduce transparency."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Update the shadcn-ui Card usage to explicitly apply opaque background/text surface classes (e.g., using theme tokens like card/popover with full opacity) so the task content behind never bleeds through in light/dark, and ensure hover/focus styles don’t introduce alpha. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Make all task-related modal dialog surfaces (Create, Edit, Delete confirmation) render with an opaque background in light and dark themes everywhere they are used.",
-      "acceptanceCriteria": [
-        "Create Task dialog content is opaque (no underlying UI visible through the modal surface).",
-        "Edit Task dialog content is opaque (no underlying UI visible through the modal surface).",
-        "Delete Task confirmation dialog content is opaque (no underlying UI visible through the modal surface).",
-        "The fix applies consistently anywhere these dialogs are opened in the app.",
-        "Modal readability is maintained in both light and dark themes (text remains legible against the new solid background)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/CreateTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Adjust the shadcn-ui DialogContent usage to explicitly set an opaque modal surface background and appropriate foreground text colors for both themes (avoid any transparent/alpha backgrounds). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/EditTaskDialog.tsx",
-          "operation": "modify",
-          "description": "Adjust the shadcn-ui DialogContent usage to explicitly set an opaque modal surface background and appropriate foreground text colors for both themes (avoid any transparent/alpha backgrounds). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Update the shadcn-ui AlertDialogContent (Delete Task confirmation) usage to apply an explicit opaque surface background and foreground text colors, ensuring the dialog surface itself is not transparent in light/dark themes. Verify the component's usage instructions before implementing."
-        }
-      ]
-    }
-  ]
+  "title": "Untitled request",
+  "requirements": []
 }
