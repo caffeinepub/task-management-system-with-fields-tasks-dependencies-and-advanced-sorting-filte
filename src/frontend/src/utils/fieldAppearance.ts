@@ -1,5 +1,5 @@
-import * as LucideIcons from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { LUCIDE_ICON_MAP, FALLBACK_ICON } from './lucideIconMap';
 
 // Predefined icon IDs (using lucide-react icon names) - 100 hand-picked icons
 export const PREDEFINED_ICONS = [
@@ -41,7 +41,7 @@ export const PREDEFINED_ICONS = [
   'Calendar',
   'Clock',
   'Timer',
-  'Alarm',
+  'AlarmClock',
   'Bell',
   'Mail',
   'MessageCircle',
@@ -53,7 +53,6 @@ export const PREDEFINED_ICONS = [
   'Lock',
   'Key',
   'Settings',
-  'Tool',
   'Wrench',
   'Hammer',
   'Scissors',
@@ -127,25 +126,24 @@ export type ColorId = typeof PREDEFINED_COLORS[number]['id'];
 export const DEFAULT_ICON: IconId = 'Briefcase';
 export const DEFAULT_COLOR_ID: ColorId = 'blue';
 
-// Safe icon resolver: returns the icon component if valid, null if not found
+/**
+ * Safe icon resolver: returns the icon component if valid, null if not found.
+ * Uses the explicit icon map to ensure production builds work correctly.
+ */
 export function safeGetIconComponent(iconId: string): LucideIcon | null {
-  if (iconId in LucideIcons) {
-    const component = (LucideIcons as any)[iconId];
-    // Additional check: ensure it's actually a component (function)
-    if (typeof component === 'function') {
-      return component as LucideIcon;
-    }
-  }
-  return null;
+  return LUCIDE_ICON_MAP[iconId] || null;
 }
 
-// Get icon component from icon ID (with fallback to default)
+/**
+ * Get icon component from icon ID (with fallback to default).
+ * Uses the explicit icon map to ensure production builds work correctly.
+ */
 export function getIconComponent(iconId: string): LucideIcon {
-  const component = safeGetIconComponent(iconId);
+  const component = LUCIDE_ICON_MAP[iconId];
   if (component) return component;
   
   // Fallback to default icon
-  return (LucideIcons as any)[DEFAULT_ICON] as LucideIcon;
+  return LUCIDE_ICON_MAP[DEFAULT_ICON] || FALLBACK_ICON;
 }
 
 // Get color value from color ID

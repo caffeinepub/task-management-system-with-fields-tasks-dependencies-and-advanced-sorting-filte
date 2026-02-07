@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useGetTasksByField, useDeleteField } from '../hooks/useQueries';
+import { useGetTasksByField, useDeleteField, useGetAllFields } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +37,7 @@ type SortOption = 'name' | 'urgency' | 'value' | 'interest' | 'influence' | 'dur
 
 export default function FieldDetailView({ field, onBack }: FieldDetailViewProps) {
   const { data: tasks = [], isLoading } = useGetTasksByField(field.id);
+  const { data: allFields = [] } = useGetAllFields();
   const deleteFieldMutation = useDeleteField();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editFieldDialogOpen, setEditFieldDialogOpen] = useState(false);
@@ -204,7 +205,13 @@ export default function FieldDetailView({ field, onBack }: FieldDetailViewProps)
       ) : (
         <div className="space-y-4">
           {filteredAndSortedTasks.map((task) => (
-            <TaskCard key={task.id} task={task} fieldId={field.id} allTasks={tasks} />
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              fieldId={field.id} 
+              allTasks={tasks}
+              fieldTag={field.name}
+            />
           ))}
         </div>
       )}

@@ -1,23 +1,51 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T07:57:27.228Z",
+  "generatedAt": "2026-02-07T06:45:59.482Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 0,
-    "implemented": 0,
-    "items": []
+    "total": 2,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Restore Heroicons as the app’s predefined icon set and ensure icons render correctly across the project, including field icon rendering and icons shown inside dialogs/alerts/buttons.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/package.json",
+          "frontend/src/utils/heroiconsIconMap.ts",
+          "frontend/src/utils/fieldAppearance.ts",
+          "frontend/src/components/EditFieldDialog.tsx",
+          "frontend/src/components/FieldCard.tsx",
+          "frontend/src/components/CreateFieldDialog.tsx",
+          "frontend/src/components/ProfileSetupModal.tsx",
+          "frontend/src/components/ImportDataConfirmDialog.tsx",
+          "frontend/src/components/TaskCard.tsx",
+          "frontend/src/utils/lucideIconMap.ts"
+        ],
+        "matchedFiles": []
+      }
+    ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/EditTaskDialog.tsx",
     "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",

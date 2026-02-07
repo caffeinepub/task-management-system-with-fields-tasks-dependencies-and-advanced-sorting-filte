@@ -1,4 +1,24 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-apply-a-global-non-transparent-styling-fix-to-all-modal-popup-overlays-and-modal-popup-content-current-and-future-so-that-dialogs-are-not-visually-transparent-in-either-light-or-dark-mode",
+      "featureTitle": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+      "files": [
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

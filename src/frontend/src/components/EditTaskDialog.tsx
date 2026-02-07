@@ -3,6 +3,7 @@ import { useUpdateTask, useMoveTaskToField, useGetAllFields } from '../hooks/use
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -201,11 +202,20 @@ export default function EditTaskDialog({
   const availableTasks = existingTasks.filter((t) => t.id !== task.id);
   const isProcessing = updateTask.isPending || moveTask.isPending;
 
+  // Get the currently selected field for the tag
+  const currentField = allFields.find(f => f.id === selectedFieldId);
+  const currentFieldName = currentField?.name || 'Unknown Field';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!bg-popover !text-popover-foreground max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Task</DialogTitle>
+          <div className="flex items-center gap-2">
+            <DialogTitle>Edit Task</DialogTitle>
+            <Badge variant="secondary" className="text-xs">
+              {currentFieldName}
+            </Badge>
+          </div>
           <DialogDescription>
             Update task attributes (1-5 scale), move to a different field, and manage dependencies.
           </DialogDescription>

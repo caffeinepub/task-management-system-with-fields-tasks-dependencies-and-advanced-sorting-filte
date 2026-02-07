@@ -15,7 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Field } from '../backend';
 import { PREDEFINED_ICONS, PREDEFINED_COLORS, getIconComponent, getColorById, safeGetIconComponent } from '../utils/fieldAppearance';
 import { FIELD_CARD_BACKGROUNDS, getBackgroundById, getBackgroundCssVar, type BackgroundColorId } from '../utils/fieldCardBackgrounds';
-import { HelpCircle } from 'lucide-react';
+import { FALLBACK_ICON } from '../utils/lucideIconMap';
 
 interface EditFieldDialogProps {
   open: boolean;
@@ -102,13 +102,11 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
               <ScrollArea className="h-64 border rounded-lg p-3">
                 <div className="grid grid-cols-8 gap-2">
                   {PREDEFINED_ICONS.map((iconName) => {
-                    // Safely resolve icon component
+                    // Safely resolve icon component using production-safe map
                     const IconComponent = safeGetIconComponent(iconName);
                     
-                    // Skip icons that don't exist in the bundle
-                    if (!IconComponent) {
-                      return null;
-                    }
+                    // Use fallback icon if the icon doesn't exist
+                    const DisplayIcon = IconComponent || FALLBACK_ICON;
                     
                     const isSelected = selectedIcon === iconName;
                     return (
@@ -123,7 +121,7 @@ export default function EditFieldDialog({ open, onOpenChange, field }: EditField
                         `}
                         title={iconName}
                       >
-                        <IconComponent size={20} />
+                        <DisplayIcon size={20} />
                       </button>
                     );
                   })}

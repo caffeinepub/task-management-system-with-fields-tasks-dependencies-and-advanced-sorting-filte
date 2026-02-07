@@ -1,69 +1,39 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T07:57:27.226Z",
-  "summary": "BuildRequest contained no explicit requirements or acceptance criteria, so no missing requirements can be identified. The diff introduces multiple new behaviors/features across backend and frontend (authorization, user profiles, field/task enhancements, UI styling changes), which are not traceable to any stated request.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-07T06:45:59.480Z",
+  "summary": "The diff shows a global CSS effort toward fixing modal transparency via Radix selectors in `frontend/src/index.css`, but there are no concrete code changes shown that restore Heroicons usage/rendering across the app. Additionally, the diff introduces/updates documentation-like summaries describing many unrelated frontend enhancements that were not requested.",
+  "missing_requirements": [
     {
-      "description": "Added/expanded backend authorization and role/permission gating for user access.",
-      "reason": "No requirements were provided in the BuildRequest, so implementing authorization logic is not requested by the spec.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Added user profile functionality (get/save caller profile, get other user profile with admin/self restriction).",
-      "reason": "No requirements were provided in the BuildRequest, so adding user profile APIs/UI is not requested by the spec.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Implemented/expanded field creation/update to include icon, color, and backgroundColor plus additional field statistics (avg* and duration totals).",
-      "reason": "No requirements were provided in the BuildRequest, so adding these field properties/statistics is not requested by the spec.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "UI changes for task editing/creation including 1–5 scale inputs, duration unit conversions/clearing, dependency management, and moving tasks between fields.",
-      "reason": "No requirements were provided in the BuildRequest, so these UI behaviors are not requested by the spec.",
-      "evidence": [
-        "frontend/src/components/EditTaskDialog.tsx",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Global styling/theme overhaul using OKLCH variables and adding 20 field card background color tokens; opacity fixes for dialog surfaces/overlays.",
-      "reason": "No requirements were provided in the BuildRequest, so the theme/styling changes are not requested by the spec.",
+      "id": "REQ-2",
+      "requirement": "Restore Heroicons as the app’s predefined icon set and ensure icons render correctly across the project, including field icon rendering and icons shown inside dialogs/alerts/buttons.",
+      "reason": "Only `frontend/src/index.css`, `frontend-file-summaries.txt`, and `project_state.json` were modified. The provided diff content contains no actual implementation changes for icon presets, Heroicons imports/mapping, or dynamic icon resolution—only narrative descriptions in `frontend-file-summaries.txt`.",
       "evidence": [
         "frontend/src/index.css",
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt",
+        "project_state.json"
       ]
-    },
+    }
+  ],
+  "hallucinated_features": [
     {
-      "description": "Frontend boot orchestration, error recovery flow, logout behavior, and React Query cache-clearing/invalidation improvements.",
-      "reason": "No requirements were provided in the BuildRequest, so these application-flow changes are not requested by the spec.",
+      "description": "Broad frontend behavior changes (boot orchestration, retry logic, logout from error screen, stage-aware boot error handling, recovery flow for stopped-canister scenarios).",
+      "reason": "These changes are described in `frontend-file-summaries.txt` but are not part of the BuildRequest’s scope (only modal opacity + Heroicons restoration). The diff evidence provided shows only summary/documentation updates rather than requested feature-focused implementation.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Dashboard additions such as Fields/All Tasks tabs, Export/Import buttons, responsive header behavior, and error boundary wrapping.",
-      "reason": "No requirements were provided in the BuildRequest, so these page-level features are not requested by the spec.",
+      "description": "New/expanded UI features unrelated to the request (e.g., field backgroundColor handling, new pickers for 20 background colors / 100 icons, task list enhancements, duration badges, field tag rendering, import/export guard changes).",
+      "reason": "These are not requested (non-goals: no new product features beyond fixing modal opacity and restoring Heroicons), yet they are described as implemented in `frontend-file-summaries.txt`.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.66,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/EditTaskDialog.tsx",
     "frontend/src/index.css",
     "project_state.json"
   ]

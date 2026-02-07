@@ -112,11 +112,12 @@
   }
 }
 
-/* Make Dialog and AlertDialog overlays and content fully opaque */
+/* Global modal opacity fix using robust Radix data-attribute selectors */
 @layer components {
+  /* Target Radix Dialog and AlertDialog overlays using data-state attribute */
   [data-radix-dialog-overlay],
   [data-radix-alert-dialog-overlay] {
-    background-color: oklch(0% 0 0 / 0.8) !important;
+    background-color: oklch(0% 0 0 / 0.75) !important;
   }
 
   .dark [data-radix-dialog-overlay],
@@ -124,9 +125,28 @@
     background-color: oklch(0% 0 0 / 0.85) !important;
   }
 
-  /* Ensure dialog content has opaque background */
+  /* Ensure dialog content has fully opaque background using theme tokens */
   [data-radix-dialog-content],
   [data-radix-alert-dialog-content] {
     background-color: hsl(var(--popover)) !important;
+    color: hsl(var(--popover-foreground)) !important;
+  }
+
+  /* Additional fallback using role attribute for maximum compatibility */
+  [role="dialog"],
+  [role="alertdialog"] {
+    background-color: hsl(var(--popover)) !important;
+    color: hsl(var(--popover-foreground)) !important;
+  }
+
+  /* Target overlay by role for additional coverage */
+  [role="dialog"] ~ [data-state],
+  [role="alertdialog"] ~ [data-state] {
+    background-color: oklch(0% 0 0 / 0.75) !important;
+  }
+
+  .dark [role="dialog"] ~ [data-state],
+  .dark [role="alertdialog"] ~ [data-state] {
+    background-color: oklch(0% 0 0 / 0.85) !important;
   }
 }

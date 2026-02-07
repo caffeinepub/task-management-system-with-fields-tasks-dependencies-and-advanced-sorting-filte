@@ -5,7 +5,8 @@ import type { Field } from '../backend';
 import { useGetTasksByField } from '../hooks/useQueries';
 import { formatTotalDuration } from '../utils/duration';
 import { getIconComponent, getColorValue } from '../utils/fieldAppearance';
-import { getBackgroundCssVar } from '../utils/fieldCardBackgrounds';
+import { getSoftCardBackground, getSoftIconChipBackground } from '../utils/softColorTint';
+import { useTheme } from 'next-themes';
 
 interface FieldCardProps {
   field: Field;
@@ -14,88 +15,92 @@ interface FieldCardProps {
 
 export default function FieldCard({ field, onClick }: FieldCardProps) {
   const { data: tasks = [] } = useGetTasksByField(field.id);
+  const { resolvedTheme } = useTheme();
 
   const attributes = [
     { 
+      icon: Thermometer, 
       label: 'Urgency', 
-      value: Number(field.avgUrgency), 
-      color: 'text-red-600 dark:text-red-400',
-      icon: Thermometer
+      value: field.avgUrgency,
+      color: '#EF4444'
     },
     { 
+      icon: DollarSign, 
       label: 'Value', 
-      value: Number(field.avgValue), 
-      color: 'text-green-600 dark:text-green-400',
-      icon: DollarSign
+      value: field.avgValue,
+      color: '#10B981'
     },
     { 
+      icon: Heart, 
       label: 'Interest', 
-      value: Number(field.avgInterest), 
-      color: 'text-blue-600 dark:text-blue-400',
-      icon: Heart
+      value: field.avgInterest,
+      color: '#EC4899'
     },
     { 
+      icon: Megaphone, 
       label: 'Influence', 
-      value: Number(field.avgInfluence), 
-      color: 'text-purple-600 dark:text-purple-400',
-      icon: Megaphone
-    },
-    { 
-      label: 'Duration', 
-      value: formatTotalDuration(Number(field.totalActiveTaskDuration)), 
-      color: 'text-orange-600 dark:text-orange-400',
-      icon: Hourglass
+      value: field.avgInfluence,
+      color: '#8B5CF6'
     },
   ];
 
   const FieldIcon = getIconComponent(field.icon);
-  const fieldColor = getColorValue(field.color);
-  const backgroundColor = getBackgroundCssVar(field.backgroundColor);
+  const iconColor = getColorValue(field.color);
+  const isDark = resolvedTheme === 'dark';
+  
+  const cardBgColor = getSoftCardBackground(field.color, isDark);
+  const iconChipBgColor = getSoftIconChipBackground(field.color, isDark);
 
   return (
-    <Card
-      className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
+    <Card 
+      className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] border-2"
       onClick={onClick}
-      style={{ backgroundColor }}
+      style={{ 
+        backgroundColor: cardBgColor,
+        borderColor: iconColor + '20'
+      }}
     >
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3 flex-1">
+          <div className="flex items-center gap-3">
             <div 
-              className="flex items-center justify-center w-10 h-10 rounded-lg"
-              style={{ backgroundColor: `${fieldColor}20` }}
+              className="flex h-12 w-12 items-center justify-center rounded-lg"
+              style={{ 
+                backgroundColor: iconChipBgColor,
+              }}
             >
-              <div style={{ color: fieldColor }}>
-                <FieldIcon size={20} />
-              </div>
+              <FieldIcon size={24} style={{ color: iconColor }} />
             </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="line-clamp-1">{field.name}</CardTitle>
+            <div>
+              <CardTitle className="text-xl">{field.name}</CardTitle>
               <CardDescription className="mt-1">
-                {tasks.length} active {tasks.length === 1 ? 'task' : 'tasks'}
+                {Number(field.taskCount)} active {Number(field.taskCount) === 1 ? 'task' : 'tasks'}
               </CardDescription>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
         </div>
       </CardHeader>
       <CardContent>
-        {/* 3-column grid that wraps automatically */}
-        <div className="grid grid-cols-3 gap-3">
-          {attributes.map((attr) => {
-            const Icon = attr.icon;
-            return (
-              <div key={attr.label} className="flex flex-col items-center justify-center text-sm">
-                <span className="text-muted-foreground flex items-center gap-1.5 mb-1">
-                  <Icon className="h-4 w-4" />
-                  <span className="text-xs">{attr.label}</span>
-                </span>
-                <Badge variant="outline" className={attr.color}>
-                  {attr.value}
-                </Badge>
-              </div>
-            );
-          })}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Hourglass className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              Total Duration: {formatTotalDuration(Number(field.totalActiveTaskDuration))}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {attributes.map((attr) => (
+              <Badge 
+                key={attr.label} 
+                variant="outline" 
+                className="flex items-center gap-1.5 justify-center py-1.5"
+              >
+                <attr.icon className="h-3.5 w-3.5" style={{ color: attr.color }} />
+                <span className="text-xs">{attr.label}: {Number(attr.value)}</span>
+              </Badge>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -213,7 +213,7 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-popover text-popover-foreground">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Task</AlertDialogTitle>
             <AlertDialogDescription>
