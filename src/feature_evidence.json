@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-apply-a-global-non-transparent-styling-fix-to-all-modal-popup-overlays-and-modal-popup-content-current-and-future-so-that-dialogs-are-not-visually-transparent-in-either-light-or-dark-mode",
-      "featureTitle": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+      "featureId": "feature-prevent-the-post-login-dashboard-render-crash-by-ensuring-fieldcard-only-passes-valid-hex-colors-into-soft-tint-helpers-and-falls-back-to-the-app-default-color-when-the-stored-field-color-is-not-a-hex-value",
+      "featureTitle": "Prevent the post-login dashboard render crash by ensuring FieldCard only passes valid hex colors into soft tint helpers and falls back to the app default color when the stored field color is not a hex value.",
       "files": [
-        "frontend/src/index.css"
+        "frontend/src/components/FieldCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +16,26 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-soft-tint-color-utilities-resilient-if-the-provided-color-string-is-not-a-valid-6-digit-hex-color-do-not-throw-instead-use-the-app-default-color-so-the-ui-continues-rendering",
+      "featureTitle": "Make soft tint color utilities resilient: if the provided color string is not a valid 6-digit hex color, do not throw; instead use the app default color so the UI continues rendering.",
+      "files": [
+        "frontend/src/utils/softColorTint.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

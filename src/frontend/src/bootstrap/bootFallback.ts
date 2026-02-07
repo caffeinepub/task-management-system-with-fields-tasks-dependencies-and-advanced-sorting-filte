@@ -1,13 +1,14 @@
 /**
  * Boot fallback infrastructure with enhanced diagnostics that displays user-friendly error messages
  * when the application fails to start before React can mount, including sanitized error details,
- * expandable stack/cause information, and a copy-to-clipboard action.
+ * expandable stack/cause information, stage tagging, and a copy-to-clipboard action.
  */
 
 interface BootError {
   message: string;
   stack?: string;
   cause?: any;
+  stage?: string;
 }
 
 let errorDisplayed = false;
@@ -16,6 +17,9 @@ let reactRenderStarted = false;
 // Export function to mark React render as started (called synchronously during App.tsx module evaluation)
 export function markReactRenderStarted() {
   reactRenderStarted = true;
+  if (window.__BOOT_DIAGNOSTICS__) {
+    window.__BOOT_DIAGNOSTICS__.stage = 'react-render-started';
+  }
   console.log('[Bootstrap] React render started, boot fallback disabled');
 }
 
@@ -26,6 +30,14 @@ function sanitizeText(text: string): string {
     return text.substring(0, maxLength) + '...';
   }
   return text;
+}
+
+function getCurrentStage(): string {
+  return window.__BOOT_DIAGNOSTICS__?.stage || 'unknown';
+}
+
+function getBuildMarker(): string {
+  return window.__BOOT_DIAGNOSTICS__?.buildMarker || 'unknown';
 }
 
 function displayBootError(error: BootError) {
@@ -39,14 +51,19 @@ function displayBootError(error: BootError) {
   if (errorDisplayed) return;
   errorDisplayed = true;
 
-  // Log detailed error to console
-  console.error('[Boot Error] Application failed to start:', error);
+  // Capture stage at time of error
+  const errorStage = error.stage || getCurrentStage();
+  const buildMarker = getBuildMarker();
+
+  // Log detailed error to console with stage information
+  console.error(`[Boot Error] Application failed at stage: ${errorStage}`, error);
   if (error.stack) {
     console.error('[Boot Error] Stack trace:', error.stack);
   }
   if (error.cause) {
     console.error('[Boot Error] Cause:', error.cause);
   }
+  console.error(`[Boot Error] Build marker: ${buildMarker}`);
 
   // Get or create root container
   const root = document.getElementById('root');
@@ -60,8 +77,11 @@ function displayBootError(error: BootError) {
   const sanitizedStack = error.stack ? sanitizeText(error.stack) : null;
   const sanitizedCause = error.cause ? sanitizeText(String(error.cause)) : null;
 
-  // Build plain-text payload for copying
+  // Build plain-text payload for copying with stage and build info
   const copyPayload = [
+    `Stage: ${errorStage}`,
+    `Build: ${buildMarker}`,
+    '',
     'Error Message:',
     sanitizedMessage,
     sanitizedStack ? '\n\nStack Trace:\n' + sanitizedStack : '',
@@ -127,6 +147,20 @@ function displayBootError(error: BootError) {
     line-height: 1.5;
   `;
   description.textContent = 'An unexpected error occurred while starting the application.';
+
+  // Stage badge
+  const stageBadge = document.createElement('div');
+  stageBadge.style.cssText = `
+    display: inline-block;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  `;
+  stageBadge.textContent = `Stage: ${errorStage}`;
 
   // Error message box
   const errorBox = document.createElement('div');
@@ -364,6 +398,7 @@ function displayBootError(error: BootError) {
   card.appendChild(iconContainer);
   card.appendChild(title);
   card.appendChild(description);
+  card.appendChild(stageBadge);
   card.appendChild(errorBox);
   card.appendChild(detailsSection);
   card.appendChild(copyButton);
@@ -383,6 +418,7 @@ window.addEventListener('error', (event) => {
       message: event.message || 'Unknown error',
       stack: event.error?.stack,
       cause: event.error?.cause,
+      stage: getCurrentStage(),
     });
   } else {
     // Log but don't override React app
@@ -397,6 +433,7 @@ window.addEventListener('unhandledrejection', (event) => {
       message: event.reason?.message || String(event.reason) || 'Unhandled promise rejection',
       stack: event.reason?.stack,
       cause: event.reason?.cause,
+      stage: getCurrentStage(),
     });
   } else {
     // Log but don't override React app

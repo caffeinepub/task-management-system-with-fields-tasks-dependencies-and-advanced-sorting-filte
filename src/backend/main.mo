@@ -83,7 +83,7 @@ actor {
   func requireUserPermission(caller : Principal) {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Only users can access");
+      Runtime.trap("Users only");
     };
   };
 
@@ -99,7 +99,7 @@ actor {
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     ensureUserRole(caller);
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Can only view your own profile");
+      Runtime.trap("View own profiles only");
     };
     userProfiles.get(user);
   };
@@ -139,7 +139,7 @@ actor {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Only own fields can be updated");
+          Runtime.trap("Update own fields only");
         };
         let updatedField : Field = {
           id = field.id;
@@ -187,7 +187,7 @@ actor {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Only own tasks can be created");
+          Runtime.trap("Create own tasks only");
         };
       };
     };
@@ -229,7 +229,7 @@ actor {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Can only update own tasks");
+          Runtime.trap("Update own tasks only");
         };
         let durationInMinutes = convertToMinutes(duration, durationUnit);
         let updatedTask : Task = {
@@ -268,7 +268,7 @@ actor {
       case (null) { Runtime.trap("Target field not found") };
       case (?field) {
         if (field.createdBy != caller) {
-          Runtime.trap("Can only move tasks to own fields");
+          Runtime.trap("Move tasks to own fields only");
         };
       };
     };
@@ -298,7 +298,7 @@ actor {
       case (null) { Runtime.trap("Task not found") };
       case (?task) {
         if (task.createdBy != caller) {
-          Runtime.trap("Completion: own tasks only");
+          Runtime.trap("Complete: own tasks only");
         };
         let updatedTask : Task = {
           id = task.id;
@@ -370,12 +370,11 @@ actor {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Delete: own fields only (or admin)");
+          Runtime.trap("Delete own fields only");
         };
       };
     };
 
-    // Remove only tasks linked to the deleted field
     let filteredTasks = tasks.entries().foldLeft(
       Map.empty<TaskId, Task>(),
       func(acc, (id, task)) {
@@ -384,7 +383,6 @@ actor {
       },
     );
     tasks := filteredTasks;
-    // Remove dependencies that reference deleted tasks
     for ((taskId, task) in tasks.entries()) {
       let filteredDependencies = task.dependencies.filter(func(depId) {
         switch (tasks.get(depId)) {
@@ -400,7 +398,7 @@ actor {
   public query ({ caller }) func getAllFields() : async [Field] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Only users can access fields");
+      Runtime.trap("Users only");
     };
     if (AccessControl.isAdmin(accessControlState, caller)) {
       fields.values().toArray();
@@ -432,7 +430,7 @@ actor {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Task access: own fields only (or admin)");
+          Runtime.trap("Get tasks: own fields only");
         };
       };
     };
@@ -444,13 +442,13 @@ actor {
   public query ({ caller }) func searchTasks(fieldId : FieldId, searchTerm : Text) : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Users can search only");
+      Runtime.trap("Users only");
     };
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Own field search only");
+          Runtime.trap("Search own fields only");
         };
       };
     };
@@ -478,13 +476,13 @@ actor {
   ) : async [Task] {
     ensureUserRole(caller);
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Restricted to users");
+      Runtime.trap("Users only");
     };
     switch (fields.get(fieldId)) {
       case (null) { Runtime.trap("Field not found") };
       case (?field) {
         if (field.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Own fields only (or admin)");
+          Runtime.trap("Filter own fields only");
         };
       };
     };
@@ -577,7 +575,6 @@ actor {
 
   public shared ({ caller }) func importUserData(payload : ExportPayload) : async () {
     requireUserPermission(caller);
-    // Remove only the caller's existing fields and tasks
     let filteredFields = fields.entries().foldLeft(
       Map.empty<FieldId, Field>(),
       func(acc, (id, field)) {
@@ -585,7 +582,6 @@ actor {
         acc;
       },
     );
-    
     let filteredTasks = tasks.entries().foldLeft(
       Map.empty<TaskId, Task>(),
       func(acc, (id, task)) {
@@ -604,7 +600,6 @@ actor {
       tasks.add(id, task);
     };
 
-    // Add imported fields and tasks (all should belong to caller)
     for (field in payload.fields.values()) {
       fields.add(field.id, field);
     };
@@ -614,4 +609,3 @@ actor {
     };
   };
 };
-

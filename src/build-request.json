@@ -1,55 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Make all modals globally non-transparent and restore Heroicons rendering",
-  "priority": "normal",
+  "title": "Fix login render crash caused by invalid field color string (\"teal\") and fall back to app default",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+      "id": "REQ-4",
+      "text": "Prevent the post-login dashboard render crash by ensuring FieldCard only passes valid hex colors into soft tint helpers and falls back to the app default color when the stored field color is not a hex value.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "recent-1"
         ],
         "quotes": [
-          "fix modals/popups to not be transparent and restore predefines icon set rendering",
-          "1. globally"
+          "Invalid hex color: teal",
+          "after clicking the login button",
+          "set to app's default"
         ]
       },
       "acceptanceCriteria": [
-        "All Dialog and AlertDialog overlays render with a clearly visible dimmed backdrop (not fully/partially transparent in a way that makes the modal hard to read) in both light and dark mode.",
-        "All Dialog and AlertDialog content surfaces render with an opaque background consistent with the app theme tokens (e.g., popover/surface) in both light and dark mode.",
-        "The fix is applied globally (i.e., no per-modal one-off requirement to make a modal readable); newly added dialogs automatically inherit the non-transparent behavior."
+        "After clicking the login button, the app no longer throws a runtime render error \"Invalid hex color: teal\".",
+        "The dashboard (including FieldCard components) renders successfully after login even if a field has color set to a non-hex string like \"teal\".",
+        "When an invalid/non-hex field color is encountered, the UI uses the app's default color value (not the invalid string) for card tinting and related styling."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Restore Heroicons as the app’s predefined icon set and ensure icons render correctly across the project, including field icon rendering and icons shown inside dialogs/alerts/buttons.",
+      "id": "REQ-5",
+      "text": "Make soft tint color utilities resilient: if the provided color string is not a valid 6-digit hex color, do not throw; instead use the app default color so the UI continues rendering.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "recent-1"
         ],
         "quotes": [
-          "Heroicons",
-          "restore predefines icon set rendering"
+          "Invalid hex color: teal",
+          "set to app's default"
         ]
       },
       "acceptanceCriteria": [
-        "Field icon presets use Heroicons identifiers and resolve to Heroicons components at runtime without missing-icon fallbacks under normal conditions.",
-        "Icons used within existing components (e.g., in CreateFieldDialog, ProfileSetupModal, ImportDataConfirmDialog) render correctly using Heroicons equivalents.",
-        "Dynamic icon resolution (e.g., selecting an icon by string ID) works in production builds (no tree-shaking-related missing icons).",
-        "No user-facing icon placeholders or broken SVGs appear in the main flows (Dashboard, Field cards, Task dialogs, Profile setup modal, Import confirmation dialog)."
+        "softColorTint helpers (card background + icon chip background) do not throw exceptions when given invalid input (e.g., \"teal\").",
+        "For invalid input, the tint helpers return a valid hex color derived from the app default color.",
+        "No React error boundary or boot fallback is triggered due to invalid color strings during normal navigation after login."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (they are read-only); achieve modal styling via global CSS overrides and/or by updating consuming components.",
-    "Keep all user-facing text in English."
+    "Do not modify files under frontend/src/components/ui (Shadcn UI components are read-only).",
+    "Do not modify immutable frontend hook files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Keep backend as a single Motoko actor; no additional backend services or databases."
   ],
   "nonGoals": [
-    "No backend (Motoko) changes.",
-    "No new product features beyond fixing modal opacity and restoring the Heroicons icon set."
+    "Adding new color themes or redesigning the UI beyond what is required to stop the crash.",
+    "Changing the set of predefined colors available in the field color picker.",
+    "Implementing new authentication providers (Internet Identity remains the only auth method)."
   ],
   "imageRequirements": {
     "required": [],

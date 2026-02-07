@@ -50,15 +50,18 @@ These tests validate the absolute minimum functionality required for production 
 **Steps:**
 1. Open production URL in browser
 2. Observe initial load behavior
-3. Check browser console for errors
+3. Check browser console for errors (F12 → Console tab)
 
 **Expected:**
 - App loads without blank screens
-- No boot errors or fallback UI appears
+- No boot errors or pre-React fallback UI appears
 - Login prompt displays correctly
 - No JavaScript errors in console
+- Build marker appears in console: `[Bootstrap] Pre-React globals initialized | env: production | build: build-...`
 
 **Record in template:** Section "Critical Path > App Load"
+
+**If this test fails, STOP and initiate rollback immediately.**
 
 ### Test 2: Internet Identity Login
 
@@ -66,32 +69,38 @@ These tests validate the absolute minimum functionality required for production 
 1. Click the "Login" button
 2. Complete Internet Identity authentication flow
 3. Observe post-login behavior
+4. Check console for stage transitions
 
 **Expected:**
 - Login button is clickable
 - Internet Identity flow completes successfully
 - After login, app shows "Initializing..." briefly (not indefinitely)
+- Console shows stage progression: `unauthenticated` → `actor-initializing` → `profile-loading` → `dashboard-ready` or `profile-setup-required`
 - No errors during login process
 
 **Record in template:** Section "Critical Path > Internet Identity Login"
+
+**If this test fails, STOP and initiate rollback immediately.**
 
 ### Test 3: Authenticated Dashboard Access
 
 **Steps:**
 1. After successful login, observe dashboard
-2. Check that existing data displays
+2. Check that existing data displays (if any exists)
 3. Verify user profile in header
-4. Check browser console
+4. Check browser console for stage marker
 
 **Expected:**
-- Dashboard loads after login
+- Dashboard loads after login (not stuck on "Initializing...")
 - Existing fields display correctly (if any exist)
 - User profile name appears in header dropdown
+- Console shows: `[App Boot] Stage: dashboard-ready`
 - No console errors in browser DevTools
+- No RecoverableBootError screen appears
 
 **Record in template:** Section "Critical Path > Authenticated Dashboard Access"
 
-**If any critical path test fails, STOP and initiate rollback procedure.**
+**If this test fails, STOP and initiate rollback immediately.**
 
 ## Core Functionality Tests
 
@@ -108,8 +117,10 @@ These tests validate essential CRUD operations and data flows.
 
 **Expected:**
 - Profile setup modal appears automatically for new users
+- Console shows: `[App Boot] Stage: profile-setup-required`
 - Profile name saves successfully
 - Profile name displays in header dropdown
+- After saving, console shows: `[App Boot] Stage: dashboard-ready`
 
 **Record in template:** Section "Core Functionality Tests > Profile Management"
 
@@ -129,6 +140,7 @@ These tests validate essential CRUD operations and data flows.
 - Creating a new field succeeds
 - New field appears in Fields tab immediately
 - Field card shows correct name, icon, and color
+- No console errors
 
 **Record in template:** Section "Core Functionality Tests > Fields CRUD"
 
@@ -148,6 +160,7 @@ These tests validate essential CRUD operations and data flows.
 - Task appears in field detail view immediately
 - Task attributes save correctly
 - Task card displays all information
+- Field metrics update (task count, duration)
 
 **Record in template:** Section "Core Functionality Tests > Tasks CRUD"
 
@@ -165,6 +178,7 @@ These tests validate essential CRUD operations and data flows.
 - Undo toast appears after marking complete (5-second window)
 - Undo button restores task to active state
 - Task reappears in active task list
+- Field metrics update correctly
 
 **Record in template:** Section "Core Functionality Tests > Tasks CRUD"
 
@@ -254,6 +268,7 @@ These tests validate essential CRUD operations and data flows.
 - Logout button in header dropdown works
 - Logout clears all cached data
 - After logout, login prompt appears
+- Console shows: `[App Boot] Stage: unauthenticated`
 - Re-login works without errors
 - Dashboard loads correctly after re-login
 
@@ -272,12 +287,14 @@ These tests validate essential CRUD operations and data flows.
 - No JavaScript errors during normal operations
 - No React warnings or errors
 - No network errors (except expected transient failures)
+- Boot diagnostics show correct stage transitions
 
 **Record in template:** Section "Browser Console Check > Console Errors"
 
 **Document:**
 - Total error count
 - Sample error messages (if any)
+- Stage markers observed
 
 ### Test 14: Pre-React Fallback UI
 
@@ -290,7 +307,9 @@ During the entire smoke test, note if the pre-React fallback UI ever appeared.
 **If fallback appeared:**
 - Document when it appeared (during boot, during runtime)
 - Verify it showed sanitized error messages
+- Verify it showed stage badge
 - Test copy-to-clipboard functionality
+- Check that build marker was included in error details
 
 **Record in template:** Section "Error Handling and Edge Cases > Pre-React Fallback UI"
 
@@ -305,8 +324,10 @@ During the entire smoke test, note if the RecoverableBootError screen ever appea
 **If error screen appeared:**
 - Document when it appeared (during boot, during runtime)
 - Verify it shows stage information
+- Verify it shows build marker
 - Test retry button (if applicable)
 - Test logout button
+- Test copy error details button
 
 **Record in template:** Section "Error Handling and Edge Cases > RecoverableBootError Screen"
 
@@ -327,6 +348,9 @@ During the entire smoke test, note if the RecoverableBootError screen ever appea
 Complete the sign-off section in the results template:
 
 - **Tested by:** Your name
+- **Date/Time:** Timestamp
+- **Production URL:** Canister URL
+- **Build Marker:** From console logs
 - **Approved by:** Team lead or reviewer
 - **Status:** APPROVED / APPROVED WITH WARNINGS / REJECTED
 - **Next Steps:** Document any follow-up actions
@@ -341,6 +365,7 @@ If tests fail, refer to the troubleshooting section in `frontend/docs/production
 - **CRUD operations fail:** Check backend canister status, verify actor initialization
 - **Data not persisting:** Check for backend state reset, verify canister IDs
 - **Console errors:** Capture full stack traces, check network tab for failed requests
+- **Stuck on "Initializing...":** Check console for stage markers, verify watchdog timeout didn't trigger
 
 ## Post-Smoke Test Actions
 

@@ -1,6 +1,6 @@
 # Production Redeploy Runbook
 
-This runbook documents the process for performing a clean, fresh production redeploy from the current repository state without introducing new features.
+This runbook documents the complete, deterministic process for performing a clean production redeploy from the current repository state.
 
 ## Purpose
 

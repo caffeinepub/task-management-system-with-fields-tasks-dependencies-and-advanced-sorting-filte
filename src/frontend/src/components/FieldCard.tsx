@@ -45,11 +45,13 @@ export default function FieldCard({ field, onClick }: FieldCardProps) {
   ];
 
   const FieldIcon = getIconComponent(field.icon);
+  // Resolve color ID to hex value (handles both color IDs like "teal" and hex values like "#14B8A6")
   const iconColor = getColorValue(field.color);
   const isDark = resolvedTheme === 'dark';
   
-  const cardBgColor = getSoftCardBackground(field.color, isDark);
-  const iconChipBgColor = getSoftIconChipBackground(field.color, isDark);
+  // Pass resolved hex color to soft tint functions
+  const cardBgColor = getSoftCardBackground(iconColor, isDark);
+  const iconChipBgColor = getSoftIconChipBackground(iconColor, isDark);
 
   return (
     <Card 

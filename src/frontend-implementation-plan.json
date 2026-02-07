@@ -1,83 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Global modal opacity fix and Heroicons restoration",
+  "title": "Fix post-login dashboard crash from invalid field color strings by validating hex and falling back to app default",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Apply a global, theme-consistent non-transparent backdrop and opaque surface styling for all Dialog and AlertDialog overlays/content.",
+      "id": "REQ-4",
+      "summary": "Ensure FieldCard only uses valid hex colors for soft tint styling and falls back to the app default when stored field color is not hex.",
       "acceptanceCriteria": [
-        "All Dialog and AlertDialog overlays render with a clearly visible dimmed backdrop (not fully/partially transparent in a way that makes the modal hard to read) in both light and dark mode.",
-        "All Dialog and AlertDialog content surfaces render with an opaque background consistent with the app theme tokens (e.g., popover/surface) in both light and dark mode.",
-        "The fix is applied globally (i.e., no per-modal one-off requirement to make a modal readable); newly added dialogs automatically inherit the non-transparent behavior."
+        "After clicking the login button, the app no longer throws a runtime render error \"Invalid hex color: teal\".",
+        "The dashboard (including FieldCard components) renders successfully after login even if a field has color set to a non-hex string like \"teal\".",
+        "When an invalid/non-hex field color is encountered, the UI uses the app's default color value (not the invalid string) for card tinting and related styling."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/components/FieldCard.tsx",
           "operation": "modify",
-          "description": "Replace the current brittle class-substring modal overrides with robust global Radix Dialog/AlertDialog selectors (e.g., data-attribute/role-based targeting) that force: (1) an explicit dimmed overlay opacity in both themes, and (2) an opaque content surface using existing theme variables (e.g., --popover/--popover-foreground). Ensure overrides are global, future-proof for newly added dialogs, and do not require editing files under frontend/src/components/ui."
+          "description": "Update FieldCard to pass a guaranteed-hex color into soft tint helpers (prefer the resolved hex from the field color palette; if the stored value is already a valid 6-digit hex, use it; otherwise fall back to the app default color). Ensure card tinting and related styling never use raw non-hex strings like \"teal\"."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Restore Heroicons as the predefined icon set, including production-safe dynamic icon resolution and updates to existing dialog/field/task icon usage.",
+      "id": "REQ-5",
+      "summary": "Make soft tint utilities non-throwing by validating input and using the app default color when input is not a valid 6-digit hex color.",
       "acceptanceCriteria": [
-        "Field icon presets use Heroicons identifiers and resolve to Heroicons components at runtime without missing-icon fallbacks under normal conditions.",
-        "Icons used within existing components (e.g., in CreateFieldDialog, ProfileSetupModal, ImportDataConfirmDialog) render correctly using Heroicons equivalents.",
-        "Dynamic icon resolution (e.g., selecting an icon by string ID) works in production builds (no tree-shaking-related missing icons).",
-        "No user-facing icon placeholders or broken SVGs appear in the main flows (Dashboard, Field cards, Task dialogs, Profile setup modal, Import confirmation dialog)."
+        "softColorTint helpers (card background + icon chip background) do not throw exceptions when given invalid input (e.g., \"teal\").",
+        "For invalid input, the tint helpers return a valid hex color derived from the app default color.",
+        "No React error boundary or boot fallback is triggered due to invalid color strings during normal navigation after login."
       ],
       "file_operations": [
         {
-          "path": "frontend/package.json",
+          "path": "frontend/src/utils/softColorTint.ts",
           "operation": "modify",
-          "description": "Add/restore the Heroicons React dependency (e.g., @heroicons/react) so the project can import Heroicons components consistently across the app."
-        },
-        {
-          "path": "frontend/src/utils/heroiconsIconMap.ts",
-          "operation": "create",
-          "description": "Create a production-safe Heroicons registry that explicitly imports the allowed Heroicons set and exports: (1) a string->component map for dynamic lookup, and (2) a fallback Heroicon for unknown IDs, preventing production build tree-shaking issues."
-        },
-        {
-          "path": "frontend/src/utils/fieldAppearance.ts",
-          "operation": "modify",
-          "description": "Switch predefined field icon IDs from Lucide names to Heroicons identifiers, and update icon resolver helpers (safeGetIconComponent/getIconComponent) to use the new Heroicons registry for production-safe dynamic resolution."
-        },
-        {
-          "path": "frontend/src/components/EditFieldDialog.tsx",
-          "operation": "modify",
-          "description": "Update the icon picker and selected icon rendering to use the Heroicons-based dynamic icon resolution and fallback icon from the new Heroicons registry (instead of lucideIconMap), ensuring no missing icons in production."
-        },
-        {
-          "path": "frontend/src/components/FieldCard.tsx",
-          "operation": "modify",
-          "description": "Replace Lucide icon imports/usages with Heroicons equivalents for field cards (field icon rendering via fieldAppearance + attribute icons), ensuring icons render correctly in the Dashboard flow."
-        },
-        {
-          "path": "frontend/src/components/CreateFieldDialog.tsx",
-          "operation": "modify",
-          "description": "Replace Lucide icons used in the dialog (e.g., login/alert/loading icons) with Heroicons equivalents to ensure consistent predefined icon rendering inside dialogs/buttons."
-        },
-        {
-          "path": "frontend/src/components/ProfileSetupModal.tsx",
-          "operation": "modify",
-          "description": "Replace Lucide status icons (alert/loading) with Heroicons equivalents to ensure icons render correctly inside the profile setup modal."
-        },
-        {
-          "path": "frontend/src/components/ImportDataConfirmDialog.tsx",
-          "operation": "modify",
-          "description": "Replace the Lucide warning icon with a Heroicons equivalent so alert/confirm dialogs consistently render the predefined icon set."
-        },
-        {
-          "path": "frontend/src/components/TaskCard.tsx",
-          "operation": "modify",
-          "description": "Replace Lucide icons used in task cards and task-related alert dialogs with Heroicons equivalents so the main task flows do not show broken SVGs or placeholders."
-        },
-        {
-          "path": "frontend/src/utils/lucideIconMap.ts",
-          "operation": "modify",
-          "description": "De-emphasize Lucide as the predefined icon source by documenting it as legacy (or limiting exports), and ensure no core flows depend on it for dynamic icon resolution after Heroicons restoration."
+          "description": "Refactor soft tint generation to be resilient: add hex validation/normalization (6-digit hex with optional leading '#') and remove throwing behavior for invalid inputs. When invalid input is detected, use the app default hex color (from the existing field appearance defaults) as the tint source so getSoftCardBackground/getSoftIconChipBackground always return a valid hex color."
         }
       ]
     }

@@ -57,11 +57,8 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
 
   const handleComplete = async () => {
     try {
-      await markCompleted.mutateAsync({ 
-        taskId: task.id, 
-        fieldId,
-        silent: true, // Don't show the default success toast
-      });
+      // Mark task as completed using the correct mutation signature
+      await markCompleted.mutateAsync(task.id);
 
       // Show undo toast for the completion
       toast.success('Task completed', {
@@ -70,10 +67,7 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
           label: 'Undo',
           onClick: async () => {
             try {
-              await undoCompletion.mutateAsync({
-                taskId: task.id,
-                fieldId,
-              });
+              await undoCompletion.mutateAsync(task.id);
               toast.success('Task restored');
             } catch (error: any) {
               const errorMessage = error?.message || 'Unknown error occurred';
@@ -88,7 +82,7 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
   };
 
   const handleDelete = () => {
-    deleteTask.mutate({ taskId: task.id, fieldId });
+    deleteTask.mutate(task.id);
     setDeleteDialogOpen(false);
   };
 
@@ -175,28 +169,31 @@ export default function TaskCard({ task, fieldId, allTasks, fieldTag }: TaskCard
                 {attributes.map((attr) => {
                   const Icon = attr.icon;
                   return (
-                    <Badge key={attr.label} variant="secondary" className={attr.color}>
-                      <Icon className="h-3 w-3 mr-1" />
-                      {attr.label}: {attr.value}
+                    <Badge
+                      key={attr.label}
+                      variant="secondary"
+                      className={`flex items-center gap-1 ${attr.color}`}
+                    >
+                      <Icon className="h-3 w-3" />
+                      <span className="text-xs font-medium">
+                        {attr.label}: {attr.value}
+                      </span>
                     </Badge>
                   );
                 })}
-                <Badge 
-                  variant="secondary" 
-                  className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
-                >
-                  <Hourglass className="h-3 w-3 mr-1" />
-                  {formatDuration(Number(task.duration), task.durationUnit)}
-                </Badge>
               </div>
 
+              {Number(task.duration) > 0 && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Hourglass className="h-4 w-4" />
+                  <span>{formatDuration(Number(task.duration), task.durationUnit)}</span>
+                </div>
+              )}
+
               {dependencyNames.length > 0 && (
-                <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <div className="flex items-start gap-1 text-sm text-muted-foreground">
                   <Link2 className="mt-0.5 h-4 w-4 shrink-0" />
-                  <div>
-                    <span className="font-medium">Dependencies:</span>{' '}
-                    {dependencyNames.join(', ')}
-                  </div>
+                  <span>Depends on: {dependencyNames.join(', ')}</span>
                 </div>
               )}
             </div>

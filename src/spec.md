@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Make all dialogs/popups fully readable by applying a global non-transparent modal style, and restore Heroicons so all predefined/dynamic icons render correctly across the app.
+**Goal:** Stop the post-login dashboard render crash caused by invalid/non-hex field color strings (e.g., "teal") by safely falling back to the app’s default color.
 
 **Planned changes:**
-- Apply global styling overrides so all Dialog/AlertDialog overlays use a clearly visible dimmed backdrop and all modal content surfaces use an opaque theme-consistent background in both light and dark mode (without editing read-only `frontend/src/components/ui` files).
-- Restore Heroicons as the predefined icon set and ensure icon presets and dynamic icon lookup by string identifier resolve to Heroicons components reliably (including production builds), across existing flows and dialogs.
+- Update FieldCard to validate stored field color values and only pass valid 6-digit hex colors into soft tint styling; otherwise use the app default color.
+- Make soft tint color utility helpers resilient by handling invalid/non-hex inputs without throwing and returning a tint derived from the app default color.
 
-**User-visible outcome:** Modals/popups are no longer see-through in light or dark mode, and icons (including field icons and icons in dialogs/buttons) display consistently without missing/broken placeholders.
+**User-visible outcome:** After clicking the login button, the dashboard renders reliably (including FieldCard styling) even when a field’s saved color is an invalid string, with the UI using the app default color instead of crashing.

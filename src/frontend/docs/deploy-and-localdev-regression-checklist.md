@@ -10,12 +10,14 @@ This checklist validates that build/boot fixes did not introduce regressions in 
 - [ ] Backend Motoko canister builds successfully: `dfx build backend`
 - [ ] No TypeScript errors in console output
 - [ ] No Motoko compilation errors
+- [ ] Build artifacts in `frontend/dist` use relative paths (not absolute)
 
 ### Deployment
 - [ ] Deploy completes successfully: `dfx deploy`
 - [ ] Backend canister deploys without errors
 - [ ] Frontend assets upload successfully
 - [ ] Canister IDs are generated and accessible
+- [ ] No "stopped canister" errors
 
 ## Redeploy-Only Scenario (No Feature Changes)
 
@@ -25,11 +27,14 @@ When redeploying without code changes (e.g., infrastructure updates, canister re
 - [ ] Build completes without errors (no new build/deploy failures)
 - [ ] No unexpected TypeScript or Motoko compilation errors
 - [ ] Deployment succeeds to target environment (local/production)
+- [ ] Console shows build marker: `[Bootstrap] Pre-React globals initialized | env: ... | build: build-...`
 
 ### Production Smoke Test
 - [ ] Production app loads successfully (no blank screens or boot errors)
+- [ ] Console shows correct stage progression during boot
 - [ ] Internet Identity login flow completes successfully
 - [ ] After login, Dashboard page loads and displays existing data
+- [ ] Console shows: `[App Boot] Stage: dashboard-ready`
 - [ ] Core flows still work post-redeploy:
   - [ ] Create new field succeeds
   - [ ] Create new task in field succeeds
@@ -38,6 +43,7 @@ When redeploying without code changes (e.g., infrastructure updates, canister re
   - [ ] Import JSON with confirmation dialog succeeds
 - [ ] No console errors during smoke test operations
 - [ ] Existing user data persists correctly after redeploy
+- [ ] No RecoverableBootError or pre-React fallback UI appears
 
 ### Rollback Readiness
 - [ ] Previous version canister ID documented (if needed for rollback)
@@ -49,21 +55,26 @@ When redeploying without code changes (e.g., infrastructure updates, canister re
 ### Anonymous/Logged Out State
 - [ ] App loads and shows login prompt (not blank page)
 - [ ] No console errors during initial load
+- [ ] Console shows: `[App Boot] Stage: unauthenticated`
 - [ ] "Initializing..." spinner shows briefly then transitions to login prompt
 - [ ] Login button is clickable and functional
 
 ### Login Flow
 - [ ] Clicking login opens Internet Identity
 - [ ] After successful login, app shows "Initializing..." briefly
+- [ ] Console shows stage progression: `actor-initializing` → `profile-loading`
 - [ ] For new users: Profile setup modal appears automatically
 - [ ] For existing users: Dashboard loads directly
 - [ ] No "You don't have a draft yet" message appears incorrectly
+- [ ] No indefinite "Initializing..." spinner (watchdog timeout works)
 
 ### Profile Setup (New Users)
 - [ ] Profile setup modal appears after first login
+- [ ] Console shows: `[App Boot] Stage: profile-setup-required`
 - [ ] Name input field is functional
 - [ ] "Save Profile" button works
 - [ ] After saving, modal closes and dashboard appears
+- [ ] Console shows: `[App Boot] Stage: dashboard-ready`
 - [ ] Profile name appears in header dropdown
 
 ## Core Functionality Tests
@@ -73,6 +84,7 @@ When redeploying without code changes (e.g., infrastructure updates, canister re
 - [ ] User profile name displays in header after login
 - [ ] Logout clears all cached data
 - [ ] After logout, login prompt appears again
+- [ ] Console shows: `[App Boot] Stage: unauthenticated` after logout
 - [ ] Re-login works without errors
 
 ### Fields CRUD
@@ -126,52 +138,95 @@ When redeploying without code changes (e.g., infrastructure updates, canister re
 - [ ] Retry successfully recovers from transient errors
 
 ### Authorization Errors
-- [ ] Attempting actions while logged out shows login prompt
-- [ ] Missing profile triggers profile setup modal
-- [ ] Unauthorized actions show clear error messages
+- [ ] Attempting actions without login shows appropriate error
+- [ ] "User is not registered" errors trigger profile setup flow
+- [ ] Authorization failures show clear error messages
 
-### Validation Errors
-- [ ] Empty field names are rejected
-- [ ] Empty task names are rejected
-- [ ] Invalid attribute values are rejected
-- [ ] Clear error messages guide user to fix issues
+### Boot Errors
+- [ ] Pre-React fallback UI displays for early boot failures
+- [ ] Pre-React fallback shows stage badge
+- [ ] Pre-React fallback shows sanitized error message
+- [ ] Pre-React fallback has working copy-to-clipboard button
+- [ ] RecoverableBootError screen displays for post-React boot failures
+- [ ] RecoverableBootError shows stage information
+- [ ] RecoverableBootError shows build marker
+- [ ] RecoverableBootError has working retry button
+- [ ] RecoverableBootError has working logout button
+- [ ] RecoverableBootError has working copy error details button
+- [ ] AppErrorBoundary catches render errors and shows fallback
+- [ ] AppErrorBoundary shows stage-tagged diagnostics
+- [ ] Watchdog timeout triggers RecoverableBootError after 15 seconds
+- [ ] Watchdog shows correct stuck reason (actor-init-timeout, profile-fetch-timeout, etc.)
 
-## Performance and UX
+### Console Diagnostics
+- [ ] Console shows clear stage transitions during boot
+- [ ] Console shows build marker on initial load
+- [ ] Console logs include stage information for errors
+- [ ] Console logs include build marker for errors
+- [ ] No unexpected errors or warnings in console during normal use
 
-### Loading States
-- [ ] Spinners appear during async operations
-- [ ] Buttons show loading state during mutations
-- [ ] No blank screens or frozen UI
-- [ ] Transitions are smooth and responsive
+## Browser Compatibility
 
-### Data Consistency
-- [ ] Field metrics update after task changes
-- [ ] Task counts are accurate
-- [ ] Duration totals are correct
-- [ ] Changes persist after page refresh
+### Desktop Browsers
+- [ ] Chrome/Edge: All features work
+- [ ] Firefox: All features work
+- [ ] Safari: All features work
 
-## Regression-Specific Checks
+### Mobile Browsers
+- [ ] Mobile Chrome: Core features work
+- [ ] Mobile Safari: Core features work
+- [ ] Responsive layout works on mobile
 
-### Boot Flow Fixes
-- [ ] No "You don't have a draft yet" message in local dev
-- [ ] Profile setup modal doesn't flash unnecessarily
-- [ ] Actor initialization completes before showing dashboard
-- [ ] Boot fallback doesn't override mounted React app
+## Performance
 
-### Actor Readiness
-- [ ] "New Field" button doesn't show "Connecting..." indefinitely
-- [ ] Mutations don't fail with "Actor not ready" errors
-- [ ] Login → profile setup → dashboard flow is seamless
-- [ ] No race conditions between actor and profile queries
+### Load Times
+- [ ] Initial page load completes in < 3 seconds
+- [ ] Login flow completes in < 5 seconds
+- [ ] Dashboard loads in < 2 seconds after login
+
+### Responsiveness
+- [ ] UI remains responsive during data operations
+- [ ] No UI freezes or hangs
+- [ ] Loading indicators show during operations
+
+## Accessibility
+
+### Keyboard Navigation
+- [ ] All interactive elements are keyboard accessible
+- [ ] Tab order is logical
+- [ ] Focus indicators are visible
+
+### Screen Readers
+- [ ] Form labels are properly associated
+- [ ] Error messages are announced
+- [ ] Loading states are announced
 
 ## Sign-Off
 
-- [ ] All checks passed
-- [ ] No regressions detected
-- [ ] Ready for deployment
+After completing this checklist:
 
-**Tested by:** _________________  
-**Date:** _________________  
-**Environment:** [ ] Local Dev  [ ] Production  
-**Deployment Type:** [ ] Feature Release  [ ] Redeploy-Only  
-**Notes:** _________________
+**Test Environment:**
+- [ ] Local development
+- [ ] Production
+
+**Test Date:** _______________
+**Tested by:** _______________
+**All tests passed:** [ ] Yes [ ] No
+
+**Issues found:**
+- Issue 1: _______________
+- Issue 2: _______________
+- Issue 3: _______________
+
+**Approval:**
+- Approved by: _______________
+- Status: [ ] APPROVED [ ] APPROVED WITH WARNINGS [ ] REJECTED
+
+**Next Steps:**
+- [ ] Document any issues found
+- [ ] Create tickets for non-blocking issues
+- [ ] Schedule follow-up testing if needed
+
+---
+
+**Note:** For production redeploys, always run the focused smoke test procedure first (`frontend/docs/production-smoke-check-procedure.md`). Use this comprehensive checklist for major releases or when smoke test reveals issues.

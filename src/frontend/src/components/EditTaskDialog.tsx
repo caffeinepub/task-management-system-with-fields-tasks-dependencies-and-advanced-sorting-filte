@@ -136,11 +136,10 @@ export default function EditTaskDialog({
           const oldFieldName = allFields.find(f => f.id === fieldId)?.name || 'previous field';
           const newFieldName = allFields.find(f => f.id === selectedFieldId)?.name || 'new field';
           
+          // Move task using the correct mutation signature
           await moveTask.mutateAsync({
             taskId: task.id,
-            oldFieldId: fieldId,
             newFieldId: selectedFieldId,
-            silent: true, // Don't show the default success toast
           });
 
           // Show undo toast for the move
@@ -152,9 +151,7 @@ export default function EditTaskDialog({
                 try {
                   await moveTask.mutateAsync({
                     taskId: task.id,
-                    oldFieldId: selectedFieldId,
                     newFieldId: fieldId,
-                    silent: true,
                   });
                   toast.success(`Task moved back to ${oldFieldName}`);
                 } catch (error: any) {
@@ -165,7 +162,7 @@ export default function EditTaskDialog({
             },
           });
         } catch (error: any) {
-          // Error is already handled by the mutation's onError with robust error handling
+          // Error is already handled by the mutation's onError
           return;
         }
       }
@@ -174,7 +171,6 @@ export default function EditTaskDialog({
       updateTask.mutate(
         {
           taskId: task.id,
-          fieldId: selectedFieldId, // Use the new field ID for cache invalidation
           name: name.trim(),
           urgency: BigInt(urgency),
           value: BigInt(value),

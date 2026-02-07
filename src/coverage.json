@@ -1,43 +1,36 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T06:45:59.482Z",
+  "generatedAt": "2026-02-07T15:18:08.265Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 1,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+        "id": "REQ-4",
+        "summary": "Prevent the post-login dashboard render crash by ensuring FieldCard only passes valid hex colors into soft tint helpers and falls back to the app default color when the stored field color is not a hex value.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/index.css"
+          "frontend/src/components/FieldCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/index.css"
+          "frontend/src/components/FieldCard.tsx"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Restore Heroicons as the app’s predefined icon set and ensure icons render correctly across the project, including field icon rendering and icons shown inside dialogs/alerts/buttons.",
-        "status": "missing",
+        "id": "REQ-5",
+        "summary": "Make soft tint color utilities resilient: if the provided color string is not a valid 6-digit hex color, do not throw; instead use the app default color so the UI continues rendering.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/package.json",
-          "frontend/src/utils/heroiconsIconMap.ts",
-          "frontend/src/utils/fieldAppearance.ts",
-          "frontend/src/components/EditFieldDialog.tsx",
-          "frontend/src/components/FieldCard.tsx",
-          "frontend/src/components/CreateFieldDialog.tsx",
-          "frontend/src/components/ProfileSetupModal.tsx",
-          "frontend/src/components/ImportDataConfirmDialog.tsx",
-          "frontend/src/components/TaskCard.tsx",
-          "frontend/src/utils/lucideIconMap.ts"
+          "frontend/src/utils/softColorTint.ts"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/utils/softColorTint.ts"
+        ]
       }
     ]
   },
@@ -46,7 +39,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/index.css",
+    "frontend/src/components/FieldCard.tsx",
+    "frontend/src/utils/softColorTint.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

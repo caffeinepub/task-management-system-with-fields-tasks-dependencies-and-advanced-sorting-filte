@@ -3,46 +3,32 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [
-    "Modal styling should be controlled globally (shared modal component / theme) to ensure consistent non-transparent backgrounds across all modals."
+    "Color utilities (e.g., hexToRgb/mixColor) only accept hex values; avoid named colors like \"teal\" and use theme/default neutral tokens instead."
   ],
   "known_issues": [
-    "Modals/popups are currently transparent when they should not be.",
-    "Heroicons predefined icon set rendering/regressed from previous behavior."
+    "Login fails after clicking the login button due to runtime render error: Invalid hex color \"teal\" (from FieldCard/getSoftCardBackground color mixing). User requests replacing \"teal\" with app default neutral color."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-apply-a-global-non-transparent-styling-fix-to-all-modal-popup-overlays-and-modal-popup-content-current-and-future-so-that-dialogs-are-not-visually-transparent-in-either-light-or-dark-mode",
-      "title": "Apply a global, non-transparent styling fix to all modal/popup overlays and modal/popup content (current and future) so that dialogs are not visually transparent in either light or dark mode.",
+      "id": "feature-prevent-the-post-login-dashboard-render-crash-by-ensuring-fieldcard-only-passes-valid-hex-colors-into-soft-tint-helpers-and-falls-back-to-the-app-default-color-when-the-stored-field-color-is-not-a-hex-value",
+      "title": "Prevent the post-login dashboard render crash by ensuring FieldCard only passes valid hex colors into soft tint helpers and falls back to the app default color when the stored field color is not a hex value.",
       "reqIds": [
-        "REQ-1"
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-soft-tint-color-utilities-resilient-if-the-provided-color-string-is-not-a-valid-6-digit-hex-color-do-not-throw-instead-use-the-app-default-color-so-the-ui-continues-rendering",
+      "title": "Make soft tint color utilities resilient: if the provided color string is not a valid 6-digit hex color, do not throw; instead use the app default color so the UI continues rendering.",
+      "reqIds": [
+        "REQ-5"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Apply a global non-transparent style to all modals/popups (current and future).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Restore Heroicons as the predefined icon set and fix its rendering across the project.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Restore Heroicons as the app’s predefined icon set and ensure icons render correctly across the project, including field icon rendering and icons shown inside dialogs/alerts/buttons.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Make all modals globally non-transparent and restore Heroicons rendering",
+  "new_feature_requests": [],
+  "projectName": "Fix login render crash caused by invalid field color string (\"teal\") and fall back to app default",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
